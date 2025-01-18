@@ -1,6 +1,6 @@
 +++
 date = '2025-01-18T16:25:48+05:30'
-draft = true
+draft = false
 title = 'About'
 [params]
     author = 'Zuhaib Ul Zamann'

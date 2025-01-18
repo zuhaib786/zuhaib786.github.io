@@ -1,5 +1,5 @@
 +++ 
-draft = true
+draft = false
 date = 2025-01-18T22:13:31+05:30
 title = "Camera Callibration"
 description = "An introduction to the technique of camera callibration using Zhang's Algorithm"
