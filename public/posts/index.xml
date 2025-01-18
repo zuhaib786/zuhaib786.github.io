@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Zuhaib Ul Zamann</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on Zuhaib Ul Zamann</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 18 Jan 2025 22:13:31 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Camera Callibration</title>
+      <link>http://localhost:1313/posts/camera-callibration/</link>
+      <pubDate>Sat, 18 Jan 2025 22:13:31 +0530</pubDate>
+      <guid>http://localhost:1313/posts/camera-callibration/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;&#xA;  Introduction&#xA;  &lt;a class=&#34;heading-link&#34; href=&#34;#introduction&#34;&gt;&#xA;    &lt;i class=&#34;fa-solid fa-link&#34; aria-hidden=&#34;true&#34; title=&#34;Link to heading&#34;&gt;&lt;/i&gt;&#xA;    &lt;span class=&#34;sr-only&#34;&gt;Link to heading&lt;/span&gt;&#xA;  &lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;In this blog, we will know about a basic pinhole camera. We will know what camera matrix is, what are intrinsic and extrinsic parameters. We will also learn how we can find these parameters and will also provide an implementation in python for the same.&lt;/p&gt;&#xA;&lt;p&gt;So let us start&lt;/p&gt;&#xA;&lt;h2 id=&#34;pinhole-camera&#34;&gt;&#xA;  Pinhole Camera&#xA;  &lt;a class=&#34;heading-link&#34; href=&#34;#pinhole-camera&#34;&gt;&#xA;    &lt;i class=&#34;fa-solid fa-link&#34; aria-hidden=&#34;true&#34; title=&#34;Link to heading&#34;&gt;&lt;/i&gt;&#xA;    &lt;span class=&#34;sr-only&#34;&gt;Link to heading&lt;/span&gt;&#xA;  &lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;In a pinhole camera light enters through a small aperture (known as pinhole) and is projected inside of the light proof box forming an inverted image on the image plane.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

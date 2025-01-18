@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Authors on Zuhaib Ul Zamann</title>
+    <link>http://localhost:1313/authors/</link>
+    <description>Recent content in Authors on Zuhaib Ul Zamann</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 18 Jan 2025 22:13:31 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/authors/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Zuhaib Ul Zamann</title>
+      <link>http://localhost:1313/authors/zuhaib-ul-zamann/</link>
+      <pubDate>Sat, 18 Jan 2025 22:13:31 +0530</pubDate>
+      <guid>http://localhost:1313/authors/zuhaib-ul-zamann/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>
