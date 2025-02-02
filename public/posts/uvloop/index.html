@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>
+  Evaluating uvloop Performance for I/O Bound Workloads in Python · Zuhaib Ul Zamann
+</title>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+
+
+
+
+<meta name="author" content="Zuhaib Ul Zamann">
+<meta name="description" content="Writing async coroutines is a common approach for handling I/O-bound workloads in modern applications. Having worked extensively with Python&rsquo;s built-in asyncio module, I had always relied on its default event loop without considering alternatives. However, while working with the vllm library, I encountered a scenario that led me to explore different event loops.
+A quick search led me to a blog post discussing uvloop, a high-performance event loop for Python. The authors claim that uvloop is at least twice as fast as other Python asynchronous frameworks. However, their performance benchmarks primarily focus on handling thousands of parallel requests with minimal server-side processing, which may not reflect real-world workloads where some async coroutines involve CPU-intensive operations.">
+<meta name="keywords" content="blog,developer,personal">
+
+
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Evaluating uvloop Performance for I/O Bound Workloads in Python">
+  <meta name="twitter:description" content="Writing async coroutines is a common approach for handling I/O-bound workloads in modern applications. Having worked extensively with Python’s built-in asyncio module, I had always relied on its default event loop without considering alternatives. However, while working with the vllm library, I encountered a scenario that led me to explore different event loops.
+A quick search led me to a blog post discussing uvloop, a high-performance event loop for Python. The authors claim that uvloop is at least twice as fast as other Python asynchronous frameworks. However, their performance benchmarks primarily focus on handling thousands of parallel requests with minimal server-side processing, which may not reflect real-world workloads where some async coroutines involve CPU-intensive operations.">
+
+<meta property="og:url" content="http://localhost:1313/posts/uvloop/">
+  <meta property="og:site_name" content="Zuhaib Ul Zamann">
+  <meta property="og:title" content="Evaluating uvloop Performance for I/O Bound Workloads in Python">
+  <meta property="og:description" content="Writing async coroutines is a common approach for handling I/O-bound workloads in modern applications. Having worked extensively with Python’s built-in asyncio module, I had always relied on its default event loop without considering alternatives. However, while working with the vllm library, I encountered a scenario that led me to explore different event loops.
+A quick search led me to a blog post discussing uvloop, a high-performance event loop for Python. The authors claim that uvloop is at least twice as fast as other Python asynchronous frameworks. However, their performance benchmarks primarily focus on handling thousands of parallel requests with minimal server-side processing, which may not reflect real-world workloads where some async coroutines involve CPU-intensive operations.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-02-02T19:46:40+05:30">
+    <meta property="article:modified_time" content="2025-02-02T19:46:40+05:30">
+
+
+
+
+<link rel="canonical" href="http://localhost:1313/posts/uvloop/">
+
+
+<link rel="preload" href="/fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+
+
+  
+  
+  <link rel="stylesheet" href="/css/coder.css" media="screen">
+
+
+
+
+
+
+  
+    
+    
+    <link rel="stylesheet" href="/css/coder-dark.css" media="screen">
+  
+
+
+
+ 
+
+
+
+
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg" sizes="any">
+<link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/images/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+
+
+
+
+
+
+</head>
+
+
+
+
+
+
+<body class="preload-transitions colorscheme-auto">
+  
+<div class="float-container">
+    <a id="dark-mode-toggle" class="colorscheme-toggle">
+        <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+    </a>
+</div>
+
+
+  <main class="wrapper">
+    <nav class="navigation">
+  <section class="container">
+    
+    <a class="navigation-title" href="http://localhost:1313/">
+      Zuhaib Ul Zamann
+    </a>
+    
+    
+      <input type="checkbox" id="menu-toggle" />
+      <label class="menu-button float-right" for="menu-toggle">
+        <i class="fa-solid fa-bars fa-fw" aria-hidden="true"></i>
+      </label>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item">
+              <a class="navigation-link " href="/about/">About</a>
+            </li>
+          
+            <li class="navigation-item">
+              <a class="navigation-link " href="/posts/">Blog</a>
+            </li>
+          
+            <li class="navigation-item">
+              <a class="navigation-link " href="/projects/">Projects</a>
+            </li>
+          
+            <li class="navigation-item">
+              <a class="navigation-link " href="/resume/">Résumé</a>
+            </li>
+          
+        
+        
+      </ul>
+    
+  </section>
+</nav>
+
+
+    <div class="content">
+      
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">
+            <a class="title-link" href="http://localhost:1313/posts/uvloop/">
+              Evaluating uvloop Performance for I/O Bound Workloads in Python
+            </a>
+          </h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+              <time datetime="2025-02-02T19:46:40&#43;05:30">
+                February 2, 2025
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fa-solid fa-clock" aria-hidden="true"></i>
+              2-minute read
+            </span>
+          </div>
+          
+          
+          
+        </div>
+      </header>
+
+      <div class="post-content">
+        
+        <p>Writing <code>async</code> coroutines is a common approach for handling I/O-bound workloads in modern applications. Having worked extensively with Python&rsquo;s built-in <code>asyncio</code> module, I had always relied on its default event loop without considering alternatives. However, while working with the <a href="https://github.com/vllm-project/vllm/blob/f256ebe4df6757d76f1f1642d7e110268a2f8190/vllm/entrypoints/openai/api_server.py#L909C1-L909C33"  class="external-link" target="_blank" rel="noopener">vllm</a> library, I encountered a scenario that led me to explore different event loops.</p>
+<p>A quick search led me to a <a href="https://magic.io/blog/uvloop-blazing-fast-python-networking/"  class="external-link" target="_blank" rel="noopener">blog post</a> discussing uvloop, a high-performance event loop for Python. The authors claim that uvloop is at least twice as fast as other Python asynchronous frameworks. However, their performance benchmarks primarily focus on handling thousands of parallel requests with minimal server-side processing, which may not reflect real-world workloads where some async coroutines involve CPU-intensive operations.</p>
+<p>To determine whether uvloop provides meaningful performance gains in a more realistic workload, I conducted a benchmark comparing uvloop against the built-in asyncio event loop.</p>
+<h1 id="benchmarking-scenario">
+  Benchmarking Scenario
+  <a class="heading-link" href="#benchmarking-scenario">
+    <i class="fa-solid fa-link" aria-hidden="true" title="Link to heading"></i>
+    <span class="sr-only">Link to heading</span>
+  </a>
+</h1>
+<p>The following Python script benchmarks uvloop and the default asyncio event loop:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># filename: benchmark.py</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">uvloop</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Number of calls sent to the server</span>
+</span></span><span class="line"><span class="cl"><span class="n">NUM_TASKS</span><span class="o">=</span><span class="mi">1_000_000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">call</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Some I/O bound work</span>
+</span></span><span class="line"><span class="cl">    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Some CPU bound work</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_call</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">requests</span> <span class="o">=</span> <span class="p">[</span><span class="n">call</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_TASKS</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="k">await</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span><span class="n">requests</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">requests</span><span class="p">))]</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="n">event_loop_policy</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop_policy</span><span class="p">(</span><span class="n">event_loop_policy</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">loop</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">gather_call</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">builtin_loop_time</span> <span class="o">=</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">DefaultEventLoopPolicy</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="n">uvloop_time</span> <span class="o">=</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">uvloop</span><span class="o">.</span><span class="n">EventLoopPolicy</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Builtin asyncio loop: </span><span class="si">{</span><span class="n">builtin_loop_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;uvloop: </span><span class="si">{</span><span class="n">uvloop_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><h2 id="benchmark-results">
+  Benchmark Results
+  <a class="heading-link" href="#benchmark-results">
+    <i class="fa-solid fa-link" aria-hidden="true" title="Link to heading"></i>
+    <span class="sr-only">Link to heading</span>
+  </a>
+</h2>
+<h3 id="mixed-workload-io--cpu-bound">
+  Mixed Workload (I/O + CPU Bound)
+  <a class="heading-link" href="#mixed-workload-io--cpu-bound">
+    <i class="fa-solid fa-link" aria-hidden="true" title="Link to heading"></i>
+    <span class="sr-only">Link to heading</span>
+  </a>
+</h3>
+<pre tabindex="0"><code>Builtin asyncio loop: 30.4653 seconds
+uvloop: 25.1422 seconds
+</code></pre><p>Performance improvement: ~18%</p>
+<h3 id="purely-io-bound-workload-cpu-bound-portion-removed">
+  Purely I/O Bound Workload (CPU-bound portion removed)
+  <a class="heading-link" href="#purely-io-bound-workload-cpu-bound-portion-removed">
+    <i class="fa-solid fa-link" aria-hidden="true" title="Link to heading"></i>
+    <span class="sr-only">Link to heading</span>
+  </a>
+</h3>
+<pre tabindex="0"><code>Builtin asyncio loop: 14.7855 seconds
+uvloop: 10.5786 seconds
+</code></pre><p>Performance improvement: ~30%</p>
+<h2 id="conclusion">
+  Conclusion
+  <a class="heading-link" href="#conclusion">
+    <i class="fa-solid fa-link" aria-hidden="true" title="Link to heading"></i>
+    <span class="sr-only">Link to heading</span>
+  </a>
+</h2>
+<p>While <code>uvloop</code> offers notable performance improvements for asynchronous Python programs, its benefits are most significant when the workload is highly I/O-bound. If an application involves substantial CPU-bound tasks, the performance gains may be less impactful. Given that <code>uvloop</code> is not part of the Python standard library, I would only consider switching if my application were predominantly I/O-bound and required high throughput</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+        
+        
+        
+        
+      </footer>
+    </article>
+
+    
+  </section>
+
+    </div>
+
+    <footer class="footer">
+  <section class="container">
+    ©
+    
+    2025
+     Zuhaib Ul Zamann 
+    ·
+    
+    Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/" target="_blank" rel="noopener">Coder</a>.
+    
+  </section>
+</footer>
+
+  </main>
+
+  
+
+  
+  
+  <script src="/js/coder.js"></script>
+  
+
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

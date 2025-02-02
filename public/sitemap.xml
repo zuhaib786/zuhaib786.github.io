@@ -3,7 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>http://localhost:1313/</loc>
-    <lastmod>2025-01-18T22:13:31+05:30</lastmod>
+    <lastmod>2025-02-02T19:46:40+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/</loc>
+    <lastmod>2025-02-02T19:46:40+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/uvloop/</loc>
+    <lastmod>2025-02-02T19:46:40+05:30</lastmod>
   </url><url>
     <loc>http://localhost:1313/authors/</loc>
     <lastmod>2025-01-18T22:13:31+05:30</lastmod>
@@ -18,9 +24,6 @@
     <lastmod>2025-01-18T22:13:31+05:30</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/computer-vision/</loc>
-    <lastmod>2025-01-18T22:13:31+05:30</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/</loc>
     <lastmod>2025-01-18T22:13:31+05:30</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/</loc>
