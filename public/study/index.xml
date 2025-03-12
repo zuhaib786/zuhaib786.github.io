@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Studies on Zuhaib Ul Zamann</title>
+    <link>http://localhost:1313/study/</link>
+    <description>Recent content in Studies on Zuhaib Ul Zamann</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 13 Mar 2025 01:55:49 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/study/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Chapter 2: Data Models and Query Languages</title>
+      <link>http://localhost:1313/study/system-design/ch2/</link>
+      <pubDate>Thu, 13 Mar 2025 01:55:49 +0530</pubDate>
+      <guid>http://localhost:1313/study/system-design/ch2/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Chapter 1: Reliable Scalable and Maintanable Applications</title>
+      <link>http://localhost:1313/study/system-design/ch1/</link>
+      <pubDate>Thu, 13 Mar 2025 01:03:22 +0530</pubDate>
+      <guid>http://localhost:1313/study/system-design/ch1/</guid>
+      <description>&lt;p&gt;This post is a collection of important points i have learned while reading the book &lt;strong&gt;Designing Data intensive applications&lt;/strong&gt;&#xA;Chapter-1 deals with basic description and explanation of what Reliability, Scalability and Maintainability mean.&lt;/p&gt;&#xA;&lt;h2 id=&#34;reliability&#34;&gt;&#xA;  Reliability&#xA;  &lt;a class=&#34;heading-link&#34; href=&#34;#reliability&#34;&gt;&#xA;    &lt;i class=&#34;fa-solid fa-link&#34; aria-hidden=&#34;true&#34; title=&#34;Link to heading&#34;&gt;&lt;/i&gt;&#xA;    &lt;span class=&#34;sr-only&#34;&gt;Link to heading&lt;/span&gt;&#xA;  &lt;/a&gt;&#xA;&lt;/h2&gt;&#xA;&lt;p&gt;It describes how tolerant the system is with respect to faults induced due to hardware issues/software bugs or human error. The lower the chance of cascading effect or failure of the system due to faults the more reliable the system is.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

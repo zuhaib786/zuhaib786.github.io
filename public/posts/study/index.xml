@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zuhaib Ul Zamann</title>
+    <link>http://localhost:1313/posts/study/</link>
+    <description>Recent content on Zuhaib Ul Zamann</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 04 Feb 2025 22:47:59 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/study/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Linear Algebra</title>
+      <link>http://localhost:1313/posts/study/chapter-1/</link>
+      <pubDate>Tue, 04 Feb 2025 22:47:59 +0530</pubDate>
+      <guid>http://localhost:1313/posts/study/chapter-1/</guid>
+      <description>&lt;p&gt;This document can be thought of note taking while reading the book &lt;code&gt;Deep Learning&lt;/code&gt; by Ian Goodfellow&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
