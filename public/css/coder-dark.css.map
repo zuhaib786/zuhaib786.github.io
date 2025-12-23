@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "coder-dark.css",
-	"sourceRoot": "/Users/zuhaib/Downloads/Projects/zamann",
+	"sourceRoot": "/Users/zuhaib/Downloads/Projects/zuhaib786.github.io",
 	"sources": [
 		"themes/coder/assets/scss/coder-dark.scss",
 		"themes/coder/assets/scss/_variables.scss",
