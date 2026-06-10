@@ -2,11 +2,23 @@
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import EntryRow from "../components/EntryRow.astro";
+import { getSeriesMeta, postIsVisible } from "../data/series";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
 );
 const recent = [...posts].reverse().slice(0, 4);
+
+const seriesPosts = (
+  await getCollection("series", ({ id, data }) =>
+    postIsVisible(id, data.draft),
+  )
+).sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+const recentSeries = [...seriesPosts].reverse().slice(0, 4);
+const seriesPostPath = (id: string) => {
+  const parts = id.split("/");
+  return `/series/${parts[0]}/${parts.slice(1).join("/")}`;
+};
 
 const sections = [
   {
@@ -17,18 +29,24 @@ const sections = [
   },
   {
     number: "02",
+    title: "Series",
+    href: "/series",
+    blurb: "Multi-part learning series, like working through Zig from scratch.",
+  },
+  {
+    number: "03",
     title: "Notes",
     href: "/notes",
     blurb: "Working notes and chapter summaries from books I'm studying.",
   },
   {
-    number: "03",
+    number: "04",
     title: "Projects",
     href: "/projects",
     blurb: "Selected personal and academic projects.",
   },
   {
-    number: "04",
+    number: "05",
     title: "Résumé",
     href: "/resume",
     blurb: "Education, experience and technical skills.",
@@ -84,6 +102,29 @@ const sections = [
       ))
     }
   </section>
+
+  {
+    recentSeries.length > 0 && (
+      <section class="recent">
+        <div class="recent-head">
+          <h2 class="label">Recent Series</h2>
+          <a href="/series" class="label all">
+            All series →
+          </a>
+        </div>
+        {recentSeries.map((post) => (
+          <EntryRow
+            href={seriesPostPath(post.id)}
+            number={String(seriesPosts.indexOf(post) + 1).padStart(2, "0")}
+            eyebrow={getSeriesMeta(post.id.split("/")[0])?.title}
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+          />
+        ))}
+      </section>
+    )
+  }
 </Base>
 
 <style>
@@ -123,10 +164,19 @@ const sections = [
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    /* 5 cards in a single row on desktop; the 1px gap over the rule colour
+       draws hairlines, so the grid must stay exactly filled — collapse
+       straight to one column below, never a ragged partial row. */
+    grid-template-columns: repeat(5, 1fr);
     gap: 1px;
     background: var(--rule);
     border: 1px solid var(--rule);
+  }
+
+  @media (max-width: 60rem) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .card {

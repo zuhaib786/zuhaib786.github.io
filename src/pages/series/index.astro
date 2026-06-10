@@ -1,0 +1,109 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { visibleSeries } from "../../data/series";
+
+const posts = await getCollection("series", ({ data }) => !data.draft);
+
+function postCount(slug: string) {
+  return posts.filter((p) => p.id.split("/")[0] === slug).length;
+}
+---
+
+<Base
+  title="Series — Zuhaib Ul Zamann"
+  description="Multi-part learning series — focused folders of posts on a single topic."
+>
+  <section class="listing">
+    <header>
+      <p class="label label--accent">Section 02</p>
+      <h1>Series</h1>
+      <p class="standfirst">
+        Focused, multi-part folders of posts where I work through a single
+        topic from the ground up.
+      </p>
+    </header>
+
+    <div class="grid">
+      {
+        visibleSeries.map((s) => (
+          <a href={`/series/${s.slug}`} class="card">
+            <span class="card-meta label label--accent">
+              {postCount(s.slug)}{" "}
+              {postCount(s.slug) === 1 ? "post" : "posts"}
+            </span>
+            <span class="card-title">{s.title}</span>
+            <span class="card-blurb">{s.description}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .listing {
+    padding-top: 2.5rem;
+  }
+
+  header {
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0.75rem 0;
+  }
+
+  .standfirst {
+    max-width: 38rem;
+    color: var(--ink-soft);
+  }
+
+  .grid {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .card {
+    background: var(--paper-raised);
+    padding: 1.5rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: background 120ms ease;
+  }
+
+  .card:hover {
+    background: var(--paper);
+  }
+
+  .card-meta {
+    font-size: 0.6875rem;
+  }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 1.0625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .card:hover .card-title {
+    color: var(--accent);
+  }
+
+  .card-blurb {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+</style>

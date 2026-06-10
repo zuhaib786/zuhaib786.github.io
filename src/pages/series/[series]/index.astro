@@ -1,0 +1,95 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../../layouts/Base.astro";
+import EntryRow from "../../../components/EntryRow.astro";
+import { visibleSeries } from "../../../data/series";
+
+export async function getStaticPaths() {
+  return visibleSeries.map((s) => ({
+    params: { series: s.slug },
+    props: { meta: s },
+  }));
+}
+
+const { meta } = Astro.props;
+
+const posts = (
+  await getCollection(
+    "series",
+    ({ id, data }) => id.split("/")[0] === meta.slug && !data.draft,
+  )
+).sort((a, b) => a.data.order - b.data.order);
+
+const postSlug = (id: string) => id.split("/").slice(1).join("/");
+---
+
+<Base
+  title={`${meta.title} — Zuhaib Ul Zamann`}
+  description={meta.description}
+>
+  <section class="listing">
+    <header>
+      <a href="/series" class="back label">← Series</a>
+      <h1>{meta.title}</h1>
+      <p class="standfirst">{meta.description}</p>
+    </header>
+
+    {
+      posts.length === 0 && (
+        <p class="empty">No posts in this series yet — check back soon.</p>
+      )
+    }
+
+    {
+      posts.map((post) => (
+        <EntryRow
+          href={`/series/${meta.slug}/${postSlug(post.id)}`}
+          number={String(post.data.order).padStart(2, "0")}
+          title={post.data.title}
+          description={post.data.description}
+          date={post.data.date}
+        />
+      ))
+    }
+  </section>
+</Base>
+
+<style>
+  .listing {
+    padding-top: 2.5rem;
+  }
+
+  .back {
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  header {
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.75rem;
+  }
+
+  .standfirst {
+    max-width: 38rem;
+    color: var(--ink-soft);
+  }
+
+  .empty {
+    margin-top: 2.5rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+</style>

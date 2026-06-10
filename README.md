@@ -79,6 +79,51 @@ draft: true
 
 A new `topic` value automatically creates a new group on the `/notes` page.
 
+## Adding a series (folders of posts)
+
+A **series** is a folder of related posts that gets its own page under `/series`
+— e.g. "Zig Learning". Unlike standalone articles, a whole series can be shown or
+hidden with one switch, which is handy for work-in-progress topics.
+
+Two pieces are involved:
+
+**1. Register the series** in `src/data/series.ts` (the single source of truth):
+
+```ts
+{
+  slug: "zig-learning",          // folder name + URL segment
+  title: "Zig Learning",
+  description: "Notes and small programs as I learn Zig.",
+  order: 1,
+  draft: false,                  // true = hidden from the ENTIRE site
+}
+```
+
+**2. Add posts** as markdown files in `src/content/series/<slug>/`. The filename
+is the URL (`io-in-zig.md` → `/series/zig-learning/io-in-zig`):
+
+```markdown
+---
+title: "I/O in Zig: Buffered Writers and a Tiny CLI"
+description: "One-line summary."
+date: 2026-06-10
+order: 1                # position within the series
+tags: ["Zig", "I/O"]    # optional
+draft: false            # optional; hides just this one post
+---
+
+Body in markdown (same features as articles: code, math, images)...
+```
+
+That's it — the series appears in the nav, on the homepage, and on `/series`,
+with its posts listed in `order`.
+
+**Hiding a whole series:** set `draft: true` for it in `src/data/series.ts`. The
+series and *every* post inside it then disappear completely — no nav link, no
+card, and no pages are built at all (so nothing leaks even if a post forgets its
+own `draft` flag). The `gpu-mode` series ships this way as a hidden example;
+flip its `draft` to `false` when you're ready to publish it.
+
 ## Editing other pages
 
 | What | Where |
@@ -96,9 +141,11 @@ A new `topic` value automatically creates a new group on the `/notes` page.
 ```
 src/
 ├── content/
-│   ├── blog/          ← articles (markdown)
-│   └── notes/         ← study notes (markdown)
+│   ├── blog/          ← standalone articles (markdown)
+│   ├── notes/         ← study notes (markdown)
+│   └── series/        ← folders of posts, one subfolder per series
 ├── content.config.ts  ← frontmatter schemas
+├── data/series.ts     ← series registry (titles, order, draft/hidden)
 ├── layouts/
 │   ├── Base.astro     ← <head>, header, footer wrapper
 │   └── Article.astro  ← article masthead + prose styling wrapper

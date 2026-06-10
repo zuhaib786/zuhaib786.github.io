@@ -5,9 +5,11 @@ interface Props {
   title: string;
   description?: string;
   date: Date;
+  /** optional small label above the title, e.g. the series name */
+  eyebrow?: string;
 }
 
-const { href, number, title, description, date } = Astro.props;
+const { href, number, title, description, date, eyebrow } = Astro.props;
 
 const formatted = date.toLocaleDateString("en-GB", {
   day: "2-digit",
@@ -19,6 +21,7 @@ const formatted = date.toLocaleDateString("en-GB", {
 <a href={href} class="row">
   <span class="number label label--accent">{number}</span>
   <span class="body">
+    {eyebrow && <span class="eyebrow label">{eyebrow}</span>}
     <span class="title">{title}</span>
     {description && <span class="description">{description}</span>}
   </span>
@@ -37,6 +40,12 @@ const formatted = date.toLocaleDateString("en-GB", {
   }
 
   .row:hover .title {
+    color: var(--accent);
+  }
+
+  .eyebrow {
+    display: block;
+    margin-bottom: 0.35rem;
     color: var(--accent);
   }
 
