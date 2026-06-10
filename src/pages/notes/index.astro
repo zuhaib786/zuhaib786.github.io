@@ -1,0 +1,94 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EntryRow from "../../components/EntryRow.astro";
+
+const notes = (await getCollection("notes", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const topics = [...new Set(notes.map((n) => n.data.topic))];
+---
+
+<Base
+  title="Notes — Zuhaib Ul Zamann"
+  description="Working notes and chapter summaries from books and topics under study."
+>
+  <section class="listing">
+    <header>
+      <p class="label label--accent">Section 02</p>
+      <h1>Notes</h1>
+      <p class="standfirst">
+        Working notes and chapter summaries from books and topics I'm
+        studying. Less polished than articles — these are reference material.
+      </p>
+    </header>
+
+    {
+      topics.length === 0 && (
+        <p class="empty">
+          Nothing published here yet — notes in progress will appear once
+          they're ready.
+        </p>
+      )
+    }
+
+    {
+      topics.map((topic) => (
+        <div class="topic">
+          <h2 class="label">{topic}</h2>
+          {notes
+            .filter((n) => n.data.topic === topic)
+            .map((note) => (
+              <EntryRow
+                href={`/notes/${note.id}`}
+                number={String(note.data.order).padStart(2, "0")}
+                title={note.data.title}
+                description={note.data.description}
+                date={note.data.date}
+              />
+            ))}
+        </div>
+      ))
+    }
+  </section>
+</Base>
+
+<style>
+  .listing {
+    padding-top: 2.5rem;
+  }
+
+  header {
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0.75rem 0;
+  }
+
+  .standfirst {
+    max-width: 38rem;
+    color: var(--ink-soft);
+  }
+
+  .topic {
+    margin-top: 2.5rem;
+  }
+
+  .topic > .label {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+
+  .empty {
+    margin-top: 2.5rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+</style>

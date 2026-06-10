@@ -1,0 +1,68 @@
+---
+const links = [
+  { label: "GitHub", href: "https://github.com/zuhaib786/" },
+  { label: "GitLab", href: "https://gitlab.com/zuhaibulzaman.786/" },
+  { label: "Twitter", href: "https://x.com/ZuhaibUlZaman1/" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/zuhaib-ul-zamann-0520a5190/",
+  },
+  { label: "Medium", href: "https://medium.com/@zuhaibulzaman.786" },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="page inner">
+    <div class="links">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </div>
+    <p class="colophon">
+      © {year} Zuhaib Ul Zamann · Set in IBM Plex Mono · Built with Astro
+    </p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: 6rem;
+    border-top: 1px solid var(--rule-strong);
+    background: var(--paper-raised);
+  }
+
+  .inner {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .links {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .links a {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+
+  .links a:hover {
+    color: var(--accent);
+  }
+
+  .colophon {
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+</style>

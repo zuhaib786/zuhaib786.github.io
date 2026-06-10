@@ -1,0 +1,62 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EntryRow from "../../components/EntryRow.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
+);
+const newestFirst = [...posts].reverse();
+---
+
+<Base
+  title="Writing — Zuhaib Ul Zamann"
+  description="Long-form technical articles on systems, performance and machine learning infrastructure."
+>
+  <section class="listing">
+    <header>
+      <p class="label label--accent">Section 01</p>
+      <h1>Writing</h1>
+      <p class="standfirst">
+        Long-form technical articles on systems, performance and machine
+        learning infrastructure.
+      </p>
+    </header>
+
+    {
+      newestFirst.map((post) => (
+        <EntryRow
+          href={`/blog/${post.id}`}
+          number={String(posts.indexOf(post) + 1).padStart(2, "0")}
+          title={post.data.title}
+          description={post.data.description}
+          date={post.data.date}
+        />
+      ))
+    }
+  </section>
+</Base>
+
+<style>
+  .listing {
+    padding-top: 2.5rem;
+  }
+
+  header {
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0.75rem 0;
+  }
+
+  .standfirst {
+    max-width: 38rem;
+    color: var(--ink-soft);
+  }
+</style>

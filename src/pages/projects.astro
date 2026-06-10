@@ -1,0 +1,177 @@
+---
+import Base from "../layouts/Base.astro";
+
+const projects = [
+  {
+    number: "01",
+    title: "Triangulation of Solid Surfaces",
+    tags: ["C++", "Data Structures", "Computational Geometry"],
+    points: [
+      "Designed a system that stores the triangulation data of a solid curve and supports rich queries about the solid.",
+      "Modelled triangulations and their features using a graph data structure.",
+      "Supported queries such as solid type, centroid, diameter, and nearest-neighbour triangles.",
+      "Built on Union-Find, Red-Black Trees, and Tries for efficient computation.",
+    ],
+  },
+  {
+    number: "02",
+    title: "Meme Classification (Multimodal)",
+    tags: ["PyTorch", "CNN", "Transformers", "NLP"],
+    points: [
+      "Designed models classifying memes as funny from both the image and its caption.",
+      "Built a multimodal model using a pre-trained CNN for image encoding and a pre-trained transformer for text embedding.",
+      "Implemented sentiment classifiers using TextBlob, BERT, and fastText, and compared the results.",
+    ],
+  },
+  {
+    number: "03",
+    title: "Ship Detection from Aerial Images",
+    tags: ["U-Net", "YOLOv3", "Image Segmentation"],
+    points: [
+      "Implemented a run-length encoder and decoder for ship-location masks.",
+      "Implemented and trained a U-Net architecture segmenting images into ship and non-ship regions.",
+      "Trained YOLOv3 (darknet) on a custom dataset of 1,000 images on a Google Colab GPU.",
+    ],
+  },
+  {
+    number: "04",
+    title: "Discontinuity Identification in PDE Solutions",
+    tags: ["Graph Neural Networks", "M.Tech Thesis", "Best Thesis Award"],
+    points: [
+      "Proposed a graph-based node classification model to detect discontinuities in PDE solutions.",
+      "Generated synthetic datasets using exact advection-equation solutions.",
+      "Implemented a Graph Attention Network (GAT) achieving state-of-the-art performance.",
+      "Awarded Best Thesis at IIT Delhi for this research.",
+    ],
+  },
+];
+---
+
+<Base
+  title="Projects — Zuhaib Ul Zamann"
+  description="Selected personal and academic projects."
+>
+  <section class="listing">
+    <header>
+      <p class="label label--accent">Section 03</p>
+      <h1>Projects</h1>
+      <p class="standfirst">Selected personal and academic projects.</p>
+    </header>
+
+    <div class="projects">
+      {
+        projects.map((p) => (
+          <article class="project">
+            <div class="project-head">
+              <span class="label label--accent">Project № {p.number}</span>
+              <h2>{p.title}</h2>
+              <ul class="tags">
+                {p.tags.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            </div>
+            <ul class="points">
+              {p.points.map((pt) => (
+                <li>{pt}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .listing {
+    padding-top: 2.5rem;
+  }
+
+  header {
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0.75rem 0;
+  }
+
+  .standfirst {
+    max-width: 38rem;
+    color: var(--ink-soft);
+  }
+
+  .projects {
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-top: 0;
+  }
+
+  .project {
+    background: var(--paper-raised);
+    padding: 1.75rem;
+    display: grid;
+    grid-template-columns: minmax(14rem, 1fr) 2fr;
+    gap: 1.5rem;
+  }
+
+  .project-head h2 {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    margin: 0.5rem 0 0.75rem;
+  }
+
+  .tags {
+    list-style: none;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .tags li {
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    padding: 0.1rem 0.4rem;
+    color: var(--ink-soft);
+  }
+
+  .points {
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+
+  .points li {
+    padding-left: 1.25rem;
+    position: relative;
+  }
+
+  .points li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .points li + li {
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .project {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

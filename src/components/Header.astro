@@ -1,0 +1,105 @@
+---
+const nav = [
+  { href: "/blog", label: "Writing" },
+  { href: "/notes", label: "Notes" },
+  { href: "/projects", label: "Projects" },
+  { href: "/resume", label: "Résumé" },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<header>
+  <div class="page bar">
+    <a href="/" class="wordmark">
+      <span class="mark">Z·UZ</span>
+      <span class="name">Zuhaib Ul Zamann</span>
+    </a>
+    <nav>
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={["nav-link", { active: path.startsWith(item.href) }]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>
+
+<style>
+  header {
+    border-bottom: 1px solid var(--rule-strong);
+    background: var(--paper-raised);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+
+  .mark {
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .wordmark:hover .mark {
+    background: var(--accent);
+  }
+
+  .name {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .nav-link {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+
+  .nav-link:hover {
+    color: var(--accent);
+  }
+
+  .nav-link.active {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 2px;
+  }
+
+  @media (max-width: 540px) {
+    .name {
+      display: none;
+    }
+  }
+</style>

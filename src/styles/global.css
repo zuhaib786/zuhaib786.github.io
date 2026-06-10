@@ -1,0 +1,270 @@
+/* ------------------------------------------------------------------ */
+/*  Design tokens — technical-manual aesthetic                         */
+/* ------------------------------------------------------------------ */
+
+:root {
+  /* paper + ink */
+  --paper: #f4f0e6;
+  --paper-raised: #faf7f0;
+  --paper-sunken: #ece7d9;
+  --ink: #1f1d1a;
+  --ink-soft: #57534a;
+  --ink-faint: #8a8478;
+
+  /* rules + accents */
+  --rule: #c9c2b2;
+  --rule-strong: #1f1d1a;
+  --accent: #c8401a;
+  --accent-soft: #e8d9c8;
+
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  --measure: 44rem;
+  --gutter: 1.5rem;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--ink);
+  background:
+    /* faint horizontal scanlines, like printed paper grain */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(31, 29, 26, 0.012) 3px,
+      rgba(31, 29, 26, 0.012) 4px
+    ),
+    var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--ink-faint);
+  text-underline-offset: 3px;
+  transition: color 120ms ease, text-decoration-color 120ms ease;
+}
+
+a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Typographic utilities                                              */
+/* ------------------------------------------------------------------ */
+
+.label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.label--accent {
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Long-form article body (markdown output)                           */
+/* ------------------------------------------------------------------ */
+
+.prose {
+  max-width: var(--measure);
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+}
+
+.prose h2 {
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2.75em;
+  padding-top: 1.25em;
+  border-top: 1px solid var(--rule);
+}
+
+.prose h3 {
+  font-size: 1rem;
+  margin-top: 2.25em;
+}
+
+.prose h4 {
+  font-size: 0.9375rem;
+  margin-top: 2em;
+  color: var(--ink-soft);
+}
+
+/* numbered section headings, technical-manual style */
+.prose {
+  counter-reset: section;
+}
+
+.prose h2 {
+  counter-increment: section;
+  counter-reset: subsection;
+}
+
+.prose h2::before {
+  content: counter(section, decimal-leading-zero) " ";
+  color: var(--accent);
+  margin-right: 0.5em;
+}
+
+.prose h3 {
+  counter-increment: subsection;
+}
+
+.prose h3::before {
+  content: counter(section) "." counter(subsection) " ";
+  color: var(--accent);
+  margin-right: 0.5em;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+}
+
+.prose li + li {
+  margin-top: 0.4em;
+}
+
+.prose ul li::marker {
+  content: "— ";
+  color: var(--ink-faint);
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--accent);
+  padding: 0.5em 0 0.5em 1.25em;
+  color: var(--ink-soft);
+  background: var(--paper-sunken);
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px dashed var(--rule);
+  margin: 2.5em 0;
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--rule);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.prose th {
+  background: var(--paper-sunken);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* figures: framed, captioned like a manual plate */
+.prose img {
+  display: block;
+  margin: 0 auto;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+  padding: 0.75rem;
+}
+
+/* inline code */
+.prose code {
+  font-size: 0.875em;
+  background: var(--paper-sunken);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+}
+
+/* code blocks (shiki) */
+.prose pre {
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  background: var(--paper-raised) !important;
+  box-shadow: 4px 4px 0 var(--accent-soft);
+}
+
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* KaTeX display math */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Shared page chrome                                                 */
+/* ------------------------------------------------------------------ */
+
+.page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}

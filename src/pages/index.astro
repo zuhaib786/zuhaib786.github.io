@@ -1,0 +1,188 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import EntryRow from "../components/EntryRow.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
+);
+const recent = [...posts].reverse().slice(0, 4);
+
+const sections = [
+  {
+    number: "01",
+    title: "Writing",
+    href: "/blog",
+    blurb: "Long-form technical articles on systems, performance and ML.",
+  },
+  {
+    number: "02",
+    title: "Notes",
+    href: "/notes",
+    blurb: "Working notes and chapter summaries from books I'm studying.",
+  },
+  {
+    number: "03",
+    title: "Projects",
+    href: "/projects",
+    blurb: "Selected personal and academic projects.",
+  },
+  {
+    number: "04",
+    title: "Résumé",
+    href: "/resume",
+    blurb: "Education, experience and technical skills.",
+  },
+];
+---
+
+<Base title="Zuhaib Ul Zamann — Software Engineer">
+  <section class="hero">
+    <p class="label label--accent">
+      ML Engineering · Distributed Systems · Agentic AI
+    </p>
+    <h1>Zuhaib Ul Zamann</h1>
+    <p class="role label">Senior Machine Learning Engineer · Sprinklr</p>
+    <p class="intro">
+      I build agentic AI systems and the infrastructure that keeps them
+      reliable and cheap to run. At Sprinklr I ship production copilots for
+      marketing and social suites, built cost telemetry across 1,000+
+      microservices that saves $100K+/month, and designed resiliency systems
+      that lifted platform uptime from 95% to 99.999%.
+    </p>
+  </section>
+
+  <section class="contents">
+    <h2 class="label">Contents</h2>
+    <div class="grid">
+      {
+        sections.map((s) => (
+          <a href={s.href} class="card">
+            <span class="card-number">{s.number}</span>
+            <span class="card-title">{s.title}</span>
+            <span class="card-blurb">{s.blurb}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="recent">
+    <div class="recent-head">
+      <h2 class="label">Recent Writing</h2>
+      <a href="/blog" class="label all">All articles →</a>
+    </div>
+    {
+      recent.map((post) => (
+        <EntryRow
+          href={`/blog/${post.id}`}
+          number={String(posts.indexOf(post) + 1).padStart(2, "0")}
+          title={post.data.title}
+          description={post.data.description}
+          date={post.data.date}
+        />
+      ))
+    }
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 3px solid var(--rule-strong);
+  }
+
+  h1 {
+    /* sized so the full name always fits on a single line:
+       16 mono chars ≈ 9.6em, container = 100vw − 2×gutter, max 72rem */
+    font-size: min(4.5rem, 9.5vw - 0.4rem);
+    white-space: nowrap;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    margin: 1.25rem 0 1rem;
+  }
+
+  .role {
+    margin-bottom: 2rem;
+  }
+
+  .intro {
+    max-width: 38rem;
+    color: var(--ink-soft);
+  }
+
+  .contents {
+    padding: 2.5rem 0;
+  }
+
+  .contents > .label {
+    margin-bottom: 1.5rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .card {
+    background: var(--paper-raised);
+    padding: 1.5rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: background 120ms ease;
+  }
+
+  .card:hover {
+    background: var(--paper);
+  }
+
+  .card-number {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+  }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 1.0625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .card:hover .card-title {
+    color: var(--accent);
+  }
+
+  .card-blurb {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .recent {
+    padding: 1.5rem 0 0;
+  }
+
+  .recent-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 0.75rem;
+  }
+
+  .all {
+    text-decoration: none;
+  }
+
+  .all:hover {
+    color: var(--accent);
+  }
+</style>
