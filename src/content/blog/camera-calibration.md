@@ -4,7 +4,7 @@ description: "An introduction to the technique of camera calibration using Zhang
 date: 2025-01-18
 tags: ["Computer Vision", "Zhang's Algorithm"]
 ---
-## Table of Contents
+**Table of Contents**
 1. [Introduction](#introduction)
 2. [Pinhole Camera](#pinhole-camera)
 3. [Homogeneous Coordinate System](#homogeneous-coordinate-system)
@@ -15,6 +15,11 @@ tags: ["Computer Vision", "Zhang's Algorithm"]
 6. [Homography](#homography)
 7. [Direct Linear Transform](#direct-linear-transform)
 8. [Zhang's Algorithm](#zhangs-algorithm)
+9. [Recovering the Intrinsic Parameters](#recovering-the-intrinsic-parameters)
+10. [Recovering the Extrinsic Parameters](#recovering-the-extrinsic-parameters)
+11. [Refining the Estimate](#refining-the-estimate)
+12. [Implementation in Python](#implementation-in-python)
+13. [Conclusion](#conclusion)
 
 ## Introduction
 In this blog, we will know about a basic pinhole camera. We will know what camera matrix is, what are intrinsic and extrinsic parameters. We will also learn how we can find these parameters and will also provide an implementation in python for the same.
@@ -264,10 +269,230 @@ $$
 \textbf{h}_1^TB\textbf{h}_2 = 0\end{align}
 $$
 
-Since $B$ is a symmetric matrix, we can set $B=\begin{bmatrix}b_{11} & b_{12} & b_{13} \\ b_{12} & b_{22} & b_{23} \\ b_{13} & b_{23} & b_{33} \end{bmatrix}$ (6 d.o.f)
-Define vector $b = \begin{pmatrix}b_{11} & b_{12} & b_{13} & b_{22} & b_{23} & b_{33}\end{pmatrix}^T$
-The above system of equations can be writtern as $V\textbf{b} = 0$
+Since $B$ is symmetric it has only six independent entries, so we can set
 
-To get a solution different from the trivial solution($\textbf{b} = 0$), we impose a restriction $\lVert b\rVert = 1$
-and instead of solving for exact solution $V\textbf{b} = 0$, like DLT, we try to find $\textbf{b}$ which minimizes $\lVert V\textbf{b}\rVert$
-After finding the matrix $B$, we then determine $K$ by using Cholesky's decompsition
+$$
+B=\begin{bmatrix}b_{11} & b_{12} & b_{13} \\ b_{12} & b_{22} & b_{23} \\ b_{13} & b_{23} & b_{33} \end{bmatrix}
+$$
+
+and collect them into a vector $\textbf{b} = \begin{pmatrix}b_{11} & b_{12} & b_{13} & b_{22} & b_{23} & b_{33}\end{pmatrix}^T$.
+
+The key observation is that each product $\textbf{h}_i^T B \textbf{h}_j$ is **linear** in $\textbf{b}$. Writing the $i$-th column of $H$ as $\textbf{h}_i = (h_{1i}, h_{2i}, h_{3i})^T$, we can expand
+
+$$
+\textbf{h}_i^T B \textbf{h}_j = \textbf{v}_{ij}^T\textbf{b}
+$$
+
+where
+
+$$
+\textbf{v}_{ij} = \begin{bmatrix} h_{1i}h_{1j} \\ h_{1i}h_{2j} + h_{2i}h_{1j} \\ h_{1i}h_{3j} + h_{3i}h_{1j} \\ h_{2i}h_{2j} \\ h_{2i}h_{3j} + h_{3i}h_{2j} \\ h_{3i}h_{3j} \end{bmatrix}
+$$
+
+So the two constraints we derived for a single image become
+
+$$
+\begin{bmatrix}\textbf{v}_{12}^T \\ (\textbf{v}_{11} - \textbf{v}_{22})^T\end{bmatrix}\textbf{b} = \textbf{0}
+$$
+
+Stacking these two rows for each of our $n$ images gives a $2n\times 6$ matrix $V$ and a single homogeneous system $V\textbf{b} = \textbf{0}$. Each view contributes two equations against six unknowns (defined up to scale), so **$n \geq 3$ images** are enough to fix $\textbf{b}$ uniquely. With only two views one usually assumes zero skew ($s = 0$), dropping a column and an unknown.
+
+This is exactly the same shape as the DLT problem. We impose $\lVert \textbf{b}\rVert = 1$ to avoid the trivial solution, and because measurements are noisy we minimise $\lVert V\textbf{b}\rVert$. The answer, once again, is the right singular vector of $V$ corresponding to its smallest singular value.
+
+## Recovering the Intrinsic Parameters
+We now have $B$ (up to an unknown scale factor). Since $B = K^{-T}K^{-1}$ is symmetric and positive-definite, we could recover $K$ by a Cholesky factorisation of $B$ followed by an inversion. In practice it is cleaner to read the parameters off directly with the closed-form solution from Zhang's paper:
+
+$$
+p_y = \frac{b_{12}b_{13} - b_{11}b_{23}}{b_{11}b_{22} - b_{12}^2}
+$$
+
+$$
+\lambda = b_{33} - \frac{b_{13}^2 + p_y(b_{12}b_{13} - b_{11}b_{23})}{b_{11}}
+$$
+
+$$
+f_x = \sqrt{\frac{\lambda}{b_{11}}}, \qquad f_y = \sqrt{\frac{\lambda\, b_{11}}{b_{11}b_{22} - b_{12}^2}}
+$$
+
+$$
+s = -\frac{b_{12}\,f_x^2\,f_y}{\lambda}, \qquad p_x = \frac{s\,p_y}{f_y} - \frac{b_{13}\,f_x^2}{\lambda}
+$$
+
+The unknown scale of $B$ is absorbed into $\lambda$, so it cancels out and we recover the full intrinsic matrix
+
+$$
+K = \begin{bmatrix}f_x & s & p_x \\ 0 & f_y & p_y \\ 0 & 0 & 1\end{bmatrix}
+$$
+
+## Recovering the Extrinsic Parameters
+With $K$ in hand, the pose of the camera for **each** image follows from that image's homography $H = \begin{bmatrix}\textbf{h}_1 & \textbf{h}_2 & \textbf{h}_3\end{bmatrix}$. Recall $\textbf{h}_1 = \lambda K\textbf{r}_1$, so inverting $K$ recovers the rotation columns and translation:
+
+$$
+\lambda = \frac{1}{\lVert K^{-1}\textbf{h}_1\rVert}
+$$
+
+$$
+\textbf{r}_1 = \lambda K^{-1}\textbf{h}_1, \qquad \textbf{r}_2 = \lambda K^{-1}\textbf{h}_2, \qquad \textbf{r}_3 = \textbf{r}_1 \times \textbf{r}_2, \qquad \textbf{t} = \lambda K^{-1}\textbf{h}_3
+$$
+
+The scale $\lambda$ is fixed by the fact that $\textbf{r}_1$ must be a unit vector, and the sign is chosen so that the board sits in front of the camera ($t_z > 0$).
+
+Because of measurement noise the matrix $\begin{bmatrix}\textbf{r}_1 & \textbf{r}_2 & \textbf{r}_3\end{bmatrix}$ will not be exactly orthonormal — it is not quite a valid rotation. We snap it to the nearest rotation matrix by taking its SVD, $R = U\Sigma V^T$, and setting
+
+$$
+R = UV^T
+$$
+
+## Refining the Estimate
+Everything so far has been a *linear* approximation: each step minimised an algebraic error that is convenient to solve but not physically meaningful, and we have completely ignored lens distortion. The linear solution is an excellent starting point, but not the final answer.
+
+The refinement step minimises the **reprojection error** — the actual pixel distance between each detected corner $\textbf{m}_{ij}$ and the point obtained by projecting the known world point $\textbf{M}_j$ through the current parameter estimate:
+
+$$
+\min_{K,\, k_1,\, k_2,\, \{R_i, \textbf{t}_i\}} \sum_{i}\sum_{j} \left\lVert \textbf{m}_{ij} - \hat{\textbf{m}}(K, k_1, k_2, R_i, \textbf{t}_i, \textbf{M}_j)\right\rVert^2
+$$
+
+This is a nonlinear least-squares problem, solved with the **Levenberg–Marquardt** algorithm initialised from the linear estimate above. It optimises all the cameras and all the poses jointly.
+
+Crucially, this is also where **radial distortion** enters. Real lenses bend straight lines near the edges of the frame, which the pinhole model cannot capture. We model it with a couple of extra coefficients $k_1, k_2$ applied to the normalised image coordinates $(x, y)$, where $r^2 = x^2 + y^2$:
+
+$$
+\hat{x} = x\left(1 + k_1 r^2 + k_2 r^4\right), \qquad \hat{y} = y\left(1 + k_1 r^2 + k_2 r^4\right)
+$$
+
+before mapping through $K$ to pixels. These distortion coefficients are folded into the same optimisation and estimated alongside everything else.
+
+## Implementation in Python
+Let us turn the theory into code. The two inputs to the whole pipeline are correspondences: the known 3D coordinates of the checkerboard corners (with $Z = 0$) and their detected pixel locations. OpenCV's `findChessboardCorners` gives us the latter from each photo.
+
+Here is the linear algorithm, built directly from the equations above — normalised DLT for the homographies, the $V\textbf{b}=0$ system for the intrinsics, and the pose recovery for the extrinsics:
+
+```python
+import numpy as np
+
+def normalize(pts):
+    """Translate to the centroid and scale so the mean distance to the
+    origin is sqrt(2). This conditioning is what makes DLT stable."""
+    mean = pts.mean(axis=0)
+    d = np.sqrt(((pts - mean) ** 2).sum(axis=1)).mean()
+    s = np.sqrt(2) / d
+    T = np.array([[s, 0, -s * mean[0]],
+                  [0, s, -s * mean[1]],
+                  [0, 0, 1]])
+    pts_h = np.hstack([pts, np.ones((len(pts), 1))])
+    return (T @ pts_h.T).T[:, :2], T
+
+def compute_homography(world_xy, img_xy):
+    """Normalised DLT homography from planar world points to image points."""
+    Wn, T_w = normalize(world_xy)
+    In, T_i = normalize(img_xy)
+    A = []
+    for (X, Y), (u, v) in zip(Wn, In):
+        A.append([-X, -Y, -1, 0, 0, 0, u * X, u * Y, u])
+        A.append([0, 0, 0, -X, -Y, -1, v * X, v * Y, v])
+    _, _, Vt = np.linalg.svd(np.array(A))
+    H = np.linalg.inv(T_i) @ Vt[-1].reshape(3, 3) @ T_w   # de-normalise
+    return H / H[2, 2]
+
+def _v(H, i, j):
+    """Row of V for the constraint h_i^T B h_j, with
+    b = [b11, b12, b13, b22, b23, b33]."""
+    return np.array([
+        H[0, i] * H[0, j],
+        H[0, i] * H[1, j] + H[1, i] * H[0, j],
+        H[0, i] * H[2, j] + H[2, i] * H[0, j],
+        H[1, i] * H[1, j],
+        H[1, i] * H[2, j] + H[2, i] * H[1, j],
+        H[2, i] * H[2, j],
+    ])
+
+def calibrate_intrinsics(homographies):
+    V = []
+    for H in homographies:
+        V.append(_v(H, 0, 1))
+        V.append(_v(H, 0, 0) - _v(H, 1, 1))
+    _, _, Vt = np.linalg.svd(np.array(V))
+    b = Vt[-1]
+    if b[0] < 0:                       # B must be positive-definite
+        b = -b
+    b11, b12, b13, b22, b23, b33 = b
+
+    py = (b12 * b13 - b11 * b23) / (b11 * b22 - b12 ** 2)
+    lam = b33 - (b13 ** 2 + py * (b12 * b13 - b11 * b23)) / b11
+    fx = np.sqrt(lam / b11)
+    fy = np.sqrt(lam * b11 / (b11 * b22 - b12 ** 2))
+    s = -b12 * fx ** 2 * fy / lam
+    px = s * py / fy - b13 * fx ** 2 / lam
+    return np.array([[fx, s, px],
+                     [0, fy, py],
+                     [0, 0, 1]])
+
+def recover_extrinsics(K, H):
+    Kinv = np.linalg.inv(K)
+    lam = 1.0 / np.linalg.norm(Kinv @ H[:, 0])
+    r1 = lam * Kinv @ H[:, 0]
+    r2 = lam * Kinv @ H[:, 1]
+    t = lam * Kinv @ H[:, 2]
+    R = np.column_stack([r1, r2, np.cross(r1, r2)])
+    U, _, Vt = np.linalg.svd(R)        # nearest proper rotation
+    return U @ Vt, t
+
+# world_points: (N, 2) board corners in mm, Z implicitly 0
+# image_points_per_view: list of (N, 2) detected pixel corners
+homographies = [compute_homography(world_points, pts)
+                for pts in image_points_per_view]
+K = calibrate_intrinsics(homographies)
+extrinsics = [recover_extrinsics(K, H) for H in homographies]
+```
+
+In practice you rarely write this by hand — OpenCV bundles the entire pipeline, including the Levenberg–Marquardt refinement and distortion estimation, behind a single call. Here is the version you would actually ship:
+
+```python
+import cv2
+import numpy as np
+import glob
+
+CHECKERBOARD = (9, 6)      # number of inner corners (cols, rows)
+SQUARE_SIZE = 25.0         # physical size of a square, in mm
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-3)
+
+# World coordinates of the corners: (0,0,0), (1,0,0), ... scaled to mm.
+# Z is 0 for every point because the board is planar.
+objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
+objp[:, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
+objp *= SQUARE_SIZE
+
+obj_points, img_points = [], []      # 3D world points, 2D image points
+gray = None
+
+for fname in glob.glob("calibration/*.jpg"):
+    img = cv2.imread(fname)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    found, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, None)
+    if not found:
+        continue
+    corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+    obj_points.append(objp)
+    img_points.append(corners)
+
+# One call runs the whole Zhang pipeline: per-view homographies, the
+# closed-form intrinsics and extrinsics, then LM refinement with distortion.
+rms, K, dist, rvecs, tvecs = cv2.calibrateCamera(
+    obj_points, img_points, gray.shape[::-1], None, None
+)
+
+print("RMS reprojection error:", rms)
+print("Intrinsic matrix K:\n", K)
+print("Distortion coefficients (k1, k2, p1, p2, k3):", dist.ravel())
+```
+
+The `rms` value is the average reprojection error in pixels and is your sanity check — a well-shot dataset of a dozen or so views typically lands well under one pixel. With `K` and `dist` you can now undistort images and reconstruct geometry:
+
+```python
+undistorted = cv2.undistort(img, K, dist)
+```
+
+## Conclusion
+We started from a hole in a box and built up, step by step, to a working calibration routine. The pinhole model gave us the projection equation; homogeneous coordinates made it linear; the DLT let us estimate a homography from noisy correspondences; and Zhang's insight — that photographing a planar board from several angles imposes just enough constraints on $K^{-T}K^{-1}$ — let us solve for the intrinsics with nothing more than a printed checkerboard. A final nonlinear refinement polishes the estimate and accounts for lens distortion.
+
+The reason this method has endured is its sheer practicality: no precise calibration rig, no known camera motion, just a pattern you can print at home. That is why `cv2.calibrateCamera` is one of the first things you reach for in almost any computer-vision project, and now you know exactly what it is doing under the hood.
