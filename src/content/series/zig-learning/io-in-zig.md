@@ -231,4 +231,4 @@ This is the quiet payoff of I/O-as-a-capability: the logic lives in plain functi
 
 ## Where this is going
 
-We only did half of I/O here — *output*. The other half is reading: `stdin`, the `Reader` interface, and pulling bytes in rather than pushing them out. That's the natural next step, and where `count` gets to grow up into something closer to `wc`. More on that in the next post.
+We only did half of I/O here — *output*. The other half is reading: `stdin`, the `Reader` interface, and pulling bytes in rather than pushing them out. That's the natural next step, and where `count` gets to grow up into something closer to `wc`. That's [part 2](/series/zig-learning/io-in-zig-part-2).
