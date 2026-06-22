@@ -1,7 +1,7 @@
 ---
 title: "Camera Calibration"
 description: "An introduction to the technique of camera calibration using Zhang's Algorithm"
-date: 2025-01-18
+date: 2025-01-18T12:00:00Z
 tags: ["Computer Vision", "Zhang's Algorithm"]
 ---
 **Table of Contents**

@@ -1,7 +1,7 @@
 ---
 title: "Evaluating uvloop Performance for I/O Bound Workloads in Python"
 description: "Benchmarking uvloop against Python's built-in asyncio event loop on a realistic mixed I/O + CPU workload."
-date: 2025-02-02
+date: 2025-02-02T12:00:00Z
 tags: ["Python", "asyncio", "Performance"]
 ---
 Writing `async` coroutines is a common approach for handling I/O-bound workloads in modern applications. Having worked extensively with Python's built-in `asyncio` module, I had always relied on its default event loop without considering alternatives. However, while working with the [vllm](https://github.com/vllm-project/vllm/blob/f256ebe4df6757d76f1f1642d7e110268a2f8190/vllm/entrypoints/openai/api_server.py#L909C1-L909C33) library, I encountered a scenario that led me to explore different event loops.

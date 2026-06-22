@@ -13,7 +13,11 @@ const seriesPosts = (
   await getCollection("series", ({ id, data }) =>
     postIsVisible(id, data.draft),
   )
-).sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+).sort(
+  (a, b) =>
+    a.data.date.valueOf() - b.data.date.valueOf() ||
+    a.data.order - b.data.order,
+);
 const recentSeries = [...seriesPosts].reverse().slice(0, 4);
 const seriesPostPath = (id: string) => {
   const parts = id.split("/");
