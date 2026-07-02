@@ -29,11 +29,19 @@ export const allSeries: SeriesMeta[] = [
     draft: false,
   },
   {
+    slug: "lzdb",
+    title: "Building lzdb",
+    description:
+      "Building lzdb from scratch in Zig: a crash-safe, log-structured key-value engine — WAL, SSTables, and a manifest — hardened with TigerBeetle-style deterministic simulation testing until it survives anything the disk throws at it.",
+    order: 2,
+    draft: true,
+  },
+  {
     slug: "gpu-mode",
     title: "GPU Mode",
     description:
       "Experiments in GPU programming and parallel kernels.",
-    order: 2,
+    order: 3,
     draft: true,
   },
 ];

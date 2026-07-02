@@ -12,8 +12,8 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 
 <header>
   <div class="page bar">
-    <a href="/" class="wordmark">
-      <span class="mark">Z·UZ</span>
+    <a href="/" class="wordmark" aria-label="Zuhaib Ul Zamann — home">
+      <span class="mark" aria-hidden="true">Z<sup>2</sup></span>
       <span class="name">Zuhaib Ul Zamann</span>
     </a>
     <nav>
@@ -27,14 +27,69 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
           </a>
         ))
       }
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <svg
+          class="icon icon-moon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <svg
+          class="icon icon-sun"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
+<script>
+  // delegated so it keeps working after view-transition swaps
+  document.addEventListener("click", (e) => {
+    if (!(e.target as Element).closest?.("#theme-toggle")) return;
+    const next =
+      document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem("theme", next);
+    } catch {}
+  });
+</script>
+
 <style>
   header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     border-bottom: 1px solid var(--rule-strong);
-    background: var(--paper-raised);
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+    transition: box-shadow 250ms ease;
+  }
+
+  /* solid fallback where backdrop-filter is unsupported */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    header {
+      background: var(--paper-raised);
+    }
+  }
+
+  header[data-scrolled] {
+    box-shadow: var(--glass-shadow);
   }
 
   .bar {
@@ -54,17 +109,38 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
     text-decoration: none;
   }
 
+  /* Z-sub-u squared — Zuhaib and Zamann are the Z², ul is the subscript */
   .mark {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
     font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.08em;
-    color: var(--paper);
-    background: var(--ink);
-    padding: 0.2rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .mark sub,
+  .mark sup {
+    font-size: 0.6em;
+    font-style: normal;
+    line-height: 0;
+  }
+
+  .mark sub {
+    vertical-align: -0.35em;
+  }
+
+  .mark sup {
+    vertical-align: 0.55em;
+    margin-left: 0.05em;
   }
 
   .wordmark:hover .mark {
-    background: var(--accent);
+    filter: brightness(1.15) saturate(1.2)
+      drop-shadow(0 0 8px color-mix(in srgb, var(--interact) 55%, transparent));
   }
 
   .name {
@@ -76,26 +152,87 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 
   nav {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
   }
 
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      transform 220ms var(--ease-out);
+  }
+
+  .theme-toggle:hover {
+    color: var(--interact);
+    border-color: var(--interact);
+    box-shadow: var(--underline-glow);
+    transform: rotate(15deg);
+  }
+
+  .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .icon-sun {
+    display: none;
+  }
+
+  :global(html[data-theme="dark"]) .icon-sun {
+    display: block;
+  }
+
+  :global(html[data-theme="dark"]) .icon-moon {
+    display: none;
+  }
+
   .nav-link {
+    position: relative;
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     text-decoration: none;
     color: var(--ink-soft);
+    padding-bottom: 2px;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--interact);
+    box-shadow: var(--underline-glow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms var(--ease-out);
   }
 
   .nav-link:hover {
-    color: var(--accent);
+    color: var(--interact);
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    transform: scaleX(1);
   }
 
   .nav-link.active {
-    color: var(--accent);
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 2px;
+    color: var(--interact);
   }
 
   @media (max-width: 540px) {

@@ -10,7 +10,10 @@ export default defineConfig({
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
     shikiConfig: {
-      theme: "vitesse-light",
+      themes: {
+        light: "vitesse-light",
+        dark: "vitesse-dark",
+      },
     },
   },
 });

@@ -64,22 +64,23 @@ const sections = [
       ML Engineering · Distributed Systems · Agentic AI
     </p>
     <h1>Zuhaib Ul Zamann</h1>
-    <p class="role label">Senior Machine Learning Engineer · Sprinklr</p>
+    <p class="role label">Software Engineer II, AI/ML · Uber</p>
     <p class="intro">
       I build agentic AI systems and the infrastructure that keeps them
-      reliable and cheap to run. At Sprinklr I ship production copilots for
+      reliable and cheap to run. I recently joined Uber as a Software Engineer
+      II on AI/ML. Previously at Sprinklr I shipped production copilots for
       marketing and social suites, built cost telemetry across 1,000+
-      microservices that saves $100K+/month, and designed resiliency systems
+      microservices that saved $100K+/month, and designed resiliency systems
       that lifted platform uptime from 95% to 99.999%.
     </p>
   </section>
 
-  <section class="contents">
+  <section class="contents" data-reveal>
     <h2 class="label">Contents</h2>
     <div class="grid">
       {
-        sections.map((s) => (
-          <a href={s.href} class="card">
+        sections.map((s, i) => (
+          <a href={s.href} class="card" style={`--i: ${i}`}>
             <span class="card-number">{s.number}</span>
             <span class="card-title">{s.title}</span>
             <span class="card-blurb">{s.blurb}</span>
@@ -89,7 +90,7 @@ const sections = [
     </div>
   </section>
 
-  <section class="recent">
+  <section class="recent" data-reveal>
     <div class="recent-head">
       <h2 class="label">Recent Writing</h2>
       <a href="/blog" class="label all">All articles →</a>
@@ -109,7 +110,7 @@ const sections = [
 
   {
     recentSeries.length > 0 && (
-      <section class="recent">
+      <section class="recent" data-reveal>
         <div class="recent-head">
           <h2 class="label">Recent Series</h2>
           <a href="/series" class="label all">
@@ -133,8 +134,65 @@ const sections = [
 
 <style>
   .hero {
+    position: relative;
     padding: 4.5rem 0 3.5rem;
     border-bottom: 3px solid var(--rule-strong);
+  }
+
+  /* soft two-hue glow behind the name — ambient, theme-aware */
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    left: -8rem;
+    width: 34rem;
+    height: 18rem;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--accent) 11%, transparent),
+      transparent
+    );
+    filter: blur(32px);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -6rem;
+    width: 28rem;
+    height: 16rem;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--accent-2) 9%, transparent),
+      transparent
+    );
+    filter: blur(36px);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero > * {
+      opacity: 0;
+      animation: rise 700ms var(--ease-out) forwards;
+    }
+
+    .hero > *:nth-child(1) { animation-delay: 60ms; }
+    .hero > *:nth-child(2) { animation-delay: 160ms; }
+    .hero > *:nth-child(3) { animation-delay: 260ms; }
+    .hero > *:nth-child(4) { animation-delay: 360ms; }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   h1 {
@@ -168,13 +226,10 @@ const sections = [
 
   .grid {
     display: grid;
-    /* 5 cards in a single row on desktop; the 1px gap over the rule colour
-       draws hairlines, so the grid must stay exactly filled — collapse
-       straight to one column below, never a ragged partial row. */
+    /* 5 glass tiles in a single row on desktop; collapse straight to one
+       column below, never a ragged partial row */
     grid-template-columns: repeat(5, 1fr);
-    gap: 1px;
-    background: var(--rule);
-    border: 1px solid var(--rule);
+    gap: 0.875rem;
   }
 
   @media (max-width: 60rem) {
@@ -184,17 +239,71 @@ const sections = [
   }
 
   .card {
-    background: var(--paper-raised);
+    position: relative;
+    overflow: hidden;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
     padding: 1.5rem;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    transition: background 120ms ease;
+    transition:
+      background 150ms ease,
+      border-color 150ms ease,
+      transform 220ms var(--ease-out),
+      box-shadow 220ms var(--ease-out);
+  }
+
+  /* glass sheen that sweeps across on hover */
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      var(--sheen) 50%,
+      transparent 60%
+    );
+    transform: translateX(-130%);
+    pointer-events: none;
   }
 
   .card:hover {
-    background: var(--paper);
+    background: var(--glass-strong);
+    border-color: color-mix(in srgb, var(--interact) 50%, var(--glass-border));
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--hover-glow);
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover::after {
+      transition: transform 650ms ease;
+      transform: translateX(130%);
+    }
+  }
+
+  /* staggered card entrance once the section reveals */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .contents[data-reveal] .card {
+      opacity: 0;
+    }
+
+    /* `backwards` fill so the finished animation stops overriding
+       transform — otherwise the hover lift would never fire */
+    :global(html.js) .contents[data-reveal].is-visible .card {
+      opacity: 1;
+      animation: rise 550ms var(--ease-out) backwards;
+      animation-delay: calc(var(--i) * 70ms + 150ms);
+    }
   }
 
   .card-number {
@@ -212,7 +321,7 @@ const sections = [
   }
 
   .card:hover .card-title {
-    color: var(--accent);
+    color: var(--interact);
   }
 
   .card-blurb {
@@ -237,6 +346,6 @@ const sections = [
   }
 
   .all:hover {
-    color: var(--accent);
+    color: var(--interact);
   }
 </style>

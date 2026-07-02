@@ -14,7 +14,7 @@ function postCount(slug: string) {
   title="Series — Zuhaib Ul Zamann"
   description="Multi-part learning series — focused folders of posts on a single topic."
 >
-  <section class="listing">
+  <section class="listing" data-reveal>
     <header>
       <p class="label label--accent">Section 02</p>
       <h1>Series</h1>
@@ -68,23 +68,59 @@ function postCount(slug: string) {
     margin-top: 2rem;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1px;
-    background: var(--rule);
-    border: 1px solid var(--rule);
+    gap: 0.875rem;
   }
 
   .card {
-    background: var(--paper-raised);
+    position: relative;
+    overflow: hidden;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
     padding: 1.5rem;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    transition: background 120ms ease;
+    transition:
+      background 150ms ease,
+      border-color 150ms ease,
+      transform 220ms var(--ease-out),
+      box-shadow 220ms var(--ease-out);
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      var(--sheen) 50%,
+      transparent 60%
+    );
+    transform: translateX(-130%);
+    pointer-events: none;
   }
 
   .card:hover {
-    background: var(--paper);
+    background: var(--glass-strong);
+    border-color: color-mix(in srgb, var(--interact) 50%, var(--glass-border));
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--hover-glow);
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover::after {
+      transition: transform 650ms ease;
+      transform: translateX(130%);
+    }
   }
 
   .card-meta {
@@ -99,7 +135,7 @@ function postCount(slug: string) {
   }
 
   .card:hover .card-title {
-    color: var(--accent);
+    color: var(--interact);
   }
 
   .card-blurb {

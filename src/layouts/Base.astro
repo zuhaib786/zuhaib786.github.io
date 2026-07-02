@@ -5,6 +5,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/600.css";
 import "@fontsource/ibm-plex-mono/700.css";
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 
@@ -25,12 +26,74 @@ const { title, description = "Zuhaib Ul Zamann — software engineer. Writing on
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      // theme: saved choice, else system preference; re-applied after
+      // every view transition (the swap replaces the <html> attributes)
+      (() => {
+        const apply = () => {
+          let theme;
+          try {
+            theme = localStorage.getItem("theme");
+          } catch {}
+          theme ??= window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.classList.add("js");
+        };
+        apply();
+        document.addEventListener("astro:after-swap", apply);
+      })();
+    </script>
   </head>
   <body>
+    <div class="orbs" aria-hidden="true">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
     <Header />
-    <main class="page">
+    <main class="page glass-main">
       <slot />
     </main>
     <Footer />
+    <script>
+      // Frosted header: cast a shadow only once the page has scrolled.
+      const syncHeader = () => {
+        document
+          .querySelector("header")
+          ?.toggleAttribute("data-scrolled", window.scrollY > 8);
+      };
+      window.addEventListener("scroll", syncHeader, { passive: true });
+
+      // Reveal-on-scroll for any element carrying data-reveal.
+      const reveal = () => {
+        const els = document.querySelectorAll("[data-reveal]:not(.is-visible)");
+        if (!("IntersectionObserver" in window)) {
+          els.forEach((el) => el.classList.add("is-visible"));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.08, rootMargin: "0px 0px -5% 0px" },
+        );
+        els.forEach((el) => io.observe(el));
+      };
+
+      const init = () => {
+        syncHeader();
+        reveal();
+      };
+      init();
+      document.addEventListener("astro:page-load", init);
+    </script>
   </body>
 </html>

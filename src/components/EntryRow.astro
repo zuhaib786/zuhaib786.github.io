@@ -31,17 +31,44 @@ const formatted = date.toLocaleDateString("en-GB", {
 
 <style>
   .row {
+    position: relative;
     display: grid;
     grid-template-columns: 3.5rem 1fr auto;
     gap: 1.25rem;
     align-items: baseline;
-    padding: 1.25rem 0;
+    margin: 0 -0.75rem;
+    padding: 1.25rem 0.75rem;
     border-bottom: 1px solid var(--rule);
     text-decoration: none;
+    transition: background 150ms ease;
+  }
+
+  /* accent bar that grows in on hover — neon in dark mode */
+  .row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.85rem;
+    bottom: 0.85rem;
+    width: 2px;
+    background: var(--interact);
+    box-shadow: var(--underline-glow);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 220ms var(--ease-out);
+  }
+
+  .row:hover {
+    background: var(--glass);
+    border-radius: 10px;
+  }
+
+  .row:hover::before {
+    transform: scaleY(1);
   }
 
   .row:hover .title {
-    color: var(--accent);
+    color: var(--interact);
   }
 
   .eyebrow {

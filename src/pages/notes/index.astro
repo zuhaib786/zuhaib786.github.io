@@ -15,7 +15,7 @@ const topics = [...new Set(notes.map((n) => n.data.topic))];
   description="Working notes and chapter summaries from books and topics under study."
 >
   <section class="listing">
-    <header>
+    <header data-reveal>
       <p class="label label--accent">Section 03</p>
       <h1>Notes</h1>
       <p class="standfirst">
@@ -35,7 +35,7 @@ const topics = [...new Set(notes.map((n) => n.data.topic))];
 
     {
       topics.map((topic) => (
-        <div class="topic">
+        <div class="topic" data-reveal>
           <h2 class="label">{topic}</h2>
           {notes
             .filter((n) => n.data.topic === topic)
