@@ -52,6 +52,12 @@
   color-scheme: light;
 }
 
+/* alternate typeface — Monaspace Xenon, a slab-serif monospace */
+html[data-font="xenon"] {
+  --font-mono: "Monaspace Xenon", "IBM Plex Mono", ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 /* dark mode — warm near-black, neon glow instead of shadow */
 html[data-theme="dark"] {
   --paper: #121011;

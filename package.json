@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",
+    "@fontsource/monaspace-xenon": "^5.2.5",
     "astro": "^5.8.0",
     "katex": "^0.16.21",
     "rehype-katex": "^7.0.1",

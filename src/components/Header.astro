@@ -27,6 +27,14 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
           </a>
         ))
       }
+      <button
+        id="font-toggle"
+        class="theme-toggle font-toggle"
+        aria-label="Toggle slab-serif font"
+        title="Toggle font (IBM Plex Mono / Monaspace Xenon)"
+      >
+        <span aria-hidden="true">Aa</span>
+      </button>
       <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
         <svg
           class="icon icon-moon"
@@ -59,13 +67,22 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 <script>
   // delegated so it keeps working after view-transition swaps
   document.addEventListener("click", (e) => {
-    if (!(e.target as Element).closest?.("#theme-toggle")) return;
-    const next =
-      document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem("theme", next);
-    } catch {}
+    const target = e.target as Element;
+    if (target.closest?.("#theme-toggle")) {
+      const next =
+        document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem("theme", next);
+      } catch {}
+    } else if (target.closest?.("#font-toggle")) {
+      const next =
+        document.documentElement.dataset.font === "xenon" ? "plex" : "xenon";
+      document.documentElement.dataset.font = next;
+      try {
+        localStorage.setItem("font", next);
+      } catch {}
+    }
   });
 </script>
 
@@ -183,6 +200,19 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
   .icon {
     width: 1rem;
     height: 1rem;
+  }
+
+  .font-toggle {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  /* lit up while the alternate face is active */
+  :global(html[data-font="xenon"]) .font-toggle {
+    color: var(--interact);
+    border-color: var(--interact);
   }
 
   .icon-sun {
