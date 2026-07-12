@@ -85,9 +85,16 @@ const education = [
 ];
 
 const awards = [
-  "Departmental Rank 2 — Ranked second in my batch; perfect GPA of 10.0/10.0 during M.Tech.",
-  "Best Thesis Award — Recognized for M.Tech thesis on Discontinuity Identification using Graph Neural Networks.",
-  "IIT Delhi Merit Prize — Awarded for six consecutive semesters (Top 7% performers in department).",
+  {
+    text: "Departmental Rank 2 — Ranked second in my batch; perfect GPA of 10.0/10.0 during M.Tech.",
+  },
+  {
+    text: "Best Thesis Award — Recognized for M.Tech thesis on Discontinuity Identification using Graph Neural Networks.",
+    link: "/blog/graph-troubled-cell-indicators",
+  },
+  {
+    text: "IIT Delhi Merit Prize — Awarded for six consecutive semesters (Top 7% performers in department).",
+  },
 ];
 ---
 
@@ -174,7 +181,16 @@ const awards = [
 
     <h2 class="section-title label">Awards &amp; Achievements</h2>
     <ul class="block points">
-      {awards.map((a) => <li>{a}</li>)}
+      {
+        awards.map((a) => (
+          <li>
+            {a.text}
+            {a.link && (
+              <a class="item-link" href={a.link}>Blog ↗</a>
+            )}
+          </li>
+        ))
+      }
     </ul>
   </section>
 </Base>

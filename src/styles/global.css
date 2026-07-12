@@ -367,6 +367,37 @@ img {
   border: 1px solid var(--rule-strong);
   background: var(--paper-raised);
   padding: 0.75rem;
+  max-width: 100%;
+  height: auto;
+}
+
+.prose figure {
+  margin: 2.25rem 0;
+}
+
+.prose figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+/* plates ship a light and a dark rendering; show the one matching the theme */
+.prose .plate-dark {
+  display: none;
+}
+
+html[data-theme="dark"] .prose .plate-light {
+  display: none;
+}
+
+html[data-theme="dark"] .prose .plate-dark {
+  display: block;
+}
+
+/* wide plates: let the figure scroll rather than the page */
+.prose .plate-scroll {
+  overflow-x: auto;
 }
 
 /* inline code */
