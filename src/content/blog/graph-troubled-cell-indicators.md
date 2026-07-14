@@ -9,7 +9,9 @@ tags: ["Discontinuous Galerkin", "Graph Neural Networks", "Numerical Analysis", 
 > **Best Thesis Award** — written up here in the form I wish I'd been able to read
 > when I started. The solver, the training pipeline, and every experiment below are
 > my own, built from scratch. It ends with a controlled experiment that found the
-> real culprit — and with one problem I still have not solved.
+> real culprit, a result that nearly talked me into shipping the wrong model, an
+> experiment I was sure would work and which failed instead, and one problem I still
+> have not solved.
 
 **Table of Contents**
 1. [The trade-off you cannot avoid](#the-trade-off-you-cannot-avoid)
@@ -23,8 +25,9 @@ tags: ["Discontinuous Galerkin", "Graph Neural Networks", "Numerical Analysis", 
 9. [The result I actually care about](#the-result-i-actually-care-about)
 10. [Where it breaks](#where-it-breaks)
 11. [It was the features](#it-was-the-features)
-12. [Reproducibility](#reproducibility)
-13. [References](#references)
+12. [It was not the data](#it-was-not-the-data)
+13. [Reproducibility](#reproducibility)
+14. [References](#references)
 
 ## The trade-off you cannot avoid
 
@@ -427,9 +430,9 @@ Twenty training runs, 400 calibration runs, 120 held-out runs. Here is what came
 back.
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/tci/feature-ablation.svg" alt="Three panels: offline PR-AUC per representation with five seeds each; permutation stress test; undershoot against flag rate.">
-  <img class="plate-dark" src="/images/tci/feature-ablation-dark.svg" alt="Three panels: offline PR-AUC per representation with five seeds each; permutation stress test; undershoot against flag rate.">
-  <figcaption><strong>The controlled ablation.</strong> (a) Validation PR-AUC, faint dots are individual seeds — the baseline is bimodal, the invariant schemas are tight. (b) How far the logit moves when you relabel a triangle's vertices without changing any physics. (c) Undershoot against flag rate as τ sweeps 0.02 → 0.3, pooled over both meshes, both calibration resolutions and all five seeds; down-and-left is better.</figcaption>
+  <img class="plate-light" src="/images/tci/feature-ablation.svg" alt="Four panels: offline PR-AUC per representation with five seeds each; permutation stress test; undershoot against flag rate on calibration meshes; undershoot against mesh refinement on held-out meshes.">
+  <img class="plate-dark" src="/images/tci/feature-ablation-dark.svg" alt="Four panels: offline PR-AUC per representation with five seeds each; permutation stress test; undershoot against flag rate on calibration meshes; undershoot against mesh refinement on held-out meshes.">
+  <figcaption><strong>The controlled ablation.</strong> (a) Validation PR-AUC, faint dots are individual seeds — the baseline is bimodal, the invariant schemas are tight. (b) How far the logit moves when you relabel a triangle's vertices without changing any physics. (c) Undershoot against flag rate as τ sweeps 0.02 → 0.3 on the calibration meshes, pooled over both meshes, both resolutions and all five seeds; down-and-left is better. (d) The same four models on the <em>held-out</em> meshes at the one frozen threshold, against refinement. Panels (a) and (d) disagree about which model is best, and (d) is the one that counts.</figcaption>
 </figure>
 
 **The invariance is exact.** Relabel a triangle's vertices — same polynomial, same
@@ -503,23 +506,249 @@ above):
 **Six to nine times less bound violation for the same amount of limiting.** And at
 ≈9% flagging, `invariant-local` beats `invariant-node` on *both* axes at once —
 lower undershoot (0.052 vs 0.085) *and* lower error (0.046 vs 0.056) — which is a
-dominance no threshold choice can manufacture. That is the real result, and a table
-of fixed-τ numbers hides it completely.
+dominance no threshold choice can manufacture.
+
+At that point I thought I was done. `invariant-local` was the best model on every
+axis I had: best F1, best PR-AUC, tightest seeds, lowest error, most selective, and
+it dominated at matched selectivity. It was obviously the one to ship.
+
+It was not.
+
+### The model I would have shipped was the wrong one
+
+Everything above was measured on the *calibration* meshes — the ones I used to pick
+the threshold. The protocol then freezes that threshold and runs all four models on
+**held-out** meshes they have never been evaluated on, at resolutions $n = 8, 12, 16$.
+That is 120 runs, and the ranking turns over completely.
+
+| representation | error $E_{L^2}$ | flagged | worst undershoot |
+|---|---:|---:|---:|
+| ordered-global (baseline) | 0.117 | 99.9% | **0** |
+| **invariant node** | 0.117 | 35.6% | **0.008** |
+| invariant + edge | 0.116 | 34.8% | 0.008 |
+| invariant + local scale | **0.092** | **9.7%** | **0.226** |
+
+Read the last two columns together. `invariant-local` is the most accurate model and
+the most selective model — it limits one cell in ten where the others limit one in
+three — and it is **twenty-seven times more dangerous** than the model directly above
+it. Its worst undershoot is 0.226, against a safety bound of 0.01. The best
+classifier I trained is the one I must not put in a solver.
+
+And it gets worse as you refine the mesh, which is the tell:
+
+| mean undershoot | $n=8$ | $n=12$ | $n=16$ |
+|---|---:|---:|---:|
+| invariant node | 0.004 | 0.005 | 0.007 |
+| invariant + local scale | 0.019 | 0.066 | 0.084 |
+
+Once you see it, the mechanism is almost embarrassing. The one-ring scale $s_K$ is a
+*local* normalizer — that is the entire point of it, and it is why the features stop
+caring about a remote extremum. But as the mesh refines, the one-ring shrinks onto a
+smoother patch of the solution, so $s_K$ shrinks too, the normalized features stay
+big, and the logits drift relative to a threshold I froze at a coarser resolution. Its
+9.7% flag rate is not sharpness. It is **under-flagging**, and I had been reading it
+as a virtue.
+
+So the primary model is `invariant-node`: worse on every offline metric, worse on
+downstream error, less selective, and the one whose worst-case bound violation is
+0.008 instead of 0.226. Not the model that wins the leaderboard. The model that does
+not blow up.
+
+I want to be blunt about how close this was. If I had selected on validation F1 — the
+default thing to do, the thing most papers in this space do — I would have shipped
+`invariant-local`. If I had selected on downstream error, same answer. On flag rate,
+same answer. **Three of the four metrics I care about pointed at the model that fails.**
+The only thing that caught it was running the frozen threshold on meshes I had not
+calibrated against and looking at the worst case rather than the mean. For a limiter,
+offline classification quality is not a weak proxy for in-loop safety. It is not a
+proxy at all.
+
+## It was not the data
+
+There is one explanation I have not ruled out, and it is the one most people
+reach for first.
+
+Look again at what this network is trained on: exact piecewise-quadratic fields,
+cut by a single clean line or circle, labelled by an exact intersection test. Now
+look at what it sees in the solver: a smeared front spread over three cells,
+ringing with Gibbs oscillations, in a cell that was already limited two stages
+ago. Those are not the same distribution, and the gap has three parts.
+
+- **Geometry.** One infinite line, or one full circle. The slotted disk has
+  corners, endpoints and near-tangencies — none of which are in the training set.
+- **Values.** Training inputs have zero discretization error. Deployment inputs
+  have nothing but.
+- **Labels.** This is the bad one. The cut-cell label is *scale-free*. A jump of
+  amplitude $10^{-6}$ gets exactly the same label as an $O(1)$ shock. A steep
+  layer that the mesh fully resolves is never positive. A front that has been
+  dissipated below the resolvable scale stays positive forever.
+
+Read that last point again and the over-flagging starts to look inevitable. I was
+asking the network to produce a resolution- and amplitude-aware decision from a
+target that contains no information about resolution or amplitude. Of course the
+probability does not mean the same thing on a coarse mesh and a fine one — I never
+gave it a way to.
+
+So: fix the labels, widen the data, retrain, and the calibration problem should
+soften. That was the hypothesis. It is wrong, and the way it is wrong is more
+interesting than if it had worked.
+
+### A label that knows about resolution
+
+Labels now come from the *reference field*, never from the network's input.
+Project the reference onto the mesh and onto one uniform refinement of it. For
+cell $K$, let $J_K(h)$ be the largest face-mean jump of that projection, and
+$s_K$ the same robust one-ring scale from the last section. Then $K$ is troubled
+iff
+
+$$
+J_K(h) \ge \alpha\, s_K
+\qquad\text{and}\qquad
+J_K(h) \le \gamma \max_{K'} J_{K'}(h/2).
+$$
+
+The first clause is an amplitude test. The second is the one doing the real work:
+it asks whether the jump *survives refinement*. A genuine discontinuity keeps its
+amplitude when you halve $h$ (ratio $\approx 1$). A smooth field's face jumps are
+$O(h^2)$, so they fall by a factor of four. The label is now a statement about
+whether the mesh can resolve the feature — which is what "troubled" should have
+meant all along.
+
+Two constants, and I want to be honest about how I got them, because I nearly
+shipped them wrong. My proposed values were $\alpha=0.5$, $\gamma=3$. I measured
+them on a held-out batch before training anything, and:
+
+| $\alpha$, $\gamma$ | recall on cells a shock actually bisects | false positives on smooth fields |
+|---|---:|---:|
+| 0.5, 3.0 (proposed) | **16.5%** | 0.0002 |
+| **0.15, 2.0 (frozen)** | **89.3%** | 0.0005 |
+
+At $\alpha=0.5$ the rule labels *five out of six* genuinely bisected cells as
+smooth. The reason is arithmetic I should have done on paper first: the face-mean
+jump of an $L^2$-projected clean step is only about $0.5\,s_K$, so a threshold at
+$0.5$ sits exactly in the middle of the distribution it is supposed to separate.
+Had I not calibrated, I would have trained three models on an almost empty
+positive set and spent a week explaining the resulting garbage.
+
+The rule does what it promised. One steep layer of fixed physical width $1/16$:
+troubled in 19.5% of cells at $n=8$, where the mesh cannot resolve it — and
+**zero** cells at $n=16$, $32$, $64$, where it can. Same physics, different mesh,
+different label. The old cut label could never say that.
+
+### Three datasets, one factor at a time
+
+Then the data itself: six signed-distance curve families instead of two (ellipses,
+thin strips, polygons with corners, slotted disks — the deployment geometry, in
+the training set at last), one to three interacting fronts per sample, jump
+amplitudes log-uniform over $[10^{-3}, 3]$, sharp interfaces replaced by $\tanh$
+layers from fully-resolved down to sub-cell, smooth fields with real extrema as
+pure negatives, and — the whole point — evolved DG states from bounded rotation
+trajectories, half of them post-limiter, labelled from the exactly rotated
+reference.
+
+Since a bundle of changes tells you nothing about which change mattered, it goes
+in as a ladder, five seeds each, changing exactly one thing per rung:
+
+- **v3-A** — new labels, *old* line/circle geometry. Labels only.
+- **v3-B** — plus the expanded curves, the continua, the smooth negatives.
+- **v3-C** — plus the evolved solver states. The full thing.
+
+Same representation, same capacity, same optimizer, same seeds as the primary
+model. Only the data moves.
+
+### The result
+
+| model | $E_{L^2}$ | flagged | worst undershoot | flagged, $n=8 \to 16$ |
+|---|---:|---:|---:|---:|
+| primary (old exact data) | 0.1165 | **35.6%** | 0.0082 | 42.1% → 30.7% |
+| v3-A (labels only) | 0.1166 | 56.9% | 0.0081 | 55.6% → 58.8% |
+| v3-B (+ geometry) | 0.1167 | 63.2% | **0.0073** | 61.8% → 65.7% |
+| v3-C (everything) | 0.1167 | 76.8% | 0.0073 | 72.8% → 81.0% |
+
+Error identical to four digits. Undershoot better by 11% — real, but nowhere near
+the 25% I had predeclared as the bar. And flagging goes *up*, monotonically, until
+the full schema is limiting three cells in four. I set out to build a more
+selective detector and built a less selective one.
+
+Note which rung did it. **v3-A already carries the entire regression.** The
+corners, the steep layers, the evolved post-limiter states — the two components I
+built specifically to close the geometry and value gaps — only amplify what the
+label rule alone already did. The parts I was most confident about contributed
+nothing, again.
+
+But the number that actually settles it is offline. Score every checkpoint on a
+held-out set drawn from the *new* distribution and labelled with the *new* rule —
+home turf for the v3 models, out-of-distribution for the old one:
+
+| model | PR-AUC, old exact set | PR-AUC, **new v3 set** |
+|---|---:|---:|
+| primary (old exact data) | **0.666 ± 0.047** | 0.355 ± 0.014 |
+| v3-C (matched to deployment) | 0.574 ± 0.040 | **0.357 ± 0.015** |
+
+0.355 against 0.357. A third of one standard deviation. The model trained on clean
+lines and circles is *just as good on the distribution-matched data as the model
+trained on the distribution-matched data* — and it is better on the old set, which
+the v3 models paid 0.09 PR-AUC to walk away from.
+
+Matching the training distribution to deployment does not help. It does not help
+even on its own distribution. Whatever is limiting this detector, it is not what
+it was shown during training.
+
+I did not tune anything afterwards to rescue this — not $\alpha$, not $\gamma$,
+not the mixture, not the threshold. It goes in the paper as a negative ablation,
+and it is worth more to me than a small win would have been, because it closes a
+door. The architecture is not the problem (Section: it was the features). The
+optimizer is not the problem (the seed collapse was the representation). And now
+the data is not the problem either. What is left is the thing I have been circling
+this whole time: the model produces a number, and I have no principled way to turn
+that number into a decision that means the same thing on two different meshes.
+
+### One correction I owe you
+
+Running that convergence check over every checkpoint turned up something about the
+*primary* model, not about the new data.
+
+Remember the strongest result in this post — the learned indicator switching itself
+off on smooth flow and recovering the unlimited error exactly, while minmod
+collapses to first order. That was measured on an older checkpoint at $\tau=0.05$
+and $\tau=0.1$. The primary model, at the $\tau=0.02$ its own safety rule selects
+for it, has a fitted $L^2$ slope of **1.11 ± 0.02**.
+
+That is first order. That is minmod's number.
+
+It does not contradict the earlier result — different model, different threshold,
+and at $\tau=0.02$ this thing is flagging 36% of cells, so of course it damages a
+smooth solution. But it means the honest claim is narrower than the one I made:
+*a learned indicator can switch itself off and preserve the design order at a
+permissive enough threshold*, not *the model I selected does so at the threshold I
+selected for it*. I have separated the two everywhere they appear in the paper.
+
+Which is, once again, the same open problem wearing a different hat. $\tau=0.02$
+is not the same operating point for the primary model that $\tau=0.05$ was for its
+predecessor, and I still cannot tell you what would be.
 
 ### What is still broken
 
 I said at the top that this has a calibration problem I would not ship. That is
 still true, and the ablation sharpens it rather than solving it.
 
-No representation satisfies the $10^{-2}$ bound while remaining selective. And the
-threshold does not transfer *across representations* any more than it transferred
-across resolutions: τ = 0.02 means "flag everything" for one model and "flag one
-cell in eleven" for another. Every arrow I have points the same way — the
-probability coming out of the sigmoid is not a calibrated statement about anything,
-and thresholding it is the weakest link in the whole pipeline. Fixing the features
-made the *ranking* good. It did not make the *scale* meaningful.
+No representation satisfies the $10^{-2}$ bound while remaining selective — including
+the one I selected, which fails the constraint narrowly (0.0145 against a 0.01 rule)
+and is chosen because everything else fails it worse. The threshold does not transfer
+*across representations* any more than it transferred across resolutions: τ = 0.02
+means "flag everything" for one model and "flag one cell in eleven" for another.
 
-That is where the work goes next.
+And the fix I was most sure of turned out to trade one calibration problem for
+another. Fixing the features made the *ranking* good — that part worked, exactly as
+predicted. It did not make the *scale* meaningful, and the local scaling that most
+improved the ranking is precisely what wrecked the scale. The probability coming out
+of the sigmoid is still not a calibrated statement about anything.
+
+That is the open problem, and it is not a tuning detail. It is the thing standing
+between this and a limiter anyone should actually use. What it needs is a decision
+rule that does not depend on a global threshold at all — a per-mesh quantile, a
+normalized logit, something that cannot drift when the cells get smaller. That is
+where the work goes next.
 
 ## Reproducibility
 
@@ -527,18 +756,43 @@ Every number above comes from a machine-readable artifact — JSON for metrics, 
 for fields — rather than from a note I made while watching a run. The five-seed
 entries are means and sample standard deviations over all 30 rows; the two
 "diverged" cells in the 1D table are recorded failures with their $\Delta t$
-collapse times, not omissions.
+collapse times, not omissions. The selected model is a family of five checkpoints,
+one per training seed, pinned by hash — not the seed that happened to look best.
 
 The parts I have *not* done, and am therefore not claiming: 1D Burgers
 cross-indicator rows; any Euler-aware 2D learned indicator (my 2D Euler solver
 works, but it is driven by classical minmod — it is a solver result, not a
 learned-indicator result); and the rotation benchmarks of the earlier sections
 re-run with the invariant representations, which still use the historical
-checkpoints. The two families of numbers are kept separate and never mixed.
+checkpoints. The two families of numbers are kept separate and never mixed. The
+held-out meshes were run at one frozen threshold, so I can compare the four models
+at their frozen operating points but *not* at matched flag rates — that comparison
+exists only on the calibration meshes, and I have tried to say so every time it
+comes up.
+
+The `data-v3` ladder is frozen the same way: the label constants were calibrated on
+a held-out batch and written down *before* any model was trained on them, the
+acceptance criteria were predeclared before the ladder ran, and all 390 solver
+evaluations — 300 calibration runs and 90 held-out runs — completed without a
+timeout or a failure. Nothing was tuned afterwards
+to turn the rejection into an acceptance. Two deviations are on the record: the
+label constants are not the ones I originally proposed (they were measured and found
+badly wrong), and the evolved trajectories run on quality-controlled meshes, because
+a single trajectory on a random Delaunay mesh of the widened size range costs 502
+seconds against 11 for a structured mesh — sliver cells destroy the explicit time
+step.
 
 If there is a single transferable lesson here, it is the one that cost me the most
-to learn: **evaluate the indicator inside the solver.** The offline F1 will happily
-tell you the MLP is the better model, right up until you watch it undershoot.
+to learn: **evaluate the indicator inside the solver.** Offline F1 will happily tell
+you the MLP is the better model, right up until you watch it undershoot — and then,
+when you think you have learned that lesson, it will tell you to ship the one
+representation that fails at $n=16$.
+
+And the second lesson, which cost me a week: **write down what would falsify your
+fix, then go and measure it.** I was sure the training distribution was the problem.
+It was a good hypothesis, it was cheap to state precisely, and it was wrong — and
+knowing that it is wrong is worth more than another incremental win, because it
+means there is now exactly one explanation left standing.
 
 ---
 
