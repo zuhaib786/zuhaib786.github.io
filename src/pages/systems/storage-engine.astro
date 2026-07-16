@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Storage engine" description="An interactive LSM storage-engine write path, recovery, and compaction simulator." number="01" eyebrow="Persistence" heading="Inside a" accent="storage engine" lede="Advance one boundary at a time: append the log, cross fsync, mutate memory, flush immutable tables, then deliberately pull the power." noteTitle="What to notice" note="The acknowledgement point defines the durability contract. A write can be visible in memory long before it is safe, while compaction changes physical files without changing the logical database.">
+  <SystemsLaboratory kind="storage" />
+</ExperimentPage>

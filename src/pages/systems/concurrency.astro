@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Concurrency" description="An instruction-level concurrency, race condition, mutex, channel, and deadlock visualizer." number="03" eyebrow="Concurrency" heading="Threads in the" accent="in-between" lede="Three workers increment one value. The arithmetic is trivial; the possible orderings are not. Compare ownership, message passing, and unsynchronised access." noteTitle="The real unit" note="A source-level increment is a read, a calculation, and a write. Synchronisation protects the relationship between those instructions—not merely the variable itself.">
+  <SystemsLaboratory kind="concurrency" />
+</ExperimentPage>

@@ -3,11 +3,19 @@ const nav = [
   { href: "/blog", label: "Writing" },
   { href: "/series", label: "Series" },
   { href: "/notes", label: "Notes" },
+  { href: "/visuals", label: "Visuals" },
   { href: "/projects", label: "Projects" },
   { href: "/resume", label: "Résumé" },
 ];
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const visualPrefixes = [
+  "/earthquakes", "/algorithms", "/systems", "/distributed", "/databases",
+  "/runtime", "/networking", "/ml", "/gpu", "/reliability",
+];
+const isActive = (href: string) =>
+  path.startsWith(href) ||
+  (href === "/visuals" && visualPrefixes.some((prefix) => path.startsWith(prefix)));
 ---
 
 <header>
@@ -21,7 +29,7 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
         nav.map((item) => (
           <a
             href={item.href}
-            class:list={["nav-link", { active: path.startsWith(item.href) }]}
+            class:list={["nav-link", { active: isActive(item.href) }]}
           >
             {item.label}
           </a>

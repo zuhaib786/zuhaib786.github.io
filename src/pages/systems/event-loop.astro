@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Event loop" description="Interactive call stack, microtask, timer, I/O callback, fairness, and cooperative scheduling visualizer." number="09" eyebrow="Asynchronous runtimes" heading="One thread," accent="many queues" lede="Move callbacks from queue to stack one turn at a time. Promises, timers, I/O, and long-running work compete under different scheduling policies." noteTitle="Latency lens" note="Asynchronous does not mean simultaneous. A callback becomes runnable only by joining a queue, and it still needs the single call stack to become available.">
+  <SystemsLaboratory kind="eventloop" />
+</ExperimentPage>

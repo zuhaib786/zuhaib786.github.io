@@ -1,0 +1,85 @@
+---
+import Base from "../layouts/Base.astro";
+import EarthquakeObservatory from "../components/visuals/EarthquakeObservatory.astro";
+---
+
+<Base
+  title="Earthquakes — Visuals by Zuhaib Ul Zamann"
+  description="An interactive globe of recent earthquakes, using live data from the USGS."
+>
+  <section class="experiment-head">
+    <div>
+      <a href="/visuals" class="label back">← Visual laboratory</a>
+      <p class="label label--accent">Experiment 001 · Live geospatial data</p>
+      <h1>Earthquakes</h1>
+    </div>
+    <p class="lede">
+      The planet is never still. Drag the globe to follow the fault lines;
+      filter the past month by magnitude and hover over an epicentre for its
+      story.
+    </p>
+  </section>
+
+  <EarthquakeObservatory />
+
+  <footer class="source-note">
+    <span class="label">Data provenance</span>
+    <p>
+      Live event data comes from the
+      <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php">USGS GeoJSON feed</a>.
+      Magnitudes and locations may be revised after review. A labelled sample
+      is used if the live feed cannot be reached.
+    </p>
+  </footer>
+</Base>
+
+<style>
+  .experiment-head {
+    display: grid;
+    grid-template-columns: 1fr minmax(19rem, 0.68fr);
+    align-items: end;
+    gap: 3rem;
+    padding: 3rem 0 2rem;
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.85;
+  }
+
+  .lede {
+    max-width: 31rem;
+    padding-bottom: 0.2rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+  }
+
+  .source-note {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+  }
+
+  .source-note p { max-width: 43rem; }
+
+  @media (max-width: 44rem) {
+    .experiment-head { grid-template-columns: 1fr; gap: 1.5rem; }
+    .source-note { grid-template-columns: 1fr; }
+  }
+</style>

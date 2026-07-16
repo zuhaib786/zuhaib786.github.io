@@ -1,0 +1,877 @@
+<sorting-laboratory tabindex="0">
+  <section class="sorting-lab" aria-label="Interactive sorting algorithm visualizer">
+    <div class="algorithm-tabs" role="tablist" aria-label="Sorting algorithm">
+      <button type="button" class="active" data-algorithm="quick" role="tab" aria-selected="true">Quick</button>
+      <button type="button" data-algorithm="merge" role="tab" aria-selected="false">Merge</button>
+      <button type="button" data-algorithm="insertion" role="tab" aria-selected="false">Insertion</button>
+      <button type="button" data-algorithm="selection" role="tab" aria-selected="false">Selection</button>
+      <button type="button" data-algorithm="bubble" role="tab" aria-selected="false">Bubble</button>
+    </div>
+
+    <div class="machine">
+      <div class="stage">
+        <div class="stage-meta">
+          <div>
+            <span class="label label--accent" data-state>Ready</span>
+            <span class="operation" data-operation>Unsorted input</span>
+          </div>
+          <span class="label key-hint">Space: run/pause · →: step</span>
+        </div>
+        <canvas data-array aria-label="Bars representing the values being sorted"></canvas>
+        <div class="legend label" aria-hidden="true">
+          <span><i class="normal"></i>Unseen</span>
+          <span><i class="compare"></i>Comparing</span>
+          <span><i class="write"></i>Moving</span>
+          <span><i class="sorted"></i>In place</span>
+        </div>
+      </div>
+
+      <aside class="console">
+        <header>
+          <p class="label label--accent">Algorithm / <span data-number>01</span></p>
+          <h2 data-name>Quicksort</h2>
+          <p data-description>
+            Partition around a pivot, then recursively sort both sides.
+          </p>
+        </header>
+
+        <div class="complexity">
+          <div><span>Best</span><strong data-best>n log n</strong></div>
+          <div><span>Average</span><strong data-average>n log n</strong></div>
+          <div><span>Worst</span><strong data-worst>n²</strong></div>
+          <div><span>Space</span><strong data-space>log n</strong></div>
+        </div>
+
+        <pre aria-label="Algorithm pseudocode"><code data-code></code></pre>
+
+        <div class="metrics" aria-live="polite">
+          <div><span data-comparisons>0</span><small>Comparisons</small></div>
+          <div><span data-writes>0</span><small>Array writes</small></div>
+          <div><span data-progress>0%</span><small>Placed</small></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="transport">
+      <div class="primary-controls">
+        <button type="button" class="run" data-run>
+          <span class="run-icon" aria-hidden="true">▶</span>
+          <span data-run-label>Run algorithm</span>
+        </button>
+        <button type="button" data-step>Step →</button>
+        <button type="button" data-shuffle>Shuffle</button>
+      </div>
+      <label>
+        <span>Array size <b data-size-label>36</b></span>
+        <input data-size type="range" min="10" max="96" value="36" />
+      </label>
+      <label>
+        <span>Speed <b data-speed-label>29 op/s</b></span>
+        <input data-speed type="range" min="1" max="100" value="58" />
+      </label>
+    </div>
+  </section>
+</sorting-laboratory>
+
+<script>
+  type AlgorithmKey = "quick" | "merge" | "insertion" | "selection" | "bubble";
+  type Operation = {
+    kind: "compare" | "swap" | "write" | "mark" | "pivot";
+    a?: number;
+    b?: number;
+    value?: number;
+    indices?: number[];
+  };
+
+  type Algorithm = {
+    number: string;
+    name: string;
+    description: string;
+    best: string;
+    average: string;
+    worst: string;
+    space: string;
+    code: string;
+  };
+
+  const ALGORITHMS: Record<AlgorithmKey, Algorithm> = {
+    quick: {
+      number: "01",
+      name: "Quicksort",
+      description: "Partition around a pivot, then recursively sort both sides.",
+      best: "n log n",
+      average: "n log n",
+      worst: "n²",
+      space: "log n",
+      code: `sort(a, lo, hi):
+  pivot = partition(a, lo, hi)
+  sort(a, lo, pivot - 1)
+  sort(a, pivot + 1, hi)`,
+    },
+    merge: {
+      number: "02",
+      name: "Merge sort",
+      description: "Split repeatedly, then merge ordered halves back together.",
+      best: "n log n",
+      average: "n log n",
+      worst: "n log n",
+      space: "n",
+      code: `sort(a):
+  left, right = split(a)
+  sort(left); sort(right)
+  merge(left, right, a)`,
+    },
+    insertion: {
+      number: "03",
+      name: "Insertion sort",
+      description: "Grow a sorted prefix by sliding each new value into place.",
+      best: "n",
+      average: "n²",
+      worst: "n²",
+      space: "1",
+      code: `for i = 1 … n:
+  j = i
+  while j > 0 and a[j] < a[j-1]:
+    swap(a[j], a[j-1])
+    j--`,
+    },
+    selection: {
+      number: "04",
+      name: "Selection sort",
+      description: "Find the smallest remaining value and place it at the frontier.",
+      best: "n²",
+      average: "n²",
+      worst: "n²",
+      space: "1",
+      code: `for i = 0 … n:
+  minimum = i
+  for j = i + 1 … n:
+    if a[j] < a[minimum]: minimum = j
+  swap(a[i], a[minimum])`,
+    },
+    bubble: {
+      number: "05",
+      name: "Bubble sort",
+      description: "Sweep adjacent inversions rightward until no pair is out of order.",
+      best: "n",
+      average: "n²",
+      worst: "n²",
+      space: "1",
+      code: `repeat:
+  swapped = false
+  for each adjacent pair (a, b):
+    if a > b: swap(a, b)
+until not swapped`,
+    },
+  };
+
+  function* bubbleSort(a: number[]): Generator<Operation> {
+    for (let end = a.length - 1; end > 0; end--) {
+      let swapped = false;
+      for (let i = 0; i < end; i++) {
+        yield { kind: "compare", a: i, b: i + 1 };
+        if (a[i] > a[i + 1]) {
+          [a[i], a[i + 1]] = [a[i + 1], a[i]];
+          swapped = true;
+          yield { kind: "swap", a: i, b: i + 1 };
+        }
+      }
+      yield { kind: "mark", indices: [end] };
+      if (!swapped) {
+        yield { kind: "mark", indices: Array.from({ length: end }, (_, i) => i) };
+        break;
+      }
+    }
+    yield { kind: "mark", indices: [0] };
+  }
+
+  function* selectionSort(a: number[]): Generator<Operation> {
+    for (let i = 0; i < a.length - 1; i++) {
+      let minimum = i;
+      yield { kind: "pivot", a: minimum };
+      for (let j = i + 1; j < a.length; j++) {
+        yield { kind: "compare", a: minimum, b: j };
+        if (a[j] < a[minimum]) {
+          minimum = j;
+          yield { kind: "pivot", a: minimum };
+        }
+      }
+      if (minimum !== i) {
+        [a[i], a[minimum]] = [a[minimum], a[i]];
+        yield { kind: "swap", a: i, b: minimum };
+      }
+      yield { kind: "mark", indices: [i] };
+    }
+    yield { kind: "mark", indices: [a.length - 1] };
+  }
+
+  function* insertionSort(a: number[]): Generator<Operation> {
+    for (let i = 1; i < a.length; i++) {
+      let j = i;
+      while (j > 0) {
+        yield { kind: "compare", a: j - 1, b: j };
+        if (a[j - 1] <= a[j]) break;
+        [a[j - 1], a[j]] = [a[j], a[j - 1]];
+        yield { kind: "swap", a: j - 1, b: j };
+        j--;
+      }
+    }
+  }
+
+  function* quickSort(a: number[]): Generator<Operation> {
+    function* partition(lo: number, hi: number): Generator<Operation, number> {
+      const pivot = a[hi];
+      let frontier = lo;
+      yield { kind: "pivot", a: hi };
+      for (let i = lo; i < hi; i++) {
+        yield { kind: "compare", a: i, b: hi };
+        if (a[i] <= pivot) {
+          if (i !== frontier) {
+            [a[i], a[frontier]] = [a[frontier], a[i]];
+            yield { kind: "swap", a: i, b: frontier };
+          }
+          frontier++;
+        }
+      }
+      if (frontier !== hi) {
+        [a[frontier], a[hi]] = [a[hi], a[frontier]];
+        yield { kind: "swap", a: frontier, b: hi };
+      }
+      return frontier;
+    }
+
+    function* sort(lo: number, hi: number): Generator<Operation> {
+      if (lo > hi) return;
+      if (lo === hi) {
+        yield { kind: "mark", indices: [lo] };
+        return;
+      }
+      const pivot = yield* partition(lo, hi);
+      yield { kind: "mark", indices: [pivot] };
+      yield* sort(lo, pivot - 1);
+      yield* sort(pivot + 1, hi);
+    }
+
+    yield* sort(0, a.length - 1);
+  }
+
+  function* mergeSort(a: number[]): Generator<Operation> {
+    const auxiliary = [...a];
+    function* sort(lo: number, hi: number): Generator<Operation> {
+      if (hi - lo <= 1) return;
+      const middle = Math.floor((lo + hi) / 2);
+      yield* sort(lo, middle);
+      yield* sort(middle, hi);
+      for (let i = lo; i < hi; i++) auxiliary[i] = a[i];
+      let left = lo;
+      let right = middle;
+      for (let write = lo; write < hi; write++) {
+        if (left < middle && right < hi) {
+          yield { kind: "compare", a: left, b: right };
+        }
+        let value: number;
+        if (left >= middle || (right < hi && auxiliary[right] < auxiliary[left])) {
+          value = auxiliary[right++];
+        } else {
+          value = auxiliary[left++];
+        }
+        a[write] = value;
+        yield { kind: "write", a: write, value };
+      }
+    }
+    yield* sort(0, a.length);
+  }
+
+  class SortingLaboratory extends HTMLElement {
+    canvas!: HTMLCanvasElement;
+    ctx!: CanvasRenderingContext2D;
+    algorithm: AlgorithmKey = "quick";
+    original: number[] = [];
+    values: number[] = [];
+    iterator!: Generator<Operation>;
+    sorted = new Set<number>();
+    active: number[] = [];
+    activeKind: Operation["kind"] | "idle" = "idle";
+    comparisons = 0;
+    writes = 0;
+    running = false;
+    finished = false;
+    width = 0;
+    height = 0;
+    frame = 0;
+    lastFrame = 0;
+    accumulator = 0;
+    aborter = new AbortController();
+    resizeObserver?: ResizeObserver;
+    themeObserver?: MutationObserver;
+
+    connectedCallback() {
+      this.canvas = this.querySelector("[data-array]") as HTMLCanvasElement;
+      const ctx = this.canvas.getContext("2d");
+      if (!ctx) return;
+      this.ctx = ctx;
+      this.bind();
+      this.resizeObserver = new ResizeObserver(() => this.layout());
+      this.resizeObserver.observe(this.canvas);
+      this.themeObserver = new MutationObserver(() => this.draw());
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+      this.shuffle();
+      this.selectAlgorithm("quick");
+      this.updateSpeedLabel();
+      this.layout();
+      this.frame = requestAnimationFrame((time) => this.animate(time));
+    }
+
+    disconnectedCallback() {
+      cancelAnimationFrame(this.frame);
+      this.aborter.abort();
+      this.resizeObserver?.disconnect();
+      this.themeObserver?.disconnect();
+    }
+
+    bind() {
+      const signal = this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-algorithm]").forEach((button) => {
+        button.addEventListener("click", () => this.selectAlgorithm(button.dataset.algorithm as AlgorithmKey), { signal });
+      });
+      this.querySelector("[data-run]")?.addEventListener("click", () => this.toggleRun(), { signal });
+      this.querySelector("[data-step]")?.addEventListener("click", () => this.stepOnce(), { signal });
+      this.querySelector("[data-shuffle]")?.addEventListener("click", () => this.shuffle(), { signal });
+
+      const size = this.querySelector<HTMLInputElement>("[data-size]");
+      size?.addEventListener("input", () => {
+        this.text("[data-size-label]", size.value);
+        this.shuffle();
+      }, { signal });
+      const speed = this.querySelector<HTMLInputElement>("[data-speed]");
+      speed?.addEventListener("input", () => this.updateSpeedLabel(), { signal });
+
+      this.addEventListener("keydown", (event) => {
+        if ((event.target as Element).matches("input, button")) return;
+        if (event.code === "Space") {
+          event.preventDefault();
+          this.toggleRun();
+        } else if (event.code === "ArrowRight") {
+          event.preventDefault();
+          this.stepOnce();
+        }
+      }, { signal });
+    }
+
+    selectAlgorithm(key: AlgorithmKey) {
+      this.algorithm = key;
+      this.querySelectorAll<HTMLButtonElement>("[data-algorithm]").forEach((button) => {
+        const active = button.dataset.algorithm === key;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+      });
+      const info = ALGORITHMS[key];
+      this.text("[data-number]", info.number);
+      this.text("[data-name]", info.name);
+      this.text("[data-description]", info.description);
+      this.text("[data-best]", info.best);
+      this.text("[data-average]", info.average);
+      this.text("[data-worst]", info.worst);
+      this.text("[data-space]", info.space);
+      this.text("[data-code]", info.code);
+      this.reset();
+    }
+
+    shuffle() {
+      const size = Number(this.querySelector<HTMLInputElement>("[data-size]")?.value || 36);
+      const values = Array.from({ length: size }, (_, index) =>
+        Math.round(8 + (index / Math.max(1, size - 1)) * 92),
+      );
+      for (let i = values.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [values[i], values[j]] = [values[j], values[i]];
+      }
+      this.original = values;
+      this.text("[data-size-label]", String(size));
+      this.reset();
+    }
+
+    reset() {
+      this.running = false;
+      this.finished = false;
+      this.values = [...this.original];
+      this.sorted.clear();
+      this.active = [];
+      this.activeKind = "idle";
+      this.comparisons = 0;
+      this.writes = 0;
+      this.accumulator = 0;
+      this.iterator = this.makeIterator([...this.values]);
+      this.setState("Ready", "Unsorted input");
+      this.updateMetrics();
+      this.updateRunButton();
+      this.draw();
+    }
+
+    makeIterator(values: number[]) {
+      switch (this.algorithm) {
+        case "merge": return mergeSort(values);
+        case "insertion": return insertionSort(values);
+        case "selection": return selectionSort(values);
+        case "bubble": return bubbleSort(values);
+        default: return quickSort(values);
+      }
+    }
+
+    toggleRun() {
+      if (this.finished) this.reset();
+      this.running = !this.running;
+      this.setState(this.running ? "Running" : "Paused", this.running ? "Reading next operation" : "Execution suspended");
+      this.updateRunButton();
+    }
+
+    stepOnce() {
+      if (this.finished) this.reset();
+      this.running = false;
+      this.nextOperation();
+      if (!this.finished) this.setState("Single step", this.operationLabel());
+      this.updateRunButton();
+      this.draw();
+    }
+
+    nextOperation() {
+      const next = this.iterator.next();
+      if (next.done) {
+        this.finish();
+        return false;
+      }
+      const operation = next.value;
+      this.activeKind = operation.kind;
+      this.active = [operation.a, operation.b].filter((value): value is number => value !== undefined);
+      if (operation.kind === "compare") {
+        this.comparisons++;
+      } else if (operation.kind === "swap" && operation.a !== undefined && operation.b !== undefined) {
+        [this.values[operation.a], this.values[operation.b]] = [this.values[operation.b], this.values[operation.a]];
+        this.writes += 2;
+      } else if (operation.kind === "write" && operation.a !== undefined && operation.value !== undefined) {
+        this.values[operation.a] = operation.value;
+        this.writes++;
+      } else if (operation.kind === "mark") {
+        operation.indices?.forEach((index) => this.sorted.add(index));
+      }
+      this.setState(this.running ? "Running" : "Single step", this.operationLabel());
+      this.updateMetrics();
+      return true;
+    }
+
+    finish() {
+      this.running = false;
+      this.finished = true;
+      this.active = [];
+      this.activeKind = "idle";
+      this.values.forEach((_, index) => this.sorted.add(index));
+      this.setState("Complete", `Sorted ${this.values.length} values`);
+      this.updateMetrics();
+      this.updateRunButton();
+      this.draw();
+    }
+
+    animate(time: number) {
+      const delta = Math.min(50, time - (this.lastFrame || time));
+      this.lastFrame = time;
+      let changed = false;
+      if (this.running) {
+        this.accumulator += delta;
+        const delay = 1000 / this.speedRate();
+        let operations = 0;
+        while (this.accumulator >= delay && operations < 140 && this.running) {
+          this.accumulator -= delay;
+          changed = this.nextOperation() || changed;
+          operations++;
+        }
+      }
+      if (changed) this.draw();
+      this.frame = requestAnimationFrame((next) => this.animate(next));
+    }
+
+    speedRate() {
+      const value = Number(this.querySelector<HTMLInputElement>("[data-speed]")?.value || 58);
+      return Math.round(2 * Math.pow(2, value / 15));
+    }
+
+    updateSpeedLabel() {
+      this.text("[data-speed-label]", `${this.speedRate()} op/s`);
+    }
+
+    updateMetrics() {
+      this.text("[data-comparisons]", this.comparisons.toLocaleString());
+      this.text("[data-writes]", this.writes.toLocaleString());
+      this.text("[data-progress]", `${Math.round((this.sorted.size / Math.max(1, this.values.length)) * 100)}%`);
+    }
+
+    updateRunButton() {
+      this.text("[data-run-label]", this.finished ? "Run again" : this.running ? "Pause" : "Run algorithm");
+      this.text(".run-icon", this.running ? "Ⅱ" : this.finished ? "↻" : "▶");
+      this.querySelector("[data-run]")?.classList.toggle("active", this.running);
+    }
+
+    operationLabel() {
+      const [a, b] = this.active;
+      switch (this.activeKind) {
+        case "compare": return `Compare indices ${a} and ${b}`;
+        case "swap": return `Swap indices ${a} and ${b}`;
+        case "write": return `Write value at index ${a}`;
+        case "pivot": return `Choose index ${a} as pivot`;
+        case "mark": return "Value reached its final position";
+        default: return "Unsorted input";
+      }
+    }
+
+    setState(state: string, operation: string) {
+      this.text("[data-state]", state);
+      this.text("[data-operation]", operation);
+    }
+
+    layout() {
+      const rect = this.canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      this.width = rect.width;
+      this.height = rect.height;
+      this.canvas.width = Math.round(rect.width * dpr);
+      this.canvas.height = Math.round(rect.height * dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.draw();
+    }
+
+    draw() {
+      if (!this.ctx || !this.width || !this.height || !this.values.length) return;
+      const ctx = this.ctx;
+      const styles = getComputedStyle(this);
+      const color = (name: string) => styles.getPropertyValue(name).trim();
+      ctx.clearRect(0, 0, this.width, this.height);
+
+      ctx.strokeStyle = color("--sort-grid");
+      ctx.lineWidth = 0.6;
+      for (let y = 34; y < this.height - 30; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(this.width, y + 0.5);
+        ctx.stroke();
+      }
+
+      const top = 32;
+      const bottom = this.height - 30;
+      const available = bottom - top;
+      const slot = this.width / this.values.length;
+      const gap = Math.min(4, Math.max(1, slot * 0.16));
+      const barWidth = Math.max(1, slot - gap);
+
+      this.values.forEach((value, index) => {
+        const height = (value / 100) * available;
+        const x = index * slot + gap / 2;
+        const y = bottom - height;
+        let fill = color("--sort-bar");
+        if (this.sorted.has(index)) fill = color("--sort-sorted");
+        if (this.active.includes(index)) {
+          fill = this.activeKind === "compare" || this.activeKind === "pivot"
+            ? color("--sort-compare")
+            : color("--sort-write");
+        }
+        ctx.fillStyle = fill;
+        ctx.beginPath();
+        const radius = Math.min(3, barWidth / 2);
+        ctx.roundRect(x, y, barWidth, height, [radius, radius, 0, 0]);
+        ctx.fill();
+
+        if (this.active.includes(index)) {
+          ctx.fillStyle = color("--sort-cap");
+          ctx.fillRect(x, y, barWidth, Math.min(2, height));
+        }
+      });
+
+      ctx.strokeStyle = color("--sort-axis");
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, bottom + 0.5);
+      ctx.lineTo(this.width, bottom + 0.5);
+      ctx.stroke();
+    }
+
+    text(selector: string, value: string) {
+      const element = this.querySelector(selector);
+      if (element) element.textContent = value;
+    }
+  }
+
+  if (!customElements.get("sorting-laboratory")) {
+    customElements.define("sorting-laboratory", SortingLaboratory);
+  }
+</script>
+
+<style>
+  sorting-laboratory {
+    --sort-grid: rgba(19, 24, 36, 0.09);
+    --sort-axis: rgba(19, 24, 36, 0.5);
+    --sort-bar: #66718f;
+    --sort-compare: #d9a52b;
+    --sort-write: #c8401a;
+    --sort-sorted: #4b3fd6;
+    --sort-cap: rgba(255, 255, 255, 0.85);
+    display: block;
+    outline: none;
+  }
+
+  :global(html[data-theme="dark"]) sorting-laboratory {
+    --sort-grid: rgba(150, 180, 255, 0.1);
+    --sort-axis: rgba(180, 205, 255, 0.42);
+    --sort-bar: #526189;
+    --sort-compare: #f0c95b;
+    --sort-write: #ff6687;
+    --sort-sorted: #6fd6ff;
+    --sort-cap: rgba(232, 242, 255, 0.9);
+  }
+
+  .sorting-lab {
+    overflow: hidden;
+    background: color-mix(in srgb, var(--glass) 80%, transparent);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
+  }
+
+  .algorithm-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  button,
+  input { font: inherit; }
+
+  button { cursor: pointer; }
+
+  .algorithm-tabs button {
+    min-height: 3.25rem;
+    color: var(--ink-soft);
+    background: var(--glass);
+    border: 0;
+    border-right: 1px solid var(--glass-border);
+    font-size: 0.6875rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    transition: background 150ms ease, color 150ms ease;
+  }
+
+  .algorithm-tabs button:last-child { border-right: 0; }
+  .algorithm-tabs button:hover { color: var(--interact); }
+
+  .algorithm-tabs button.active {
+    color: var(--paper);
+    background: var(--ink);
+  }
+
+  .machine {
+    display: grid;
+    grid-template-columns: minmax(28rem, 1.45fr) minmax(18rem, 0.55fr);
+    min-height: 33rem;
+  }
+
+  .stage {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 33rem;
+    padding: 1.25rem 1.35rem 1rem;
+    overflow: hidden;
+    border-right: 1px solid var(--glass-border);
+    background:
+      linear-gradient(to right, var(--reseau) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--reseau) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .stage-meta,
+  .legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .stage-meta > div { display: flex; align-items: baseline; gap: 0.8rem; }
+  .operation { color: var(--ink-soft); font-size: 0.6875rem; }
+  .key-hint { color: var(--ink-faint); font-size: 0.55rem; }
+
+  [data-array] {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 25rem;
+  }
+
+  .legend {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    min-height: 2rem;
+    color: var(--ink-faint);
+    font-size: 0.55rem;
+  }
+
+  .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .legend i { width: 7px; height: 7px; border-radius: 2px; background: var(--sort-bar); }
+  .legend .compare { background: var(--sort-compare); }
+  .legend .write { background: var(--sort-write); }
+  .legend .sorted { background: var(--sort-sorted); }
+
+  .console {
+    display: flex;
+    flex-direction: column;
+    padding: 1.6rem;
+    background: color-mix(in srgb, var(--paper-sunken) 40%, transparent);
+  }
+
+  .console h2 {
+    margin: 0.55rem 0 0.7rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 400;
+    line-height: 0.95;
+  }
+
+  .console header > p:last-child {
+    min-height: 3.7rem;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+    line-height: 1.55;
+  }
+
+  .complexity {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 1.35rem;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+
+  .complexity div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0.55rem;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.58rem;
+  }
+
+  .complexity span { color: var(--ink-faint); text-transform: uppercase; }
+  .complexity strong { font-weight: 500; white-space: nowrap; }
+
+  pre {
+    flex: 1;
+    min-height: 8.8rem;
+    margin-top: 1.35rem;
+    padding: 0.9rem;
+    overflow: auto;
+    color: var(--ink-soft);
+    background: var(--code-wash);
+    border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .metrics div {
+    min-width: 0;
+    padding: 0.6rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 7px;
+  }
+
+  .metrics span,
+  .metrics small { display: block; }
+  .metrics span { font-size: 0.95rem; }
+  .metrics small { margin-top: 0.2rem; overflow: hidden; color: var(--ink-faint); font-size: 0.5rem; letter-spacing: 0.05em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+
+  .transport {
+    display: grid;
+    grid-template-columns: minmax(20rem, 1fr) minmax(12rem, 0.45fr) minmax(12rem, 0.45fr);
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 5.2rem;
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--glass-border);
+    background: var(--glass);
+  }
+
+  .primary-controls { display: flex; align-items: center; gap: 0.5rem; }
+
+  .primary-controls button {
+    min-height: 2.55rem;
+    padding: 0.55rem 0.8rem;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    font-size: 0.65rem;
+  }
+
+  .primary-controls button:hover { color: var(--interact); border-color: var(--interact); }
+
+  .primary-controls .run {
+    min-width: 9.5rem;
+    color: var(--paper);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .primary-controls .run.active {
+    color: var(--paper);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .run-icon { display: inline-block; width: 1rem; margin-right: 0.25rem; }
+
+  .transport label { display: grid; grid-template-columns: 1fr; gap: 0.35rem; color: var(--ink-soft); font-size: 0.58rem; text-transform: uppercase; }
+  .transport label span { display: flex; justify-content: space-between; gap: 0.5rem; }
+  .transport label b { color: var(--ink); font-weight: 500; text-transform: none; }
+
+  input[type="range"] {
+    width: 100%;
+    height: 3px;
+    accent-color: var(--interact);
+    cursor: pointer;
+  }
+
+  @media (max-width: 58rem) {
+    .machine { grid-template-columns: 1fr; }
+    .stage { border-right: 0; border-bottom: 1px solid var(--glass-border); }
+    .console { min-height: 29rem; }
+    .transport { grid-template-columns: 1fr 1fr; }
+    .primary-controls { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 42rem) {
+    .algorithm-tabs { grid-template-columns: repeat(3, 1fr); }
+    .algorithm-tabs button:nth-child(3) { border-right: 0; }
+    .algorithm-tabs button:nth-child(n + 4) { border-top: 1px solid var(--glass-border); }
+    .machine { min-height: 0; }
+    .stage { min-height: 26rem; padding-inline: 0.75rem; }
+    [data-array] { min-height: 19rem; }
+    .key-hint { display: none; }
+    .stage-meta > div { align-items: flex-start; flex-direction: column; gap: 0.15rem; }
+    .console { min-height: 0; padding: 1.15rem; }
+    .transport { grid-template-columns: 1fr; }
+    .primary-controls { grid-column: auto; flex-wrap: wrap; }
+    .primary-controls .run { flex: 1 1 100%; }
+  }
+</style>

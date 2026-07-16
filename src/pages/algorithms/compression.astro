@@ -1,0 +1,7 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import CompressionLaboratory from "../../components/visuals/CompressionLaboratory.astro";
+---
+<AlgorithmPage title="Compression" description="Encode editable text with Huffman, run-length, and LZ77 compression." number="009" eyebrow="Information" heading="Repetition becomes" accent="reference." lede="Edit the source and emit its compressed representation one token at a time: prefix bits, symbol runs, or backward sliding-window matches." noteTitle="No universal winner" note="Huffman exploits unequal symbol frequency, RLE exploits long adjacent runs, and LZ77 exploits repeated substrings. Real formats layer techniques because data rarely offers only one kind of redundancy.">
+  <CompressionLaboratory />
+</AlgorithmPage>

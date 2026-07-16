@@ -1,0 +1,7 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import PathfindingLaboratory from "../../components/visuals/PathfindingLaboratory.astro";
+---
+<AlgorithmPage title="Pathfinding" description="Draw terrain and compare four pathfinding algorithms." number="003" eyebrow="Search" heading="Paths," accent="found." lede="Draw walls and weighted terrain, move the endpoints, then watch four search strategies expose the cost of choosing where to look next." noteTitle="Optimality" note="BFS and bidirectional BFS minimize edge count on unweighted grids. Dijkstra minimizes total cost; A* reaches the same optimal result faster when its heuristic never overestimates.">
+  <PathfindingLaboratory />
+</AlgorithmPage>

@@ -1,0 +1,7 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import DynamicProgrammingLaboratory from "../../components/visuals/DynamicProgrammingLaboratory.astro";
+---
+<AlgorithmPage title="Dynamic Programming" description="Fill and trace dynamic-programming tables for three classic problems." number="008" eyebrow="Optimal substructure" heading="Remember every" accent="smaller answer." lede="Change the input, fill one dependency cell at a time, and trace the choices that turn a table of overlapping subproblems into an optimal result." noteTitle="A table is a proof" note="Each cell records a claim derived only from already-solved neighbours. The fill order establishes those dependencies; traceback explains which locally recorded choices constitute the final optimum.">
+  <DynamicProgrammingLaboratory />
+</AlgorithmPage>

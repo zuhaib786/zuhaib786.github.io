@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="GPU compute" description="Interactive GPU dispatch, workgroup, memory coalescing, striding, and warp divergence visualizer." number="11" eyebrow="Parallel computing" heading="Thousands move" accent="together" lede="Dispatch a grid of workgroups, inspect one warp, and compare the cost of nearby addresses, large strides, and branches whose lanes disagree." noteTitle="Throughput lens" note="GPU performance comes from doing the same useful work across many lanes. Scattered memory and divergent control flow make the machine spend cycles on partially idle groups.">
+  <SystemsLaboratory kind="gpu" />
+</ExperimentPage>

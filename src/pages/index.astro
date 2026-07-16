@@ -45,12 +45,18 @@ const sections = [
   },
   {
     number: "04",
+    title: "Visuals",
+    href: "/visuals",
+    blurb: "Interactive explanations, simulations and data experiments.",
+  },
+  {
+    number: "05",
     title: "Projects",
     href: "/projects",
     blurb: "Selected personal and academic projects.",
   },
   {
-    number: "05",
+    number: "06",
     title: "Résumé",
     href: "/resume",
     blurb: "Education, experience and technical skills.",
@@ -231,13 +237,11 @@ const sections = [
 
   .grid {
     display: grid;
-    /* 5 glass tiles in a single row on desktop; collapse straight to one
-       column below, never a ragged partial row */
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.875rem;
   }
 
-  @media (max-width: 60rem) {
+  @media (max-width: 48rem) {
     .grid {
       grid-template-columns: 1fr;
     }

@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Memory hierarchy" description="Interactive CPU cache locality and memory access pattern visualizer." number="04" eyebrow="Computer architecture" heading="The shape of" accent="locality" lede="Walk the same matrix three ways and trace each address through an L1, an L2, and main memory. The program's answer is identical; its traffic is not." noteTitle="Performance lens" note="Caches move lines rather than isolated values. Sequential access amortises a miss across nearby elements, while a stride can repeatedly pay the full hierarchy cost.">
+  <SystemsLaboratory kind="cache" />
+</ExperimentPage>

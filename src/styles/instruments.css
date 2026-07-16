@@ -1,0 +1,118 @@
+/* Shared controls for the interactive algorithm instruments. */
+.instrument {
+  overflow: hidden;
+  background: color-mix(in srgb, var(--glass) 82%, transparent);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
+}
+
+.instrument-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--glass-border);
+  scrollbar-width: thin;
+}
+
+.instrument-tabs button {
+  flex: 1 0 auto;
+  min-width: 7.5rem;
+  min-height: 3.1rem;
+  padding: 0.55rem 0.9rem;
+  color: var(--ink-soft);
+  background: var(--glass);
+  border: 0;
+  border-right: 1px solid var(--glass-border);
+  font: 500 0.65rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.instrument-tabs button:last-child { border-right: 0; }
+.instrument-tabs button:hover { color: var(--interact); }
+.instrument-tabs button.active { color: var(--paper); background: var(--ink); }
+
+.instrument-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-height: 4.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--glass-border);
+  background: var(--glass);
+}
+
+.instrument button,
+.instrument input,
+.instrument select,
+.instrument textarea { font-family: var(--font-mono); }
+
+.instrument-action {
+  min-height: 2.4rem;
+  padding: 0.48rem 0.75rem;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  font-size: 0.62rem;
+  cursor: pointer;
+}
+
+.instrument-action:hover,
+.instrument-action.active { color: var(--interact); border-color: var(--interact); }
+.instrument-action.primary { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.instrument-action.primary.active { background: var(--accent); border-color: var(--accent); }
+
+.instrument-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 0.65rem;
+}
+
+.instrument-status strong { color: var(--interact); font-weight: 500; }
+.instrument-status .hint { color: var(--ink-faint); font-size: 0.55rem; }
+
+.instrument-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.instrument-metrics > div {
+  min-width: 0;
+  padding: 0.65rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+}
+
+.instrument-metrics span,
+.instrument-metrics small { display: block; }
+.instrument-metrics span { font-size: 1rem; }
+.instrument-metrics small { margin-top: 0.15rem; overflow: hidden; color: var(--ink-faint); font-size: 0.48rem; letter-spacing: 0.06em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+
+.instrument-range {
+  display: grid;
+  min-width: 10rem;
+  gap: 0.25rem;
+  margin-left: auto;
+  color: var(--ink-faint);
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.instrument-range span { display: flex; justify-content: space-between; }
+.instrument-range input { width: 100%; height: 3px; accent-color: var(--interact); cursor: pointer; }
+
+@media (max-width: 42rem) {
+  .instrument-status { align-items: flex-start; flex-direction: column; }
+  .instrument-range { width: 100%; margin-left: 0; }
+}

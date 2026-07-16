@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Raft consensus" description="Interactive Raft leader election, log replication, quorum, and network partition simulator." number="02" eyebrow="Distributed systems" heading="Agreement under" accent="failure" lede="A five-node cluster makes the invisible machinery of consensus visible: terms, authority, replication lag, majority commit, partitions, and replacement leaders." noteTitle="Safety boundary" note="An entry is committed only after it reaches a quorum in the leader's term. Isolated nodes can retain state, but cannot make new authoritative decisions alone.">
+  <SystemsLaboratory kind="raft" />
+</ExperimentPage>

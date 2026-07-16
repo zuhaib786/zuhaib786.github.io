@@ -1,0 +1,7 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import UnionFindLaboratory from "../../components/visuals/UnionFindLaboratory.astro";
+---
+<AlgorithmPage title="Union–Find" description="Compare disjoint-set strategies through an interactive percolation experiment." number="005" eyebrow="Connectivity" heading="Islands become" accent="continents." lede="Open a random grid one site at a time. Each neighbouring pair triggers a union; the experiment ends when one connected component spans source to drain." noteTitle="The hidden cost" note="All strategies answer the same connectivity questions. Their internal shapes differ dramatically: weighting limits height, while path compression makes later finds nearly constant-time in practice.">
+  <UnionFindLaboratory />
+</AlgorithmPage>

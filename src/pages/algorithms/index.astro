@@ -1,0 +1,107 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const algorithms = [
+  { number: "001", href: "/algorithms/sorting", title: "Sorting", kind: "bars", topics: ["Quick", "Merge", "Insertion", "Selection", "Bubble"], description: "Watch comparisons and writes reorganize an array." },
+  { number: "002", href: "/algorithms/pathfinding", title: "Pathfinding", kind: "grid", topics: ["BFS", "Dijkstra", "A*", "Bidirectional"], description: "Draw terrain and watch a search frontier find its way through." },
+  { number: "003", href: "/algorithms/graphs", title: "Graph traversal", kind: "graph", topics: ["BFS", "DFS", "Dijkstra", "Topological"], description: "Follow worklists, edge relaxations, and visitation order." },
+  { number: "004", href: "/algorithms/union-find", title: "Union–find", kind: "union", topics: ["Quick-find", "Weighted union", "Compression"], description: "Open a percolation grid and watch components merge." },
+  { number: "005", href: "/algorithms/trees", title: "Trees", kind: "tree", topics: ["BST", "AVL", "Red–black", "B-tree"], description: "Insert keys and expose rotations, recolouring, and splits." },
+  { number: "006", href: "/algorithms/hashing", title: "Hashing", kind: "hash", topics: ["Chaining", "Linear", "Quadratic", "Robin Hood"], description: "See collisions, probe sequences, and load factor pressure." },
+  { number: "007", href: "/algorithms/dynamic-programming", title: "Dynamic programming", kind: "dp", topics: ["Edit distance", "LCS", "Knapsack"], description: "Fill dependency tables, then trace an optimal answer back." },
+  { number: "008", href: "/algorithms/compression", title: "Compression", kind: "bits", topics: ["Huffman", "Run length", "LZ77"], description: "Turn repeated structure into codes, runs, and references." },
+  { number: "009", href: "/algorithms/geometry", title: "Geometry", kind: "geometry", topics: ["Convex hull", "Sweep line", "Delaunay"], description: "Place points and watch spatial structure emerge." },
+];
+
+const preview = (kind: string) => {
+  if (kind === "bars") return [30, 72, 46, 88, 38, 65, 52, 81].map((v) => `<i style="--v:${v}%"></i>`).join("");
+  if (kind === "grid" || kind === "dp") return Array.from({ length: 48 }, (_, i) => `<i class="c${i % 9 === 4 || (i > 27 && i < 34) ? " on" : ""}"></i>`).join("");
+  if (kind === "hash") return Array.from({ length: 8 }, (_, i) => `<i class="${[1,2,5,6].includes(i) ? "on" : ""}"></i>`).join("");
+  if (kind === "bits") return `<b>010 1101 00</b><b>↳12,4</b><b>111 0010</b>`;
+  return "";
+};
+---
+
+<Base title="Algorithms — Visuals by Zuhaib Ul Zamann" description="Interactive visual explanations of computer science algorithms.">
+  <section class="collection-head">
+    <a href="/visuals" class="label back">← Visual laboratory</a>
+    <div class="head-grid">
+      <div>
+        <p class="label label--accent">Collection 01 · Computer science</p>
+        <h1>Algorithms,<br /><em>animated.</em></h1>
+      </div>
+      <div class="introduction">
+        <p>Algorithms are processes, not portraits. These instruments expose the changing state—the comparisons, worklists, invariants, and structural mutations that disappear in finished output.</p>
+        <span class="label">{String(algorithms.length).padStart(2, "0")} interactive instruments</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="algorithm-grid" aria-label="Algorithm visualizations">
+    {algorithms.map((algorithm) => (
+      <a href={algorithm.href} class="algorithm-card" data-reveal>
+        <div class={`preview preview--${algorithm.kind}`} aria-hidden="true">
+          <span class="diagram-number">ALG / {algorithm.number}</span>
+          {(algorithm.kind === "bars" || algorithm.kind === "grid" || algorithm.kind === "dp" || algorithm.kind === "hash" || algorithm.kind === "bits") && <div class="generated" set:html={preview(algorithm.kind)} />}
+          {algorithm.kind === "graph" && <svg viewBox="0 0 240 130"><path d="M28 80L72 28L120 67L174 25L211 91M28 80L120 67M72 28L174 25M120 67L211 91"/><g><circle cx="28" cy="80" r="8"/><circle cx="72" cy="28" r="8"/><circle cx="120" cy="67" r="8"/><circle cx="174" cy="25" r="8"/><circle cx="211" cy="91" r="8"/></g></svg>}
+          {algorithm.kind === "union" && <div class="islands"><i/><i/><i/><i/><i/><i/><i/></div>}
+          {algorithm.kind === "tree" && <svg viewBox="0 0 240 130"><path d="M120 22L67 61M120 22L180 61M67 61L39 103M67 61L91 103M180 61L154 103M180 61L211 103"/><g><circle cx="120" cy="22" r="9"/><circle cx="67" cy="61" r="9"/><circle cx="180" cy="61" r="9"/><circle cx="39" cy="103" r="9"/><circle cx="91" cy="103" r="9"/><circle cx="154" cy="103" r="9"/><circle cx="211" cy="103" r="9"/></g></svg>}
+          {algorithm.kind === "geometry" && <svg viewBox="0 0 240 130"><path class="hull" d="M24 89L61 27L169 18L218 74L180 112L67 116Z"/><g><circle cx="24" cy="89" r="4"/><circle cx="61" cy="27" r="4"/><circle cx="104" cy="74" r="4"/><circle cx="144" cy="49" r="4"/><circle cx="169" cy="18" r="4"/><circle cx="218" cy="74" r="4"/><circle cx="180" cy="112" r="4"/><circle cx="67" cy="116" r="4"/></g></svg>}
+        </div>
+        <div class="card-copy">
+          <div class="card-meta"><span class="label label--accent">Interactive</span><span class="label">№ {algorithm.number}</span></div>
+          <h2>{algorithm.title}</h2>
+          <p>{algorithm.description}</p>
+          <ul>{algorithm.topics.map((topic) => <li>{topic}</li>)}</ul>
+          <span class="open">Open <b aria-hidden="true">→</b></span>
+        </div>
+      </a>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .collection-head { padding: 3rem 0 3.5rem; border-bottom: 2px solid var(--rule-heavy); }
+  .back { display: inline-block; margin-bottom: 2.5rem; color: var(--ink-faint); text-decoration: none; }
+  .head-grid { display: grid; grid-template-columns: minmax(22rem, 1.1fr) minmax(18rem, .65fr); align-items: end; gap: 3rem; }
+  h1 { margin-top: .8rem; font-family: var(--font-display); font-size: clamp(3.5rem,9vw,7.5rem); font-weight: 400; letter-spacing: -.025em; line-height: .83; }
+  h1 em { color: var(--ink-soft); font-weight: 400; }
+  .introduction p { margin-bottom: 1.5rem; color: var(--ink-soft); font-size: .875rem; }
+  .introduction .label { color: var(--ink-faint); }
+  .algorithm-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; padding: 2rem 0 1rem; }
+  .algorithm-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; color: inherit; text-decoration: none; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 14px; box-shadow: inset 0 1px 0 var(--glass-highlight); transition: transform 220ms var(--ease-out), border-color 180ms ease, box-shadow 220ms ease; }
+  .algorithm-card:hover { color: inherit; transform: translateY(-4px); border-color: color-mix(in srgb,var(--interact) 50%,var(--glass-border)); box-shadow: inset 0 1px 0 var(--glass-highlight),var(--hover-glow); }
+  .preview { position: relative; display: grid; height: 11rem; place-items: center; overflow: hidden; border-bottom: 1px solid var(--glass-border); background: linear-gradient(to right,var(--reseau) 1px,transparent 1px),linear-gradient(to bottom,var(--reseau) 1px,transparent 1px),color-mix(in srgb,var(--paper-sunken) 58%,transparent); background-size: 24px 24px; }
+  .diagram-number { position: absolute; top: .7rem; left: .8rem; color: var(--ink-faint); font-size: .55rem; letter-spacing: .12em; }
+  .generated { width: 76%; height: 60%; }
+  .preview--bars .generated { display: flex; align-items: flex-end; gap: 5px; border-bottom: 1px solid var(--ink-faint); }
+  .preview--bars :global(i) { flex: 1; height: var(--v); background: var(--ink-soft); border-radius: 2px 2px 0 0; }
+  .preview--bars :global(i:nth-child(5)),.preview--bars :global(i:nth-child(6)) { background: var(--interact); }
+  .preview--grid .generated,.preview--dp .generated { display: grid; grid-template-columns: repeat(8,1fr); gap: 2px; }
+  .preview--grid :global(i),.preview--dp :global(i) { border: 1px solid var(--rule); background: var(--glass); }
+  .preview--grid :global(i.on) { background: var(--ink-soft); }
+  .preview--dp :global(i.on) { background: var(--interact); }
+  .preview svg { width: 76%; height: 70%; overflow: visible; }
+  .preview svg path { fill: none; stroke: var(--ink-faint); stroke-width: 1.3; }
+  .preview svg circle { fill: var(--paper-raised); stroke: var(--ink-soft); stroke-width: 1.5; }
+  .preview svg circle:nth-child(3) { fill: var(--interact); stroke: var(--interact); }
+  .preview .hull { fill: color-mix(in srgb,var(--interact) 8%,transparent); stroke: var(--interact); }
+  .islands { display: flex; width: 75%; flex-wrap: wrap; justify-content: center; gap: 5px; }
+  .islands i { width: 27%; height: 2rem; border: 1px solid var(--ink-soft); border-radius: 40% 60% 54% 46%; background: color-mix(in srgb,var(--interact) 12%,transparent); }
+  .preview--hash .generated { display: grid; grid-template-columns: repeat(8,1fr); gap: 3px; height: 40%; }
+  .preview--hash :global(i) { border: 1px solid var(--rule); border-radius: 3px; }
+  .preview--hash :global(i.on) { background: var(--interact); border-color: var(--interact); }
+  .preview--bits .generated { display: flex; flex-wrap: wrap; align-content: center; gap: .35rem; }
+  .preview--bits :global(b) { padding: .25rem .4rem; color: var(--ink-soft); border: 1px solid var(--rule); border-radius: 4px; font-size: .58rem; font-weight: 400; }
+  .preview--bits :global(b:nth-child(2)) { color: var(--interact); border-color: var(--interact); }
+  .card-copy { display: flex; flex: 1; flex-direction: column; padding: 1.25rem; }
+  .card-meta { display: flex; justify-content: space-between; gap: 1rem; }
+  .card-copy h2 { margin: .65rem 0 .7rem; font-family: var(--font-display); font-size: 2rem; font-weight: 400; line-height: 1; }
+  .card-copy > p { min-height: 3.5rem; color: var(--ink-soft); font-size: .7rem; }
+  .card-copy ul { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: 1rem; list-style: none; }
+  .card-copy li { padding: .12rem .35rem; color: var(--ink-faint); border: 1px solid var(--rule); border-radius: 3px; font-size: .48rem; letter-spacing: .04em; text-transform: uppercase; }
+  .open { margin-top: auto; padding-top: 1.25rem; color: var(--interact); font-size: .58rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  .open b { display: inline-block; transition: transform 180ms ease; }.algorithm-card:hover .open b { transform: translateX(4px); }
+  @media (max-width: 56rem) { .algorithm-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 40rem) { .collection-head { padding-top: 2.5rem; }.head-grid { grid-template-columns: 1fr; gap: 2rem; }.algorithm-grid { grid-template-columns: 1fr; } }
+</style>

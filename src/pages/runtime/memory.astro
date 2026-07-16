@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Memory allocation" description="Interactive heap allocation, free-list, buddy splitting, coalescing, and fragmentation simulator." number="07" eyebrow="Runtime systems" heading="Anatomy of a" accent="heap" lede="Allocate and free a 256-byte heap. Compare placement policies, inspect the free list, and see how plenty of total memory can still fail one large request." noteTitle="Fragmentation lens" note="External fragmentation is about shape, not amount. Coalescing repairs neighbouring holes; a buddy allocator makes that repair predictable by constraining block sizes.">
+  <SystemsLaboratory kind="allocator" />
+</ExperimentPage>

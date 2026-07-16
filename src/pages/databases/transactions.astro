@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Database transactions" description="Interactive transaction isolation, MVCC version, conflict, commit, and rollback visualizer." number="05" eyebrow="Databases" heading="Two transactions," accent="one truth" lede="Interleave two updates to one record and switch the isolation policy. Visibility rules and conflict detection decide whether the schedule commits, overwrites, or rolls back." noteTitle="Isolation lens" note="Transactions are not only a list of statements. Their outcome depends on which version each read observes and whether the database permits both writers to publish.">
+  <SystemsLaboratory kind="transactions" />
+</ExperimentPage>

@@ -1,0 +1,179 @@
+<pathfinding-laboratory>
+  <section class="instrument path-lab" aria-label="Interactive pathfinding visualizer">
+    <div class="instrument-tabs" role="tablist">
+      <button class="active" data-algorithm="astar">A* search</button>
+      <button data-algorithm="dijkstra">Dijkstra</button>
+      <button data-algorithm="bfs">Breadth first</button>
+      <button data-algorithm="bidirectional">Bidirectional</button>
+    </div>
+    <div class="instrument-status">
+      <span><strong data-state>Ready</strong> · <span data-message>Paint walls or run the search</span></span>
+      <span class="hint">Drag on the grid to edit · Weighted cells cost 5</span>
+    </div>
+    <div class="path-layout">
+      <div class="board-wrap">
+        <canvas data-board aria-label="Editable pathfinding grid"></canvas>
+        <div class="board-legend label"><span><i class="start"></i>Start</span><span><i class="goal"></i>Goal</span><span><i class="wall"></i>Wall</span><span><i class="weight"></i>Weight</span></div>
+      </div>
+      <aside>
+        <p class="label label--accent">Drawing tool</p>
+        <div class="tools">
+          <button class="instrument-action active" data-tool="wall">Wall</button>
+          <button class="instrument-action" data-tool="weight">Terrain</button>
+          <button class="instrument-action" data-tool="start">Move start</button>
+          <button class="instrument-action" data-tool="end">Move goal</button>
+        </div>
+        <div class="instrument-metrics">
+          <div><span data-visited>0</span><small>Visited</small></div>
+          <div><span data-length>—</span><small>Path steps</small></div>
+          <div><span data-cost>—</span><small>Total cost</small></div>
+        </div>
+        <div class="explanation">
+          <p class="label">Current strategy</p>
+          <h3 data-name>A* search</h3>
+          <p data-description>Expands the node with the lowest travelled cost plus estimated distance to the goal.</p>
+        </div>
+      </aside>
+    </div>
+    <div class="instrument-toolbar">
+      <button class="instrument-action primary" data-run>▶ Run search</button>
+      <button class="instrument-action" data-step>Step →</button>
+      <button class="instrument-action" data-terrain>New terrain</button>
+      <button class="instrument-action" data-clear>Clear board</button>
+      <label class="instrument-range"><span>Speed <b data-speed-label>35 op/s</b></span><input data-speed type="range" min="1" max="100" value="55" /></label>
+    </div>
+  </section>
+</pathfinding-laboratory>
+
+<script>
+  type Algorithm = "astar" | "dijkstra" | "bfs" | "bidirectional";
+  type SearchStep = { kind: "visit" | "path"; id: number; side?: number };
+  const PATH_INFO: Record<Algorithm, [string, string]> = {
+    astar: ["A* search", "Expands the node with the lowest travelled cost plus estimated distance to the goal."],
+    dijkstra: ["Dijkstra's algorithm", "Expands by lowest total cost and guarantees an optimal route through weighted terrain."],
+    bfs: ["Breadth-first search", "Explores equal-distance layers. It is optimal only when every move has the same cost."],
+    bidirectional: ["Bidirectional BFS", "Runs two frontiers—one from each endpoint—until they meet in the middle."],
+  };
+
+  class PathfindingLaboratory extends HTMLElement {
+    cols = 30; rows = 18; start = 272; end = 297;
+    walls = new Set<number>(); weights = new Set<number>(); visited = new Set<number>(); visitedB = new Set<number>(); path = new Set<number>();
+    algorithm: Algorithm = "astar"; tool = "wall"; sequence: SearchStep[] = []; cursor = 0; running = false; painting = false; paintValue = true;
+    canvas!: HTMLCanvasElement; ctx!: CanvasRenderingContext2D; width = 0; height = 0; frame = 0; last = 0; accumulator = 0;
+    aborter = new AbortController(); resize?: ResizeObserver; theme?: MutationObserver;
+
+    connectedCallback() {
+      this.canvas = this.querySelector("[data-board]") as HTMLCanvasElement;
+      const ctx = this.canvas.getContext("2d"); if (!ctx) return; this.ctx = ctx;
+      this.start = this.id(2, Math.floor(this.rows / 2)); this.end = this.id(this.cols - 3, Math.floor(this.rows / 2));
+      this.bind(); this.resize = new ResizeObserver(() => this.layout()); this.resize.observe(this.canvas);
+      this.theme = new MutationObserver(() => this.draw()); this.theme.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+      this.newTerrain(); this.layout(); this.frame = requestAnimationFrame((t) => this.animate(t));
+    }
+    disconnectedCallback() { cancelAnimationFrame(this.frame); this.aborter.abort(); this.resize?.disconnect(); this.theme?.disconnect(); }
+    bind() {
+      const signal = this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-algorithm]").forEach((button) => button.addEventListener("click", () => {
+        this.algorithm = button.dataset.algorithm as Algorithm; this.querySelectorAll("[data-algorithm]").forEach((b) => b.classList.toggle("active", b === button));
+        this.text("[data-name]", PATH_INFO[this.algorithm][0]); this.text("[data-description]", PATH_INFO[this.algorithm][1]); this.resetSearch();
+      }, { signal }));
+      this.querySelectorAll<HTMLButtonElement>("[data-tool]").forEach((button) => button.addEventListener("click", () => {
+        this.tool = button.dataset.tool || "wall"; this.querySelectorAll("[data-tool]").forEach((b) => b.classList.toggle("active", b === button));
+      }, { signal }));
+      this.querySelector("[data-run]")?.addEventListener("click", () => this.toggle(), { signal });
+      this.querySelector("[data-step]")?.addEventListener("click", () => { this.running = false; this.ensureSequence(); this.advance(); this.updateRun(); }, { signal });
+      this.querySelector("[data-terrain]")?.addEventListener("click", () => this.newTerrain(), { signal });
+      this.querySelector("[data-clear]")?.addEventListener("click", () => { this.walls.clear(); this.weights.clear(); this.resetSearch(); }, { signal });
+      this.querySelector<HTMLInputElement>("[data-speed]")?.addEventListener("input", () => this.text("[data-speed-label]", `${this.rate()} op/s`), { signal });
+      this.canvas.addEventListener("pointerdown", (e) => { this.painting = true; this.canvas.setPointerCapture(e.pointerId); const cell = this.cellAt(e); this.paintValue = this.tool === "wall" ? !this.walls.has(cell) : this.tool === "weight" ? !this.weights.has(cell) : true; this.paint(cell); }, { signal });
+      this.canvas.addEventListener("pointermove", (e) => { if (this.painting) this.paint(this.cellAt(e)); }, { signal });
+      const stop = () => { this.painting = false; }; this.canvas.addEventListener("pointerup", stop, { signal }); this.canvas.addEventListener("pointercancel", stop, { signal });
+    }
+    paint(cell: number) {
+      if (cell < 0 || cell >= this.cols * this.rows) return;
+      if (this.tool === "start" && cell !== this.end) { this.start = cell; this.walls.delete(cell); this.weights.delete(cell); }
+      else if (this.tool === "end" && cell !== this.start) { this.end = cell; this.walls.delete(cell); this.weights.delete(cell); }
+      else if (cell !== this.start && cell !== this.end && this.tool === "wall") { this.paintValue ? this.walls.add(cell) : this.walls.delete(cell); this.weights.delete(cell); }
+      else if (cell !== this.start && cell !== this.end && this.tool === "weight") { this.paintValue ? this.weights.add(cell) : this.weights.delete(cell); this.walls.delete(cell); }
+      this.resetSearch();
+    }
+    newTerrain() {
+      this.walls.clear(); this.weights.clear();
+      for (let id = 0; id < this.cols * this.rows; id++) {
+        if (id === this.start || id === this.end) continue;
+        const random = Math.random(); if (random < .17) this.walls.add(id); else if (random < .27) this.weights.add(id);
+      }
+      // Most random boards at this density are connected. If one is not,
+      // cut a guaranteed corridor but leave its weights intact so cost-aware
+      // searches may still prefer a longer geometric route.
+      if (!this.routeExists()) {
+        const row = Math.floor(this.rows / 2);
+        for (let x = 1; x < this.cols - 1; x++) this.walls.delete(this.id(x, row));
+      }
+      this.resetSearch();
+    }
+    routeExists() { const queue = [this.start], seen = new Set(queue); while (queue.length) { const at = queue.shift()!; if (at === this.end) return true; for (const next of this.neighbors(at)) if (!this.walls.has(next) && !seen.has(next)) { seen.add(next); queue.push(next); } } return false; }
+    resetSearch() { this.running = false; this.sequence = []; this.cursor = 0; this.visited.clear(); this.visitedB.clear(); this.path.clear(); this.text("[data-visited]", "0"); this.text("[data-length]", "—"); this.text("[data-cost]", "—"); this.state("Ready", "Board changed; search is ready"); this.updateRun(); this.draw(); }
+    ensureSequence() { if (!this.sequence.length) this.sequence = this.search(); }
+    search(): SearchStep[] {
+      if (this.algorithm === "bidirectional") return this.bidirectional();
+      const parent = new Map<number, number>(); const distance = new Map<number, number>([[this.start, 0]]); const open = [this.start]; const seen = new Set<number>([this.start]); const steps: SearchStep[] = [];
+      while (open.length) {
+        let current: number;
+        if (this.algorithm === "bfs") current = open.shift()!;
+        else {
+          open.sort((a, b) => (distance.get(a)! + (this.algorithm === "astar" ? this.heuristic(a) : 0)) - (distance.get(b)! + (this.algorithm === "astar" ? this.heuristic(b) : 0)));
+          current = open.shift()!;
+        }
+        steps.push({ kind: "visit", id: current }); if (current === this.end) break;
+        for (const next of this.neighbors(current)) {
+          if (this.walls.has(next)) continue;
+          const cost = distance.get(current)! + (this.weights.has(next) ? 5 : 1);
+          if (this.algorithm === "bfs") { if (seen.has(next)) continue; seen.add(next); parent.set(next, current); distance.set(next, cost); open.push(next); }
+          else if (cost < (distance.get(next) ?? Infinity)) { distance.set(next, cost); parent.set(next, current); if (!open.includes(next)) open.push(next); }
+        }
+      }
+      const path = this.trace(parent, this.end, this.start); path.forEach((id) => steps.push({ kind: "path", id }));
+      (steps as any).cost = distance.get(this.end); (steps as any).pathLength = path.length ? path.length - 1 : 0; return steps;
+    }
+    bidirectional(): SearchStep[] {
+      const qa = [this.start], qb = [this.end], pa = new Map<number, number>(), pb = new Map<number, number>(), sa = new Set([this.start]), sb = new Set([this.end]); const steps: SearchStep[] = []; let meet = -1;
+      while (qa.length && qb.length && meet < 0) {
+        for (const [queue, own, other, parent, side] of [[qa, sa, sb, pa, 0], [qb, sb, sa, pb, 1]] as const) {
+          const current = queue.shift()!; steps.push({ kind: "visit", id: current, side }); if (other.has(current)) { meet = current; break; }
+          for (const next of this.neighbors(current)) { if (this.walls.has(next) || own.has(next)) continue; own.add(next); parent.set(next, current); queue.push(next); if (other.has(next)) { meet = next; break; } } if (meet >= 0) break;
+        }
+      }
+      let path: number[] = []; if (meet >= 0) { const left = this.trace(pa, meet, this.start).reverse(); const right = this.trace(pb, meet, this.end); path = [...left, ...right.slice(1)]; path.forEach((id) => steps.push({ kind: "path", id })); }
+      (steps as any).cost = path.length ? path.length - 1 : undefined; (steps as any).pathLength = path.length ? path.length - 1 : 0; return steps;
+    }
+    trace(parent: Map<number, number>, target: number, source: number) { const out: number[] = []; let at = target; if (at !== source && !parent.has(at)) return out; while (true) { out.push(at); if (at === source) break; at = parent.get(at)!; } return out; }
+    neighbors(id: number) { const x = id % this.cols, y = Math.floor(id / this.cols); const out: number[] = []; if (x) out.push(id - 1); if (x < this.cols - 1) out.push(id + 1); if (y) out.push(id - this.cols); if (y < this.rows - 1) out.push(id + this.cols); return out; }
+    heuristic(id: number) { return Math.abs(id % this.cols - this.end % this.cols) + Math.abs(Math.floor(id / this.cols) - Math.floor(this.end / this.cols)); }
+    toggle() { if (this.cursor >= this.sequence.length && this.sequence.length) this.resetSearch(); this.ensureSequence(); this.running = !this.running; this.state(this.running ? "Searching" : "Paused", this.running ? "Expanding the lowest-priority frontier cell" : "Execution suspended"); this.updateRun(); }
+    advance() { const step = this.sequence[this.cursor++]; if (!step) { this.finish(); return; } if (step.kind === "visit") { (step.side ? this.visitedB : this.visited).add(step.id); this.text("[data-visited]", String(this.visited.size + this.visitedB.size)); this.state("Searching", `Expanded cell ${step.id}`); } else { this.path.add(step.id); this.state("Tracing path", "Following parent links back to the start"); } if (this.cursor >= this.sequence.length) this.finish(); this.draw(); }
+    finish() { this.running = false; const length = (this.sequence as any).pathLength || 0, cost = (this.sequence as any).cost; this.text("[data-length]", length ? String(length) : "None"); this.text("[data-cost]", cost === undefined ? "—" : String(cost)); this.state(length ? "Route found" : "No route", length ? `${length} steps connect start to goal` : "The frontier exhausted without reaching the goal"); this.updateRun(); }
+    animate(time: number) { const delta = Math.min(50, time - (this.last || time)); this.last = time; if (this.running) { this.accumulator += delta; const delay = 1000 / this.rate(); while (this.accumulator >= delay && this.running) { this.accumulator -= delay; this.advance(); } } this.frame = requestAnimationFrame((t) => this.animate(t)); }
+    rate() { const v = Number(this.querySelector<HTMLInputElement>("[data-speed]")?.value || 55); return Math.round(3 * Math.pow(2, v / 16)); }
+    layout() { const r = this.canvas.getBoundingClientRect(); if (!r.width) return; const dpr = Math.min(devicePixelRatio || 1, 2); this.width = r.width; this.height = r.height; this.canvas.width = r.width * dpr; this.canvas.height = r.height * dpr; this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.draw(); }
+    draw() { if (!this.ctx || !this.width) return; const ctx = this.ctx, s = getComputedStyle(this), c = (n: string) => s.getPropertyValue(n).trim(); const cw = this.width / this.cols, ch = this.height / this.rows; ctx.clearRect(0,0,this.width,this.height);
+      for (let id = 0; id < this.cols * this.rows; id++) { const x = id % this.cols * cw, y = Math.floor(id / this.cols) * ch; let fill = c("--p-empty"); if (this.walls.has(id)) fill = c("--p-wall"); else if (this.weights.has(id)) fill = c("--p-weight"); if (this.visited.has(id)) fill = c("--p-visited"); if (this.visitedB.has(id)) fill = c("--p-visited-b"); if (this.path.has(id)) fill = c("--p-path"); if (id === this.start) fill = c("--p-start"); if (id === this.end) fill = c("--p-end"); ctx.fillStyle = fill; ctx.fillRect(x+1,y+1,Math.max(1,cw-2),Math.max(1,ch-2)); }
+    }
+    cellAt(e: PointerEvent) { const r = this.canvas.getBoundingClientRect(); return this.id(Math.max(0,Math.min(this.cols-1,Math.floor((e.clientX-r.left)/r.width*this.cols))),Math.max(0,Math.min(this.rows-1,Math.floor((e.clientY-r.top)/r.height*this.rows)))); }
+    id(x: number,y: number){ return y*this.cols+x; } state(a:string,b:string){this.text("[data-state]",a);this.text("[data-message]",b);} updateRun(){this.text("[data-run]",this.running?"Ⅱ Pause":"▶ Run search");this.querySelector("[data-run]")?.classList.toggle("active",this.running);} text(q:string,v:string){const e=this.querySelector(q);if(e)e.textContent=v;}
+  }
+  if (!customElements.get("pathfinding-laboratory")) customElements.define("pathfinding-laboratory", PathfindingLaboratory);
+</script>
+
+<style>
+  pathfinding-laboratory { --p-empty: color-mix(in srgb,var(--paper-raised) 55%,transparent); --p-wall: var(--ink); --p-weight: #d9a52b; --p-visited: color-mix(in srgb,var(--accent-2) 45%,var(--paper)); --p-visited-b: color-mix(in srgb,var(--interact) 42%,var(--paper)); --p-path: #f0b83f; --p-start: #35a978; --p-end: #dc4f65; display:block; }
+  :global(html[data-theme="dark"]) pathfinding-laboratory { --p-empty: rgba(255,255,255,.025); --p-wall:#8792b2; --p-weight:#9b712b; --p-visited:#353b8d; --p-visited-b:#175f78; --p-path:#ffd15c; --p-start:#48d39d; --p-end:#ff6687; }
+  .path-layout { display:grid; grid-template-columns:minmax(30rem,1.35fr) minmax(16rem,.65fr); min-height:34rem; }
+  .board-wrap { position:relative; display:grid; grid-template-rows:1fr auto; padding:1rem; border-right:1px solid var(--glass-border); background:linear-gradient(to right,var(--reseau) 1px,transparent 1px),linear-gradient(to bottom,var(--reseau) 1px,transparent 1px);background-size:24px 24px; }
+  canvas { display:block; width:100%; height:100%; min-height:28rem; touch-action:none; cursor:crosshair; }
+  .board-legend { display:flex; gap:1rem; flex-wrap:wrap; padding-top:.65rem; color:var(--ink-faint); font-size:.5rem; }
+  .board-legend span { display:flex; align-items:center; gap:.3rem; }.board-legend i{width:8px;height:8px;border-radius:2px}.start{background:var(--p-start)}.goal{background:var(--p-end)}.wall{background:var(--p-wall)}.weight{background:var(--p-weight)}
+  aside { padding:1.3rem; background:color-mix(in srgb,var(--paper-sunken) 38%,transparent); }.tools{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin:.7rem 0 1.2rem}.tools button{min-width:0}.instrument-metrics{grid-template-columns:1fr}.explanation{margin-top:1.4rem;padding-top:1.1rem;border-top:1px solid var(--rule)}.explanation h3{margin:.5rem 0;font-family:var(--font-display);font-size:1.8rem;font-weight:400;line-height:1}.explanation>p:last-child{color:var(--ink-soft);font-size:.65rem}
+  @media(max-width:55rem){.path-layout{grid-template-columns:1fr}.board-wrap{border-right:0;border-bottom:1px solid var(--glass-border)}aside .instrument-metrics{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:40rem){canvas{min-height:22rem}.tools{grid-template-columns:1fr 1fr}}
+</style>

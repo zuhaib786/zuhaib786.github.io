@@ -1,0 +1,85 @@
+---
+import Base from "../../layouts/Base.astro";
+import SortingLaboratory from "../../components/visuals/SortingLaboratory.astro";
+---
+
+<Base
+  title="Sorting, Seen — Visuals by Zuhaib Ul Zamann"
+  description="Run, pause, and step through five classic sorting algorithms in an interactive visualizer."
+>
+  <section class="experiment-head">
+    <div>
+      <a href="/algorithms" class="label back">← Algorithms</a>
+      <p class="label label--accent">Experiment 002 · Algorithms</p>
+      <h1>Sorting, <em>seen.</em></h1>
+    </div>
+    <p class="lede">
+      An array becomes a landscape; each comparison leaves a trace. Change the
+      algorithm, slow execution down, or advance it one operation at a time.
+    </p>
+  </section>
+
+  <SortingLaboratory />
+
+  <footer class="experiment-note">
+    <span class="label">Reading the machine</span>
+    <p>
+      Comparisons inspect two values without changing the array. A swap counts
+      as two array writes; merge sort writes values back one at a time. Space
+      figures exclude the input array.
+    </p>
+  </footer>
+</Base>
+
+<style>
+  .experiment-head {
+    display: grid;
+    grid-template-columns: 1fr minmax(19rem, 0.68fr);
+    align-items: end;
+    gap: 3rem;
+    padding: 3rem 0 2rem;
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.85;
+  }
+
+  h1 em { color: var(--ink-soft); font-weight: 400; }
+
+  .lede {
+    max-width: 31rem;
+    padding-bottom: 0.2rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+  }
+
+  .experiment-note {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+  }
+
+  .experiment-note p { max-width: 46rem; }
+
+  @media (max-width: 44rem) {
+    .experiment-head { grid-template-columns: 1fr; gap: 1.5rem; }
+    .experiment-note { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="TCP congestion control" description="Interactive TCP packet, acknowledgement, congestion window, loss, and retransmission visualizer." number="08" eyebrow="Networking" heading="A window into" accent="congestion" lede="Packets and acknowledgements cross a path while the sender continuously estimates how much traffic the network can hold. Drop one packet and watch policy become behaviour." noteTitle="Control loop" note="The congestion window is a hypothesis about available capacity. Every acknowledgement strengthens it; loss or delay challenges it, and each algorithm revises the hypothesis differently.">
+  <SystemsLaboratory kind="tcp" />
+</ExperimentPage>

@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Backpropagation" description="Interactive neural network forward pass, loss, gradient, SGD, momentum, and Adam visualizer." number="10" eyebrow="Machine learning" heading="Learning flows" accent="backward" lede="Train a tiny network on XOR. Activations travel toward a prediction; blame travels back from the loss; an optimiser turns that blame into new weights." noteTitle="Learning lens" note="Backpropagation computes responsibility, not intelligence. The optimiser decides how strongly and how smoothly each connection responds to that local gradient.">
+  <SystemsLaboratory kind="backprop" />
+</ExperimentPage>

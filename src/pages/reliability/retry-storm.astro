@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SystemsLaboratory from "../../components/visuals/SystemsLaboratory.astro";
+---
+<ExperimentPage title="Retry storm" description="Interactive overload, retry amplification, exponential backoff, jitter, and circuit breaker simulator." number="12" eyebrow="Reliability" heading="When recovery adds" accent="load" lede="Degrade a service at the worst moment. Immediate retries, spaced retries, and admission control produce radically different queue pressure during the same failure." noteTitle="Stability lens" note="A retry is another request. Without spacing or a circuit breaker, clients can amplify a small capacity loss into sustained overload that prevents the service from recovering.">
+  <SystemsLaboratory kind="retry" />
+</ExperimentPage>

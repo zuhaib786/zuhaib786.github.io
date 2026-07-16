@@ -1,0 +1,954 @@
+<earthquake-observatory>
+  <section class="observatory" aria-label="Interactive earthquake observatory">
+    <div class="instrument-bar">
+      <div class="feed-state">
+        <span class="signal" aria-hidden="true"></span>
+        <span data-feed-status>Contacting USGS feed…</span>
+      </div>
+      <div class="controls" aria-label="Globe controls">
+        <div class="segments" aria-label="Minimum magnitude">
+          <button type="button" data-mag="4.5" class="active">M4.5+</button>
+          <button type="button" data-mag="5">M5+</button>
+          <button type="button" data-mag="6">M6+</button>
+        </div>
+        <button type="button" class="control-button active" data-rotate>
+          Rotate · on
+        </button>
+        <button type="button" class="control-button" data-reset>Reset view</button>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="globe-panel">
+        <canvas data-globe aria-label="Rotatable globe plotting recent earthquakes"></canvas>
+        <div class="globe-label label">Drag to rotate · Hover an event</div>
+        <div class="coordinates label" data-coordinates>24°N · 145°E</div>
+        <div class="tooltip" data-tooltip role="status" hidden>
+          <strong data-tooltip-mag></strong>
+          <span data-tooltip-place></span>
+          <small data-tooltip-meta></small>
+        </div>
+      </div>
+
+      <div class="readout">
+        <div class="readout-head">
+          <div>
+            <p class="label label--accent">Last 30 days</p>
+            <h2><span data-visible-count>—</span> events in view</h2>
+          </div>
+          <p class="utc">Updated <span data-updated>—</span> UTC</p>
+        </div>
+
+        <div class="stats" aria-label="Earthquake summary">
+          <article>
+            <span class="stat-value" data-strongest>—</span>
+            <span class="stat-label">Strongest</span>
+            <small data-strongest-place>Waiting for data</small>
+          </article>
+          <article>
+            <span class="stat-value"><span data-deepest>—</span><i> km</i></span>
+            <span class="stat-label">Deepest</span>
+            <small data-deepest-place>Waiting for data</small>
+          </article>
+          <article>
+            <span class="stat-value" data-median>—</span>
+            <span class="stat-label">Median magnitude</span>
+            <small>Within current filter</small>
+          </article>
+        </div>
+
+        <div class="breakdowns">
+          <section>
+            <h3 class="label">By magnitude</h3>
+            <div class="bucket-list">
+              <div class="bucket" data-bucket="4">
+                <span>M4.5–4.9</span><i><b></b></i><strong>0</strong>
+              </div>
+              <div class="bucket" data-bucket="5">
+                <span>M5.0–5.9</span><i><b></b></i><strong>0</strong>
+              </div>
+              <div class="bucket" data-bucket="6">
+                <span>M6.0–6.9</span><i><b></b></i><strong>0</strong>
+              </div>
+              <div class="bucket" data-bucket="7">
+                <span>M7.0+</span><i><b></b></i><strong>0</strong>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h3 class="label">Most active regions</h3>
+            <div class="region-list" data-regions>
+              <p class="empty">Waiting for data…</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="timeline">
+          <div class="timeline-head">
+            <h3 class="label">Events per day</h3>
+            <span class="label" data-peak>Peak —</span>
+          </div>
+          <svg viewBox="0 0 600 142" preserveAspectRatio="none" role="img" aria-label="Events per day over the past month">
+            <line x1="0" y1="119" x2="600" y2="119"></line>
+            <path class="area" data-timeline-area d=""></path>
+            <path class="line" data-timeline-line d=""></path>
+          </svg>
+          <div class="timeline-axis label"><span>30 days ago</span><span>Today</span></div>
+        </section>
+      </div>
+    </div>
+  </section>
+</earthquake-observatory>
+
+<script>
+  type Quake = {
+    lon: number;
+    lat: number;
+    depth: number;
+    mag: number;
+    place: string;
+    time: number;
+    url?: string;
+  };
+
+  type Point = { x: number; y: number; quake: Quake };
+
+  const FEED =
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
+
+  // A small, explicitly-labelled offline fallback keeps the instrument useful
+  // on trains, in restrictive networks, and if the public feed is unavailable.
+  const FALLBACK_EPICENTERS = [
+    [142, 38, "off Honshu, Japan"], [126, 2, "Molucca Sea"],
+    [95, 3, "northern Sumatra"], [121, 15, "Luzon, Philippines"],
+    [166, -16, "Vanuatu"], [178, -21, "Fiji region"],
+    [-176, -20, "Tonga region"], [-72, -34, "off Chile"],
+    [-71, -15, "southern Peru"], [-75, 8, "Colombia"],
+    [-103, 18, "off Mexico"], [-122, 40, "northern California"],
+    [-149, 61, "southern Alaska"], [-165, 53, "Aleutian Islands"],
+    [160, 52, "Kamchatka"], [154, -6, "Papua New Guinea"],
+    [117, -9, "south of Indonesia"], [147, -42, "Tasmania region"],
+    [39, 38, "eastern Turkey"], [23, 38, "Aegean Sea"],
+    [-18, 65, "Iceland"], [-29, -57, "South Sandwich Islands"],
+    [-12, -20, "Mid-Atlantic Ridge"], [67, 36, "Hindu Kush"],
+    [86, 28, "Nepal"], [171, -43, "South Island, New Zealand"],
+    [-66, 18, "Puerto Rico region"], [140, 35, "near Japan"],
+    [100, -5, "Sunda Strait"], [-178, 51, "western Aleutians"],
+  ] as const;
+
+  const COASTS: [number, number][][] = [
+    // North America
+    [[-168,72],[-145,70],[-128,55],[-124,48],[-117,33],[-105,24],[-96,19],[-87,21],[-82,25],[-80,31],[-75,39],[-66,45],[-60,53],[-68,59],[-82,63],[-96,71],[-120,74],[-145,73],[-168,72]],
+    // Greenland
+    [[-73,60],[-52,59],[-36,68],[-22,76],[-28,83],[-52,84],[-67,76],[-73,60]],
+    // South America
+    [[-81,12],[-72,11],[-60,7],[-50,1],[-35,-7],[-39,-20],[-48,-29],[-55,-39],[-66,-55],[-73,-50],[-75,-37],[-80,-19],[-81,12]],
+    // Africa
+    [[-17,37],[0,36],[12,37],[30,31],[36,22],[51,12],[43,-2],[40,-16],[32,-34],[18,-35],[8,-28],[-1,-18],[-15,-5],[-17,14],[-10,29],[-17,37]],
+    // Europe + Asia
+    [[-10,36],[-8,44],[2,52],[16,59],[30,60],[42,68],[70,73],[100,76],[132,70],[160,62],[180,65],[178,52],[150,45],[142,36],[130,32],[121,23],[108,18],[100,8],[82,8],[72,22],[56,26],[43,12],[36,22],[30,31],[16,39],[5,43],[-10,36]],
+    // India + SE Asia
+    [[60,25],[69,22],[78,8],[84,7],[89,21],[96,27],[106,20],[122,18],[119,8],[105,1],[99,7],[91,8],[82,8],[72,22],[60,25]],
+    // Japan
+    [[130,31],[134,34],[138,36],[142,43],[145,44],[143,36],[137,32],[130,31]],
+    // Australia
+    [[113,-22],[115,-34],[130,-39],[146,-39],[154,-28],[151,-15],[137,-11],[124,-14],[113,-22]],
+    // New Zealand
+    [[166,-47],[172,-42],[178,-37],[176,-35],[170,-41],[166,-47]],
+    // Madagascar
+    [[48,-13],[51,-18],[49,-26],[44,-24],[44,-17],[48,-13]],
+    // Antarctica
+    [[-180,-70],[-140,-75],[-100,-72],[-60,-78],[-20,-72],[20,-70],[60,-75],[100,-71],[140,-75],[180,-70]],
+  ];
+
+  class EarthquakeObservatory extends HTMLElement {
+    canvas!: HTMLCanvasElement;
+    ctx!: CanvasRenderingContext2D;
+    quakes: Quake[] = [];
+    filtered: Quake[] = [];
+    points: Point[] = [];
+    minMagnitude = 4.5;
+    centerLon = 145;
+    centerLat = 24;
+    autoRotate = true;
+    dragging = false;
+    dragX = 0;
+    dragY = 0;
+    moved = false;
+    width = 0;
+    height = 0;
+    frame = 0;
+    lastFrame = 0;
+    aborter = new AbortController();
+    resizeObserver?: ResizeObserver;
+    themeObserver?: MutationObserver;
+
+    connectedCallback() {
+      this.canvas = this.querySelector("[data-globe]") as HTMLCanvasElement;
+      const ctx = this.canvas.getContext("2d");
+      if (!ctx) return;
+      this.ctx = ctx;
+      this.autoRotate = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+      this.syncRotateButton();
+      this.bind();
+      this.resizeObserver = new ResizeObserver(() => this.layout());
+      this.resizeObserver.observe(this.canvas);
+      this.themeObserver = new MutationObserver(() => this.draw());
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+      this.layout();
+      this.load();
+      this.frame = requestAnimationFrame((time) => this.animate(time));
+    }
+
+    disconnectedCallback() {
+      cancelAnimationFrame(this.frame);
+      this.aborter.abort();
+      this.resizeObserver?.disconnect();
+      this.themeObserver?.disconnect();
+    }
+
+    bind() {
+      const signal = this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-mag]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.minMagnitude = Number(button.dataset.mag);
+          this.querySelectorAll("[data-mag]").forEach((item) =>
+            item.classList.toggle("active", item === button),
+          );
+          this.applyFilter();
+        }, { signal });
+      });
+      this.querySelector("[data-rotate]")?.addEventListener("click", () => {
+        this.autoRotate = !this.autoRotate;
+        this.syncRotateButton();
+      }, { signal });
+      this.querySelector("[data-reset]")?.addEventListener("click", () => {
+        this.centerLon = 145;
+        this.centerLat = 24;
+        this.draw();
+      }, { signal });
+
+      this.canvas.addEventListener("pointerdown", (event) => {
+        this.dragging = true;
+        this.moved = false;
+        this.dragX = event.clientX;
+        this.dragY = event.clientY;
+        this.canvas.setPointerCapture(event.pointerId);
+        this.hideTooltip();
+      }, { signal });
+      this.canvas.addEventListener("pointermove", (event) => {
+        if (this.dragging) {
+          const dx = event.clientX - this.dragX;
+          const dy = event.clientY - this.dragY;
+          if (Math.abs(dx) + Math.abs(dy) > 1) this.moved = true;
+          this.centerLon = this.wrapLongitude(this.centerLon - dx * 0.42);
+          this.centerLat = Math.max(-72, Math.min(72, this.centerLat + dy * 0.34));
+          this.dragX = event.clientX;
+          this.dragY = event.clientY;
+          this.draw();
+        } else {
+          this.showNearest(event);
+        }
+      }, { signal });
+      const release = (event: PointerEvent) => {
+        this.dragging = false;
+        if (this.canvas.hasPointerCapture(event.pointerId)) {
+          this.canvas.releasePointerCapture(event.pointerId);
+        }
+      };
+      this.canvas.addEventListener("pointerup", release, { signal });
+      this.canvas.addEventListener("pointercancel", release, { signal });
+      this.canvas.addEventListener("pointerleave", () => {
+        if (!this.dragging) this.hideTooltip();
+      }, { signal });
+    }
+
+    async load() {
+      try {
+        const response = await fetch(FEED, { signal: this.aborter.signal });
+        if (!response.ok) throw new Error(`USGS returned ${response.status}`);
+        const data = await response.json();
+        this.quakes = data.features
+          .filter((feature: any) => feature.geometry?.coordinates?.length >= 3)
+          .map((feature: any) => ({
+            lon: Number(feature.geometry.coordinates[0]),
+            lat: Number(feature.geometry.coordinates[1]),
+            depth: Number(feature.geometry.coordinates[2]),
+            mag: Number(feature.properties.mag),
+            place: feature.properties.place || "Unknown region",
+            time: Number(feature.properties.time),
+            url: feature.properties.url,
+          }))
+          .filter((quake: Quake) => Number.isFinite(quake.mag));
+        this.setStatus(`USGS live feed · ${this.quakes.length} events received`, true);
+      } catch (error) {
+        if (this.aborter.signal.aborted) return;
+        const now = Date.now();
+        this.quakes = FALLBACK_EPICENTERS.map(([lon, lat, place], index) => ({
+          lon,
+          lat,
+          place,
+          mag: 4.5 + ((index * 17) % 27) / 10,
+          depth: 8 + ((index * 43) % 520),
+          time: now - ((index * 29) % 30) * 86_400_000 - index * 1_800_000,
+        }));
+        this.setStatus("Offline sample · reconnect for the live USGS feed", false);
+      }
+      this.applyFilter();
+      const updated = this.querySelector("[data-updated]");
+      if (updated) {
+        updated.textContent = new Intl.DateTimeFormat("en", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "UTC",
+        }).format(new Date());
+      }
+    }
+
+    setStatus(message: string, live: boolean) {
+      const status = this.querySelector("[data-feed-status]");
+      if (status) status.textContent = message;
+      this.classList.toggle("is-live", live);
+    }
+
+    applyFilter() {
+      this.filtered = this.quakes.filter((quake) => quake.mag >= this.minMagnitude);
+      this.updateReadout();
+      this.draw();
+    }
+
+    updateReadout() {
+      const byMag = [...this.filtered].sort((a, b) => b.mag - a.mag);
+      const byDepth = [...this.filtered].sort((a, b) => b.depth - a.depth);
+      const strongest = byMag[0];
+      const deepest = byDepth[0];
+      const magnitudes = byMag.map((quake) => quake.mag).sort((a, b) => a - b);
+      const middle = Math.floor(magnitudes.length / 2);
+      const median = magnitudes.length
+        ? magnitudes.length % 2
+          ? magnitudes[middle]
+          : (magnitudes[middle - 1] + magnitudes[middle]) / 2
+        : 0;
+
+      this.text("[data-visible-count]", String(this.filtered.length));
+      this.text("[data-strongest]", strongest ? `M ${strongest.mag.toFixed(1)}` : "—");
+      this.text("[data-strongest-place]", strongest?.place || "No matching events");
+      this.text("[data-deepest]", deepest ? Math.round(deepest.depth).toLocaleString() : "—");
+      this.text("[data-deepest-place]", deepest?.place || "No matching events");
+      this.text("[data-median]", magnitudes.length ? median.toFixed(1) : "—");
+      this.updateBuckets();
+      this.updateRegions();
+      this.updateTimeline();
+    }
+
+    updateBuckets() {
+      const counts = [
+        this.filtered.filter((q) => q.mag < 5).length,
+        this.filtered.filter((q) => q.mag >= 5 && q.mag < 6).length,
+        this.filtered.filter((q) => q.mag >= 6 && q.mag < 7).length,
+        this.filtered.filter((q) => q.mag >= 7).length,
+      ];
+      const max = Math.max(...counts, 1);
+      this.querySelectorAll<HTMLElement>("[data-bucket]").forEach((row, index) => {
+        const bar = row.querySelector<HTMLElement>("b");
+        const count = row.querySelector("strong");
+        if (bar) bar.style.width = `${(counts[index] / max) * 100}%`;
+        if (count) count.textContent = String(counts[index]);
+      });
+    }
+
+    updateRegions() {
+      const totals = new Map<string, number>();
+      for (const quake of this.filtered) {
+        const region = this.regionName(quake.place);
+        totals.set(region, (totals.get(region) || 0) + 1);
+      }
+      const top = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+      const list = this.querySelector("[data-regions]");
+      if (!list) return;
+      list.replaceChildren();
+      const max = top[0]?.[1] || 1;
+      for (const [name, count] of top) {
+        const row = document.createElement("div");
+        row.className = "region";
+        const label = document.createElement("span");
+        label.textContent = name;
+        const track = document.createElement("i");
+        const bar = document.createElement("b");
+        bar.style.width = `${(count / max) * 100}%`;
+        track.append(bar);
+        const value = document.createElement("strong");
+        value.textContent = String(count);
+        row.append(label, track, value);
+        list.append(row);
+      }
+      if (!top.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "No matching events";
+        list.append(empty);
+      }
+    }
+
+    regionName(place: string) {
+      const comma = place.split(",").map((part) => part.trim());
+      if (comma.length > 1) return comma.at(-1) || place;
+      const of = place.match(/(?:of|in)\s+(.+)$/i);
+      return (of?.[1] || place).replace(/^the\s+/i, "");
+    }
+
+    updateTimeline() {
+      const days = 30;
+      const now = Date.now();
+      const start = now - days * 86_400_000;
+      const bins = Array.from({ length: days }, () => 0);
+      for (const quake of this.filtered) {
+        const day = Math.floor((quake.time - start) / 86_400_000);
+        if (day >= 0 && day < days) bins[day]++;
+      }
+      const peak = Math.max(...bins, 1);
+      const points = bins.map((count, index) => {
+        const x = (index / (days - 1)) * 600;
+        const y = 112 - (count / peak) * 92;
+        return [x, y];
+      });
+      const line = points.map(([x, y], index) => `${index ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+      const area = `${line} L600,119 L0,119 Z`;
+      this.querySelector("[data-timeline-line]")?.setAttribute("d", line);
+      this.querySelector("[data-timeline-area]")?.setAttribute("d", area);
+      this.text("[data-peak]", `Peak ${Math.max(...bins)} / day`);
+    }
+
+    layout() {
+      const rect = this.canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      this.width = rect.width;
+      this.height = rect.height;
+      this.canvas.width = Math.round(rect.width * dpr);
+      this.canvas.height = Math.round(rect.height * dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.draw();
+    }
+
+    animate(time: number) {
+      const elapsed = Math.min(time - (this.lastFrame || time), 40);
+      this.lastFrame = time;
+      if (this.autoRotate && !this.dragging && !document.hidden) {
+        this.centerLon = this.wrapLongitude(this.centerLon + elapsed * 0.0032);
+        this.draw();
+      }
+      this.frame = requestAnimationFrame((next) => this.animate(next));
+    }
+
+    draw() {
+      if (!this.ctx || !this.width || !this.height) return;
+      const ctx = this.ctx;
+      const style = getComputedStyle(this);
+      const color = (name: string) => style.getPropertyValue(name).trim();
+      const cx = this.width / 2;
+      const cy = this.height / 2;
+      const radius = Math.max(40, Math.min(this.width, this.height) * 0.405);
+      ctx.clearRect(0, 0, this.width, this.height);
+
+      const glow = ctx.createRadialGradient(cx, cy, radius * 0.35, cx, cy, radius * 1.25);
+      glow.addColorStop(0, color("--eq-glow"));
+      glow.addColorStop(1, "transparent");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fillStyle = color("--eq-ocean");
+      ctx.fill();
+      ctx.clip();
+
+      this.drawGrid(ctx, cx, cy, radius, color("--eq-grid"));
+      for (const coast of COASTS) {
+        this.drawCoast(ctx, coast, cx, cy, radius, color("--eq-land"), color("--eq-coast"));
+      }
+
+      this.points = [];
+      const visible = [...this.filtered].sort((a, b) => a.mag - b.mag);
+      for (const quake of visible) {
+        const point = this.project(quake.lon, quake.lat, cx, cy, radius);
+        if (!point.visible) continue;
+        const r = Math.max(2.2, (quake.mag - 3.7) * 2.15);
+        const hue = quake.mag >= 7 ? "--eq-hot-4" : quake.mag >= 6 ? "--eq-hot-3" : quake.mag >= 5 ? "--eq-hot-2" : "--eq-hot-1";
+        const fill = color(hue);
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, r * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = fill.replace(")", ", 0.12)").replace("rgb(", "rgba(");
+        // If the browser returned a hex token, the halo still reads through alpha.
+        ctx.globalAlpha = 0.15;
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = color("--eq-ring");
+        ctx.stroke();
+        this.points.push({ x: point.x, y: point.y, quake });
+      }
+
+      const shade = ctx.createRadialGradient(
+        cx - radius * 0.35,
+        cy - radius * 0.35,
+        radius * 0.1,
+        cx,
+        cy,
+        radius,
+      );
+      shade.addColorStop(0, "transparent");
+      shade.addColorStop(0.78, "transparent");
+      shade.addColorStop(1, color("--eq-shade"));
+      ctx.fillStyle = shade;
+      ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.strokeStyle = color("--eq-edge");
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      this.text("[data-coordinates]", `${Math.abs(Math.round(this.centerLat))}°${this.centerLat >= 0 ? "N" : "S"} · ${Math.abs(Math.round(this.centerLon))}°${this.centerLon >= 0 ? "E" : "W"}`);
+    }
+
+    drawGrid(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, stroke: string) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 0.65;
+      for (let lat = -60; lat <= 60; lat += 30) {
+        this.drawGeoLine(ctx, Array.from({ length: 145 }, (_, i) => [-180 + i * 2.5, lat] as [number, number]), cx, cy, radius);
+      }
+      for (let lon = -180; lon < 180; lon += 30) {
+        this.drawGeoLine(ctx, Array.from({ length: 73 }, (_, i) => [lon, -90 + i * 2.5] as [number, number]), cx, cy, radius);
+      }
+    }
+
+    drawGeoLine(ctx: CanvasRenderingContext2D, points: [number, number][], cx: number, cy: number, radius: number) {
+      let drawing = false;
+      ctx.beginPath();
+      for (const [lon, lat] of points) {
+        const point = this.project(lon, lat, cx, cy, radius);
+        if (!point.visible) {
+          drawing = false;
+          continue;
+        }
+        if (!drawing) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+        drawing = true;
+      }
+      ctx.stroke();
+    }
+
+    drawCoast(ctx: CanvasRenderingContext2D, coast: [number, number][], cx: number, cy: number, radius: number, fill: string, stroke: string) {
+      let drawing = false;
+      let visiblePoints = 0;
+      ctx.beginPath();
+      for (const [lon, lat] of coast) {
+        const point = this.project(lon, lat, cx, cy, radius);
+        if (!point.visible) {
+          drawing = false;
+          continue;
+        }
+        if (!drawing) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+        drawing = true;
+        visiblePoints++;
+      }
+      if (visiblePoints > 2) {
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 0.9;
+        ctx.stroke();
+      }
+    }
+
+    project(lon: number, lat: number, cx: number, cy: number, radius: number) {
+      const rad = Math.PI / 180;
+      const lambda = (lon - this.centerLon) * rad;
+      const phi = lat * rad;
+      const phi0 = this.centerLat * rad;
+      const cosPhi = Math.cos(phi);
+      const visible = Math.sin(phi0) * Math.sin(phi) + Math.cos(phi0) * cosPhi * Math.cos(lambda) > 0;
+      return {
+        x: cx + radius * cosPhi * Math.sin(lambda),
+        y: cy - radius * (Math.cos(phi0) * Math.sin(phi) - Math.sin(phi0) * cosPhi * Math.cos(lambda)),
+        visible,
+      };
+    }
+
+    showNearest(event: PointerEvent) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      let nearest: Point | undefined;
+      let distance = 13;
+      for (const point of this.points) {
+        const next = Math.hypot(point.x - x, point.y - y);
+        if (next < distance) {
+          nearest = point;
+          distance = next;
+        }
+      }
+      const tooltip = this.querySelector<HTMLElement>("[data-tooltip]");
+      if (!tooltip || !nearest) {
+        this.hideTooltip();
+        return;
+      }
+      this.text("[data-tooltip-mag]", `M ${nearest.quake.mag.toFixed(1)}`);
+      this.text("[data-tooltip-place]", nearest.quake.place);
+      this.text("[data-tooltip-meta]", `${Math.round(nearest.quake.depth)} km deep · ${new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(nearest.quake.time)}`);
+      tooltip.hidden = false;
+      const left = Math.min(this.width - 210, Math.max(10, nearest.x + 14));
+      const top = Math.min(this.height - 100, Math.max(10, nearest.y - 12));
+      tooltip.style.transform = `translate(${left}px, ${top}px)`;
+    }
+
+    hideTooltip() {
+      const tooltip = this.querySelector<HTMLElement>("[data-tooltip]");
+      if (tooltip) tooltip.hidden = true;
+    }
+
+    syncRotateButton() {
+      const button = this.querySelector("[data-rotate]");
+      if (!button) return;
+      button.textContent = `Rotate · ${this.autoRotate ? "on" : "off"}`;
+      button.classList.toggle("active", this.autoRotate);
+    }
+
+    wrapLongitude(value: number) {
+      return ((value + 180) % 360 + 360) % 360 - 180;
+    }
+
+    text(selector: string, value: string) {
+      const element = this.querySelector(selector);
+      if (element) element.textContent = value;
+    }
+  }
+
+  if (!customElements.get("earthquake-observatory")) {
+    customElements.define("earthquake-observatory", EarthquakeObservatory);
+  }
+</script>
+
+<style>
+  earthquake-observatory {
+    --eq-ocean: rgba(56, 73, 115, 0.08);
+    --eq-land: rgba(75, 63, 214, 0.1);
+    --eq-coast: rgba(19, 24, 36, 0.72);
+    --eq-grid: rgba(19, 24, 36, 0.2);
+    --eq-edge: rgba(19, 24, 36, 0.75);
+    --eq-ring: rgba(255, 255, 255, 0.85);
+    --eq-glow: rgba(75, 63, 214, 0.13);
+    --eq-shade: rgba(19, 24, 36, 0.16);
+    --eq-hot-1: #e2a13b;
+    --eq-hot-2: #e4753f;
+    --eq-hot-3: #d94b50;
+    --eq-hot-4: #9a52dc;
+    display: block;
+  }
+
+  :global(html[data-theme="dark"]) earthquake-observatory {
+    --eq-ocean: rgba(53, 79, 143, 0.2);
+    --eq-land: rgba(111, 214, 255, 0.09);
+    --eq-coast: rgba(182, 207, 255, 0.68);
+    --eq-grid: rgba(152, 184, 255, 0.17);
+    --eq-edge: rgba(192, 215, 255, 0.72);
+    --eq-ring: rgba(7, 10, 20, 0.8);
+    --eq-glow: rgba(80, 100, 255, 0.2);
+    --eq-shade: rgba(2, 4, 12, 0.5);
+    --eq-hot-1: #f1bc54;
+    --eq-hot-2: #ff8b59;
+    --eq-hot-3: #ff5572;
+    --eq-hot-4: #c56cff;
+  }
+
+  .observatory {
+    overflow: hidden;
+    background: color-mix(in srgb, var(--glass) 78%, transparent);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
+  }
+
+  .instrument-bar {
+    min-height: 3.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.9rem 0.65rem 1.1rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--glass);
+  }
+
+  .feed-state,
+  .controls,
+  .segments {
+    display: flex;
+    align-items: center;
+  }
+
+  .feed-state {
+    gap: 0.55rem;
+    color: var(--ink-soft);
+    font-size: 0.6875rem;
+  }
+
+  .signal {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--ink-faint);
+  }
+
+  .is-live .signal {
+    background: #34b886;
+    box-shadow: 0 0 10px rgba(52, 184, 134, 0.7);
+  }
+
+  .controls { gap: 0.5rem; }
+
+  button {
+    font: inherit;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  .segments {
+    padding: 3px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+
+  .segments button,
+  .control-button {
+    border: 0;
+    background: transparent;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .segments button {
+    padding: 0.32rem 0.58rem;
+    border-radius: 5px;
+  }
+
+  .segments button.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .control-button {
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+  }
+
+  .control-button:hover,
+  .control-button.active {
+    color: var(--interact);
+    border-color: var(--interact);
+  }
+
+  .dashboard {
+    display: grid;
+    grid-template-columns: minmax(20rem, 0.95fr) minmax(28rem, 1.05fr);
+    min-height: 38rem;
+  }
+
+  .globe-panel {
+    position: relative;
+    min-height: 38rem;
+    overflow: hidden;
+    border-right: 1px solid var(--glass-border);
+    background:
+      linear-gradient(to right, var(--reseau) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--reseau) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  [data-globe] {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  [data-globe]:active { cursor: grabbing; }
+
+  .globe-label,
+  .coordinates {
+    position: absolute;
+    bottom: 1rem;
+    color: var(--ink-faint);
+    pointer-events: none;
+  }
+
+  .globe-label { left: 1rem; }
+  .coordinates { right: 1rem; }
+
+  .tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: min(13rem, calc(100% - 20px));
+    padding: 0.7rem 0.8rem;
+    pointer-events: none;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule-strong);
+    border-radius: 8px;
+    box-shadow: var(--glass-shadow);
+    line-height: 1.35;
+  }
+
+  .tooltip strong,
+  .tooltip span,
+  .tooltip small { display: block; }
+  .tooltip strong { color: var(--interact); font-size: 0.8125rem; }
+  .tooltip span { margin-top: 0.2rem; font-size: 0.6875rem; }
+  .tooltip small { margin-top: 0.35rem; color: var(--ink-faint); font-size: 0.58rem; }
+
+  .readout { padding: 1.5rem; }
+
+  .readout-head,
+  .timeline-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .readout-head h2 {
+    margin-top: 0.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 3vw, 2.25rem);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .utc {
+    color: var(--ink-faint);
+    font-size: 0.625rem;
+    white-space: nowrap;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+  }
+
+  .stats article {
+    min-width: 0;
+    padding: 0.9rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 9px;
+  }
+
+  .stat-value,
+  .stat-label,
+  .stats small { display: block; }
+  .stat-value { font-size: clamp(1.1rem, 2.6vw, 1.55rem); line-height: 1.2; }
+  .stat-value i { color: var(--ink-faint); font-size: 0.65em; font-style: normal; }
+  .stat-label { margin-top: 0.35rem; color: var(--ink-soft); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .stats small { margin-top: 0.45rem; overflow: hidden; color: var(--ink-faint); font-size: 0.58rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+
+  .breakdowns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.65rem;
+  }
+
+  .bucket-list,
+  .region-list { margin-top: 0.8rem; }
+
+  .bucket,
+  :global(.region) {
+    display: grid;
+    grid-template-columns: minmax(4.5rem, 0.75fr) minmax(3rem, 1fr) 1.7rem;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 1.5rem;
+    color: var(--ink-soft);
+    font-size: 0.6rem;
+  }
+
+  .bucket i,
+  :global(.region i) {
+    height: 7px;
+    overflow: hidden;
+    background: var(--accent-soft);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  .bucket b,
+  :global(.region b) {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-2), var(--interact));
+    transition: width 500ms var(--ease-out);
+  }
+
+  .bucket strong,
+  :global(.region strong) { color: var(--ink); font-weight: 500; text-align: right; }
+  :global(.region span) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .empty { color: var(--ink-faint); font-size: 0.65rem; }
+
+  .timeline {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .timeline-head span { color: var(--ink-faint); }
+
+  .timeline svg {
+    display: block;
+    width: 100%;
+    height: 7.8rem;
+    margin-top: 0.35rem;
+    overflow: visible;
+  }
+
+  .timeline line { stroke: var(--rule); stroke-width: 1; }
+  .timeline .line { fill: none; stroke: var(--interact); stroke-width: 1.7; vector-effect: non-scaling-stroke; }
+  .timeline .area { fill: color-mix(in srgb, var(--interact) 10%, transparent); }
+  .timeline-axis { display: flex; justify-content: space-between; margin-top: -0.55rem; color: var(--ink-faint); font-size: 0.55rem; }
+
+  @media (max-width: 58rem) {
+    .dashboard { grid-template-columns: 1fr; }
+    .globe-panel { min-height: min(75vw, 38rem); border-right: 0; border-bottom: 1px solid var(--glass-border); }
+  }
+
+  @media (max-width: 42rem) {
+    .instrument-bar { align-items: flex-start; flex-direction: column; }
+    .controls { width: 100%; flex-wrap: wrap; }
+    .feed-state { min-height: 1.5rem; }
+    .dashboard { min-height: 0; }
+    .globe-panel { min-height: 23rem; }
+    .readout { padding: 1rem; }
+    .stats { grid-template-columns: 1fr; }
+    .breakdowns { grid-template-columns: 1fr; }
+    .stats small { white-space: normal; }
+  }
+</style>

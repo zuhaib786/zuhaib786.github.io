@@ -1,0 +1,7 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import GraphLaboratory from "../../components/visuals/GraphLaboratory.astro";
+---
+<AlgorithmPage title="Graph Traversal" description="Explore traversal, shortest paths, and topological ordering on a directed graph." number="004" eyebrow="Graphs" heading="Follow the" accent="frontier." lede="Choose a start node, reshape the graph, and inspect how queues, stacks, priorities, and indegrees produce very different visitation orders." noteTitle="One graph, four worklists" note="BFS uses a queue, DFS a stack, Dijkstra a distance-priority worklist, and Kahn's topological algorithm a queue containing exactly the current zero-indegree nodes.">
+  <GraphLaboratory />
+</AlgorithmPage>
