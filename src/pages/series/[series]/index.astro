@@ -70,15 +70,16 @@ const postSlug = (id: string) => id.split("/").slice(1).join("/");
   }
 
   header {
-    border-bottom: 3px solid var(--rule-strong);
+    border-bottom: 2px solid var(--rule-heavy);
     padding-bottom: 1.5rem;
   }
 
   h1 {
-    font-size: clamp(1.75rem, 5vw, 2.75rem);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5.5vw, 3.25rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
     margin: 0 0 0.75rem;
   }
 

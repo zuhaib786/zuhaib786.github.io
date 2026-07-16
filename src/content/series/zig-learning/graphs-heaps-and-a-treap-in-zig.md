@@ -23,6 +23,12 @@ pub fn MinHeap(comptime T: type) type {
 }
 ```
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/heap-array-tree.svg" alt="A flat array of seven values shown above the complete binary tree it implies, with index labels on both. Index 1 and its children at indices 3 and 4 are highlighted in both readings, alongside the parent and child index formulas.">
+  <img class="plate-dark" src="/images/zig/heap-array-tree-dark.svg" alt="A flat array of seven values shown above the complete binary tree it implies, with index labels on both. Index 1 and its children at indices 3 and 4 are highlighted in both readings, alongside the parent and child index formulas.">
+  <figcaption><strong>The tree is a way of reading the array.</strong> Both halves are the same seven cells. There is no node type and no pointer anywhere — a parent finds its children by arithmetic (<code>2i+1</code>, <code>2i+2</code>), which is why the whole structure fits on top of an <code>ArrayList</code> and inherits its growth and freeing for nothing. <em>Position <strong>is</strong> the structure.</em></figcaption>
+</figure>
+
 The parent of index `i` is `(i - 1) / 2`; its children are `2*i + 1` and `2*i + 2`. That's the whole data structure — the tree shape is implied by position. Two sift operations keep the min-heap invariant (every parent ≤ its children):
 
 ```zig

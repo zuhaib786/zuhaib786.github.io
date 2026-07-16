@@ -1,8 +1,13 @@
 # zuhaib786.github.io
 
 Personal portfolio and blog of Zuhaib Ul Zamann, built with [Astro](https://astro.build)
-and deployed to GitHub Pages. The design is a "technical field manual" aesthetic —
-monospace type (IBM Plex Mono), paper background, numbered sections.
+and deployed to GitHub Pages. The design is an astronomical glass plate: content is
+written on a transparent plate ruled with a *reseau* (the coordinate grid observatories
+etched into the glass itself), floating over a deep field of stars in slow sidereal
+rotation. Dark mode is the sky as observed; light mode is the same plate as a negative
+on a light table, where stars read dark and the accent becomes the warm ink used to
+annotate plate margins. Titles are set in Instrument Serif, everything measured in
+IBM Plex Mono, with numbered sections carried over from the field-manual bones.
 
 **Live site:** https://zuhaib786.github.io
 

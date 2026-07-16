@@ -1,52 +1,77 @@
 /* ------------------------------------------------------------------ */
-/*  Design tokens — technical-manual aesthetic                         */
+/*  Design tokens — the plate                                          */
+/*                                                                     */
+/*  The site is an astronomical glass plate. Content is written on the */
+/*  emulsion; a reseau (the coordinate grid observatories etched into  */
+/*  the glass itself) rules the surface; the deep field sits behind.   */
+/*                                                                     */
+/*  Dark mode is the sky as observed. Light mode is the same plate as  */
+/*  a negative on a light table — stars go dark on a pale ground, and  */
+/*  the accent turns to the warm ink astronomers annotated margins in. */
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* paper + ink */
-  --paper: #f4f0e6;
-  --paper-raised: #faf7f0;
-  --paper-sunken: #ece7d9;
-  --ink: #1f1d1a;
-  --ink-soft: #57534a;
-  --ink-faint: #8a8478;
+  /* the negative: a plate on a light table. Cool, never cream. */
+  --paper: #e9edf5;
+  --paper-raised: #f3f6fb;
+  --paper-sunken: #dde3ef;
+  --ink: #131824;
+  --ink-soft: #4d5670;
+  --ink-faint: #808aa4;
 
-  /* rules + accents */
-  --rule: #c9c2b2;
-  --rule-strong: #1f1d1a;
+  /* rules + accents. --accent is annotation ink: what gets written
+     *on* the plate, never part of the exposure itself. */
+  --rule: #c0c8da;
+  --rule-strong: #131824;
+  /* the heavy title-block rule. Near-black on the negative reads as
+     printed ink; the same value in dark mode would be a glaring bar, so
+     it dims there rather than inverting. */
+  --rule-heavy: rgba(19, 24, 36, 0.85);
   --accent: #c8401a;
-  --accent-2: #6c5ce7;
-  --accent-3: #0f8b8d;
-  --accent-soft: #e8d9c8;
+  --accent-2: #4b3fd6;
+  --accent-soft: #d6dcea;
 
-  /* frosted-glass surfaces */
-  --panel: rgba(250, 247, 240, 0.66);
-  --glass: rgba(255, 255, 255, 0.4);
-  --glass-strong: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(31, 29, 26, 0.14);
-  --glass-highlight: rgba(255, 255, 255, 0.55);
-  --sheen: rgba(255, 255, 255, 0.35);
-  --glass-shadow: 0 8px 24px rgba(31, 29, 26, 0.08);
-  --lift-shadow: 0 10px 24px rgba(31, 29, 26, 0.1);
+  /* the reseau — grid etched into the glass */
+  --reseau: rgba(19, 24, 36, 0.05);
+  --reseau-major: rgba(19, 24, 36, 0.09);
+  --fiducial: rgba(19, 24, 36, 0.32);
 
-  /* interactive hue: warm accent in light mode, neon in dark */
+  /* Code sits in a wash, not a slab: just enough tint to settle the reseau
+     behind the text, so the block reads as a recess in the plate rather than
+     a different-coloured page laid on top of it. */
+  --code-wash: rgba(255, 255, 255, 0.66);
+
+  /* plate glass — opaque enough that the field never fights the text */
+  --panel: rgba(243, 246, 252, 0.74);
+  --glass: rgba(255, 255, 255, 0.42);
+  --glass-strong: rgba(255, 255, 255, 0.68);
+  --glass-border: rgba(19, 24, 36, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.75);
+  --sheen: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 24px rgba(19, 24, 36, 0.09);
+
+  /* interactive hue: annotation ink in light, neon in dark */
   --interact: #c8401a;
   --hover-glow: 0 0 0 rgba(0, 0, 0, 0);
   --underline-glow: none;
 
-  /* ambient background orbs */
-  --orb-1: rgba(200, 64, 26, 0.18);
-  --orb-2: rgba(108, 92, 231, 0.16);
-  --orb-3: rgba(15, 139, 141, 0.15);
+  /* the field itself — stars read dark against the negative */
+  --star: #1a2138;
+  --sky-from: #eef1f7;
+  --sky-to: #e2e7f2;
 
-  --scanline: rgba(31, 29, 26, 0.012);
+  /* nebulae drifting behind the plate */
+  --orb-1: rgba(75, 63, 214, 0.12);
+  --orb-2: rgba(147, 91, 255, 0.1);
+  --orb-3: rgba(15, 127, 139, 0.1);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo,
     Consolas, monospace;
+  /* the engraved plate title — used only for names and article titles */
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
 
-  --measure: 44rem;
   --gutter: 1.5rem;
 
   color-scheme: light;
@@ -58,39 +83,48 @@ html[data-font="xenon"] {
     SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* dark mode — warm near-black, neon glow instead of shadow */
+/* dark mode — the deep field as observed, depth from light not shade */
 html[data-theme="dark"] {
-  --paper: #121011;
-  --paper-raised: #1d1a17;
-  --paper-sunken: #0c0a09;
-  --ink: #f2ede3;
-  --ink-soft: #beb7aa;
-  --ink-faint: #857e72;
+  --paper: #070a14;
+  --paper-raised: #10152a;
+  --paper-sunken: #05070f;
+  --ink: #e8ecf7;
+  --ink-soft: #99a3c0;
+  --ink-faint: #5f6884;
 
-  --rule: #403a32;
-  --rule-strong: #f2ede3;
-  --accent: #ff7a4d;
-  --accent-soft: #46281c;
+  --rule: #2a3252;
+  --rule-strong: #e8ecf7;
+  --rule-heavy: rgba(176, 198, 255, 0.4);
+  --accent: #8a9cff;
+  --accent-2: #a06bff;
+  --accent-soft: #1d2445;
 
-  --panel: rgba(24, 21, 19, 0.55);
-  --glass: rgba(255, 255, 255, 0.055);
-  --glass-strong: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-highlight: rgba(255, 255, 255, 0.1);
-  --sheen: rgba(120, 210, 255, 0.08);
-  --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --lift-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --reseau: rgba(150, 180, 255, 0.07);
+  --reseau-major: rgba(150, 180, 255, 0.13);
+  --fiducial: rgba(170, 200, 255, 0.42);
+
+  --code-wash: rgba(0, 0, 0, 0.34);
+
+  --panel: rgba(9, 13, 30, 0.62);
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(160, 190, 255, 0.16);
+  --glass-highlight: rgba(190, 215, 255, 0.14);
+  --sheen: rgba(120, 210, 255, 0.09);
+  --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 
   /* neon */
-  --interact: #55c8ff;
-  --hover-glow: 0 0 26px rgba(85, 200, 255, 0.3);
-  --underline-glow: 0 0 10px rgba(85, 200, 255, 0.85);
+  --interact: #6fd6ff;
+  --hover-glow: 0 0 26px rgba(111, 214, 255, 0.28);
+  --underline-glow: 0 0 10px rgba(111, 214, 255, 0.8);
 
-  --orb-1: rgba(85, 200, 255, 0.17);
-  --orb-2: rgba(147, 91, 255, 0.17);
-  --orb-3: rgba(255, 77, 166, 0.11);
+  --star: #dce6ff;
+  --sky-from: #070a14;
+  --sky-to: #0d1226;
 
-  --scanline: rgba(255, 255, 255, 0.014);
+  --orb-1: rgba(80, 100, 255, 0.16);
+  --orb-2: rgba(150, 90, 255, 0.15);
+  --orb-3: rgba(80, 200, 255, 0.11);
 
   color-scheme: dark;
 }
@@ -106,19 +140,10 @@ html[data-theme="dark"] {
 }
 
 html {
-  /* faint horizontal scanlines, like printed paper grain — lives on
-     html (the canvas) so the fixed orb layer can paint above it */
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 3px,
-      var(--scanline) 3px,
-      var(--scanline) 4px
-    ),
-    var(--paper);
+  background: linear-gradient(170deg, var(--sky-from), var(--sky-to) 70%);
+  background-attachment: fixed;
   scroll-behavior: smooth;
-  /* keep anchor targets clear of the sticky frosted header */
+  /* keep anchor targets clear of the sticky header */
   scroll-padding-top: 5rem;
 }
 
@@ -132,13 +157,13 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Ambient colour — blurred gradient orbs drifting behind the page    */
+/*  The field — nebulae, then the star canvas painted over them        */
 /* ------------------------------------------------------------------ */
 
 .orbs {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   overflow: hidden;
   pointer-events: none;
 }
@@ -203,6 +228,17 @@ body {
   }
 }
 
+/* the star field — canvas, in slow sidereal rotation */
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 ::selection {
   background: var(--accent);
   color: var(--paper);
@@ -224,6 +260,13 @@ a:hover {
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* a visible, consistent focus ring everywhere */
+:focus-visible {
+  outline: 2px solid var(--interact);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* ------------------------------------------------------------------ */
@@ -360,13 +403,11 @@ img {
   letter-spacing: 0.1em;
 }
 
-/* figures: framed, captioned like a manual plate */
+/* Figures float unframed: the diagrams ship transparent, so they read
+   straight onto the plate's own reseau rather than sitting in a box on it. */
 .prose img {
   display: block;
   margin: 0 auto;
-  border: 1px solid var(--rule-strong);
-  background: var(--paper-raised);
-  padding: 0.75rem;
   max-width: 100%;
   height: auto;
 }
@@ -400,10 +441,10 @@ html[data-theme="dark"] .prose .plate-dark {
   overflow-x: auto;
 }
 
-/* inline code */
+/* inline code — same wash as the blocks, so they read as one material */
 .prose code {
   font-size: 0.875em;
-  background: var(--paper-sunken);
+  background: var(--code-wash);
   border: 1px solid var(--rule);
   border-radius: 2px;
   padding: 0.1em 0.35em;
@@ -411,14 +452,14 @@ html[data-theme="dark"] .prose .plate-dark {
 
 /* code blocks (shiki) */
 .prose pre {
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--rule-heavy);
   border-radius: 0;
   padding: 1.25rem;
   overflow-x: auto;
   font-size: 0.8125rem;
   line-height: 1.7;
-  background: var(--paper-raised) !important;
-  box-shadow: 4px 4px 0 var(--accent-soft);
+  /* `!important` beats the opaque background shiki inlines per theme. */
+  background: var(--code-wash) !important;
 }
 
 .prose pre code {
@@ -434,20 +475,6 @@ html[data-theme="dark"] .prose pre span {
   color: var(--shiki-dark) !important;
   font-style: var(--shiki-dark-font-style) !important;
   font-weight: var(--shiki-dark-font-weight) !important;
-}
-
-/* dark mode: code must sit clearly below the glass, not merge with it */
-html[data-theme="dark"] .prose pre {
-  background: rgba(0, 0, 0, 0.45) !important;
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    4px 4px 0 var(--accent-soft);
-}
-
-html[data-theme="dark"] .prose code {
-  background: rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.14);
 }
 
 html[data-theme="dark"] .prose pre code {
@@ -472,27 +499,65 @@ html[data-theme="dark"] .prose pre code {
   padding: 0 var(--gutter);
 }
 
-/* the main content sheet — one large pane of frosted glass floating
-   over the orbs, so everything reads as written on glass */
-.glass-main {
+/* The plate: one sheet of glass over the field, with the reseau etched
+   into it and fiducial crosses burned at the corners. Everything on the
+   site is written on this surface. */
+.plate-glass {
+  position: relative;
   width: min(72rem, calc(100% - 1.5rem));
   max-width: none;
   margin: 1rem auto 0;
   padding: 0 var(--gutter) 2.5rem;
-  background: var(--panel);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
-  backdrop-filter: blur(28px) saturate(150%);
+  background-color: var(--panel);
+  /* The reseau — fine rulings every 12px, heavier every 5th. Tiled via
+     background-size rather than repeating-linear-gradient: an article
+     plate runs tens of thousands of pixels tall, and a repeating gradient
+     accumulates enough subpixel error over that span to visibly streak. */
+  background-image:
+    linear-gradient(to right, var(--reseau-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--reseau-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--reseau) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--reseau) 1px, transparent 1px);
+  background-size: 60px 60px, 60px 60px, 12px 12px, 12px 12px;
+  background-position: 0 0;
+  /* Clear glass, not frost: a plate holds the star image, so the field has
+     to read *through* the surface. A blur here erases point stars entirely
+     and would leave phones — where the plate fills the screen — with no
+     field at all. Saturation alone keeps the glass feel. */
+  -webkit-backdrop-filter: saturate(160%) brightness(1.04);
+  backdrop-filter: saturate(160%) brightness(1.04);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
+  /* The plate has edges: glows bleeding past them pushed the document
+     59px wide on narrow screens and scrolled the whole page sideways. */
+  overflow: hidden;
   /* depth from light, not shade: bright top edge + faint inner wash */
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),
     inset 0 0 60px rgba(255, 255, 255, 0.03);
 }
 
+/* fiducial crosses — the registration marks a measuring engine aligns to */
+.plate-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0.75rem;
+  pointer-events: none;
+  background-color: var(--fiducial);
+  --cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11'%3E%3Cpath d='M5.5 0v11M0 5.5h11' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  -webkit-mask-image: var(--cross), var(--cross), var(--cross), var(--cross);
+  mask-image: var(--cross), var(--cross), var(--cross), var(--cross);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: top left, top right, bottom left, bottom right;
+  mask-position: top left, top right, bottom left, bottom right;
+  -webkit-mask-size: 11px 11px;
+  mask-size: 11px 11px;
+}
+
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-main {
-    background: var(--paper-raised);
+  .plate-glass {
+    background-color: var(--paper-raised);
   }
 }
 

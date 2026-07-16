@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" width="900" height="340" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #131824; font-size: 13px; font-weight: 600; }
+  .l   { fill: #131824; font-size: 12px; font-weight: 600; }
+  .s   { fill: #4d5670; font-size: 11px; }
+  .f   { fill: #808aa4; font-size: 10px; letter-spacing: .06em; }
+  .a   { fill: #c8401a; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #4b3fd6; font-size: 11px; font-weight: 600; }
+  .axis{ stroke: #131824; fill: none; stroke-width: 1.2; }
+  .ln  { stroke: #a9b3c9; fill: none; }
+  .ray { stroke: #4d5670; fill: none; stroke-width: 1.2; }
+  .acc { stroke: #c8401a; fill: none; stroke-width: 1.5; }
+  .plane { fill: #ffffff; fill-opacity: .28; stroke: #a9b3c9; }
+  .dot { fill: #131824; }
+  .dotA{ fill: #c8401a; }
+  .hd  { fill: #131824; }
+  .hdS { fill: #4d5670; }
+  .hdA { fill: #c8401a; }
+</style>
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/></marker>
+  <marker id="hs" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdS"/></marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/></marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">(a) the pinhole model</text>
+<path d="M90 200 H466" class="axis" marker-end="url(#h)"/>
+<text x="474" y="204" class="l" text-anchor="start">Z</text>
+<path d="M90 200 V48" class="axis" marker-end="url(#h)"/>
+<text x="84" y="44" class="l" text-anchor="end">Y</text>
+<path d="M90 200 L170 140" class="axis" marker-end="url(#h)"/>
+<text x="178" y="136" class="l" text-anchor="start">X</text>
+<path d="M195 285 L195 115 L265 70 L265 240 Z" class="plane"/>
+<text x="272" y="254" class="s" text-anchor="start">Z = f</text>
+<path d="M90 200 L430 120" class="ray"/>
+<circle cx="430" cy="120" r="4" class="dot"/>
+<text x="438" y="116" class="l" text-anchor="start">X</text>
+<circle cx="230" cy="167" r="4" class="dotA"/>
+<text x="222" y="150" class="l" text-anchor="end">x</text>
+<circle cx="90" cy="200" r="4" class="dot"/>
+<text x="76" y="194" class="l" text-anchor="end">C</text>
+<path d="M84 212 L60 230" class="ln"/>
+<text x="14" y="244" class="f" text-anchor="start">camera centre</text>
+<circle cx="230" cy="200" r="4" class="dot"/>
+<text x="230" y="220" class="l" text-anchor="middle">p</text>
+<text x="230" y="234" class="f" text-anchor="middle">principal point</text>
+<path d="M204 292 L168 308" class="ln"/>
+<text x="162" y="312" class="f" text-anchor="end">image plane</text>
+<path d="M360 204 L360 224" class="ln"/>
+<text x="366" y="228" class="f" text-anchor="start">principal axis</text>
+<text x="520" y="16" class="t" text-anchor="start">(b) the same ray, side on</text>
+<path d="M560 230 H864" class="axis" marker-end="url(#h)"/>
+<text x="872" y="234" class="l" text-anchor="start">Z</text>
+<path d="M560 230 V82" class="axis" marker-end="url(#h)"/>
+<text x="554" y="78" class="l" text-anchor="end">Y</text>
+<path d="M640 92 V252" class="ln"/>
+<text x="640" y="84" class="s" text-anchor="middle">Z = f</text>
+<path d="M560 230 L830 112" class="ray"/>
+<circle cx="830" cy="112" r="4" class="dot"/>
+<path d="M830 112 H566" class="ln" stroke-dasharray="3 3"/>
+<path d="M830 112 V228" class="ln" stroke-dasharray="3 3"/>
+<text x="556" y="116" class="l" text-anchor="end">Y</text>
+<circle cx="640" cy="195" r="4" class="dotA"/>
+<path d="M640 195 H656" class="ln"/>
+<path d="M640 230 H656" class="ln"/>
+<path d="M650 214 V198" class="acc" marker-end="url(#hA)"/>
+<path d="M650 212 V227" class="acc" marker-end="url(#hA)"/>
+<text x="662" y="216" class="a" text-anchor="start">f · Y / Z</text>
+<circle cx="640" cy="230" r="4" class="dot"/>
+<text x="634" y="246" class="l" text-anchor="end">p</text>
+<path d="M560 218 H572 V230" class="ln"/>
+<path d="M640 218 H628 V230" class="ln"/>
+<path d="M560 250 V264" class="ln"/>
+<path d="M640 250 V264" class="ln"/>
+<path d="M600 257 H564" class="ray" marker-end="url(#hs)"/>
+<path d="M600 257 H636" class="ray" marker-end="url(#hs)"/>
+<text x="600" y="276" class="l" text-anchor="middle">f</text>
+<path d="M830 234 V288" class="ln"/>
+<path d="M695 282 H564" class="ray" marker-end="url(#hs)"/>
+<path d="M695 282 H826" class="ray" marker-end="url(#hs)"/>
+<text x="695" y="300" class="l" text-anchor="middle">Z</text>
+<text x="520" y="322" class="a2" text-anchor="start">two similar triangles ⇒  y = f · Y / Z   and   x = f · X / Z</text>
+<path d="M500 6 V330" class="ln" stroke-dasharray="2 4"/>
+</svg>

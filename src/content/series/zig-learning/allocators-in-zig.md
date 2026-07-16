@@ -169,6 +169,12 @@ test "string builder implementation" {
 }
 ```
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/ownership-handoff.svg" alt="Three panels: the builder owning a 16-cell buffer with 11 used; toOwnedSlice reallocating to exactly 11, handing it to out and setting buf to an empty slice; the two defers freeing the buffer once and then an empty slice as a no-op.">
+  <img class="plate-dark" src="/images/zig/ownership-handoff-dark.svg" alt="Three panels: the builder owning a 16-cell buffer with 11 used; toOwnedSlice reallocating to exactly 11, handing it to out and setting buf to an empty slice; the two defers freeing the buffer once and then an empty slice as a no-op.">
+  <figcaption><strong>Why two defers don't collide.</strong> (a) After appending, the builder owns a 16-byte buffer with 11 bytes live. (b) <code>toOwnedSlice</code> shrinks it to exactly 11 and returns it — then does the load-bearing part, <code>self.buf = &amp;.{}</code>, so the builder no longer points at that memory. (c) The defers run last-in-first-out: <code>free(out)</code> releases the buffer once, and <code>deinit</code> then frees an <em>empty</em> slice, which is a no-op. The buffer has one owner at every instant — <em>the handoff is the null-out.</em></figcaption>
+</figure>
+
 At a glance that's a double free: `toOwnedSlice` hands out `out`, we `free(out)`, and then `deinit` also frees. But it's correct, and `std.testing.allocator` confirms it by *not* complaining. The trick is the two lines in the middle of `toOwnedSlice`: after shrinking the buffer to its exact length and returning it, it resets `self.buf = &.{}`. The builder no longer points at that memory. So when `deinit` runs at end of scope, it frees an *empty* slice — a no-op — not the buffer we already handed out.
 
 It's the `toOwnedSlice` pattern from `split` again, made explicit: **transferring ownership means nulling out your own reference so two cleanup paths can coexist without colliding.** Two defers, one buffer, no double free — because in between, ownership moved. Once you see it here, the whole "who frees this" discipline stops feeling like bookkeeping and starts feeling like a property you can actually reason about.

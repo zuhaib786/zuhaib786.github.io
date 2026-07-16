@@ -69,6 +69,12 @@ defer out.flush() catch {};
 
 `defer` runs this at the end of the scope, guaranteeing the buffer is drained however we leave `main`. The `catch {}` is there because a `defer` can't propagate an error, and there's nothing useful to do about a failed final flush as the program exits anyway. It reads a little odd at first, but "buffer, then flush on the way out" is the pattern.
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/buffered-writer.svg" alt="Three panels: print calls accumulating bytes into a 4096-byte stack buffer with no syscall; flush draining the buffer through a single write syscall to the terminal; and forgetting the flush, where main returns and the buffered bytes are discarded so nothing is printed.">
+  <img class="plate-dark" src="/images/zig/buffered-writer-dark.svg" alt="Three panels: print calls accumulating bytes into a 4096-byte stack buffer with no syscall; flush draining the buffer through a single write syscall to the terminal; and forgetting the flush, where main returns and the buffered bytes are discarded so nothing is printed.">
+  <figcaption><strong>Where the bytes actually live.</strong> (a) Every <code>print</code> copies into <code>out_buffer</code> — a plain array on the stack — and touches the OS not at all. (b) <code>flush</code> is what turns the whole batch into a single <code>write</code>; that's the point of buffering, one syscall instead of one per print. (c) Skip the flush and nothing is wrong <em>except</em> that the bytes were still sitting in the buffer when the frame went away. The program succeeds and prints nothing — <em>which is why the flush is a <code>defer</code>, right next to the writer that needs it.</em></figcaption>
+</figure>
+
 ## Writing through the interface
 
 Now the command handlers. Notice the type of `out` — a plain `*std.Io.Writer`. The handler has no idea where its output ends up:

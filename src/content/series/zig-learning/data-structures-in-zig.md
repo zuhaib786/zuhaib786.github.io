@@ -9,6 +9,12 @@ The last two posts were about the allocator interface — [ownership and leak-te
 
 This post is a quick tour of how the skills so far compose into real containers.
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/three-containers.svg" alt="Three panels: a ring buffer whose occupied slots wrap around the end of a fixed array with the tail computed from head plus count; a stack doubling its capacity from four to eight via realloc; and an LRU cache where a hash map and a linked list both reference one duped key.">
+  <img class="plate-dark" src="/images/zig/three-containers-dark.svg" alt="Three panels: a ring buffer whose occupied slots wrap around the end of a fixed array with the tail computed from head plus count; a stack doubling its capacity from four to eight via realloc; and an LRU cache where a hash map and a linked list both reference one duped key.">
+  <figcaption><strong>Three containers, three corners of the allocator.</strong> (a) The ring buffer never grows: one <code>alloc</code>, one <code>free</code>, and <code>@mod</code> does the rest — the tail is derived from <code>head + count</code>, so there is no second index to keep in sync. (b) The stack doesn't know its size up front, so it <code>realloc</code>s on a doubling schedule and never shrinks. (c) The cache is the hard one: the map and the node hold <em>the same</em> duped key, which is why teardown has to drop the map's buckets first and free the keys from the list side. <em>One allocation with two referents is what makes the order mandatory.</em></figcaption>
+</figure>
+
 ## The generic container pattern
 
 All three are generic over their element type, and Zig spells that with a function that *returns a type*:

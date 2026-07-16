@@ -90,6 +90,12 @@ const Counter = struct {
 
 Why a struct with a field, instead of a function that counts spaces in a buffer? Because the input arrives in chunks, and a word can be split across two of them — `hel` at the end of one `feed`, `lo` at the start of the next. If each call counted independently it would see two words. The `in_word` flag is the memory that carries the "we're in the middle of a word" fact across the boundary, so we only count the *transition* from word to whitespace. A word becomes a word the moment it ends.
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/chunk-boundary.svg" alt="The bytes of hello world laid out in cells, split after hel by a chunk boundary marking the end of the first feed call. Below, the in_word flag stays true across the boundary, drops to false at the space where the word count increments to one, and finish increments it to two.">
+  <img class="plate-dark" src="/images/zig/chunk-boundary-dark.svg" alt="The bytes of hello world laid out in cells, split after hel by a chunk boundary marking the end of the first feed call. Below, the in_word flag stays true across the boundary, drops to false at the space where the word count increments to one, and finish increments it to two.">
+  <figcaption><strong>A word split across two reads.</strong> <code>feed("hel")</code> ends in the middle of <code>hello</code>, and nothing about that is visible from inside the second call. <code>in_word</code> is the only thing carrying the fact across — so <code>hello</code> gets counted once, at the space, rather than twice (once per chunk) or not at all. <code>finish()</code> exists for the mirror case: the last word ends at end-of-input and never sees a closing space. <em>Count the transition, not the bytes.</em></figcaption>
+</figure>
+
 That also explains `finish()`. If the input doesn't end in whitespace, the final word never sees its closing transition during `feed`, so `finish` settles the tab: if we're still `in_word` at end-of-input, that's one more word. It's the streaming version of an off-by-one you'd never think about if you had the whole string in memory.
 
 ## count grows up: a file *or* a pipe

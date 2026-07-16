@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 268" width="900" height="268" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #131824; font-size: 13px; font-weight: 600; }
+  .l   { fill: #131824; font-size: 11.5px; }
+  .s   { fill: #4d5670; font-size: 11px; }
+  .f   { fill: #808aa4; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #c8401a; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #4b3fd6; font-size: 11px; font-weight: 600; }
+  .box { fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .cell{ fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .hot { fill: #ffffff; fill-opacity: 0.72; stroke: #c8401a; stroke-width: 1.5; }
+  .void{ fill: #dde3ef; fill-opacity: .5; stroke: #a9b3c9; stroke-dasharray: 3 3; }
+  .ln  { stroke: #a9b3c9; fill: none; }
+  .ar  { stroke: #4d5670; fill: none; stroke-width: 1.4; }
+  .arA { stroke: #c8401a; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #c8401a; }
+  .hd  { fill: #4d5670; }
+  .strike { stroke: #c8401a; stroke-width: 1.6; }
+</style>
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/>
+  </marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/>
+  </marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">one record on disk: { key: "Zig", value: 20 }</text>
+<path d="M42 54 V46 H190 V54" class="ln"/>
+<text x="116.0" y="40" class="a" text-anchor="middle">MAGIC</text>
+<path d="M194 54 V46 H266 V54" class="ln"/>
+<text x="230.0" y="40" class="a" text-anchor="middle">VERSION</text>
+<path d="M270 54 V46 H418 V54" class="ln"/>
+<text x="344.0" y="40" class="a" text-anchor="middle">COUNT</text>
+<path d="M422 54 V46 H570 V54" class="ln"/>
+<text x="496.0" y="40" class="a" text-anchor="middle">KEY_LEN</text>
+<path d="M574 54 V46 H684 V54" class="ln"/>
+<text x="629.0" y="40" class="a" text-anchor="middle">KEY</text>
+<path d="M688 54 V46 H836 V54" class="ln"/>
+<text x="762.0" y="40" class="a" text-anchor="middle">VALUE</text>
+<rect x="40" y="58" width="38" height="28" class="hot"/>
+<text x="59.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">4C</text>
+<rect x="78" y="58" width="38" height="28" class="hot"/>
+<text x="97.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">5A</text>
+<rect x="116" y="58" width="38" height="28" class="hot"/>
+<text x="135.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">49</text>
+<rect x="154" y="58" width="38" height="28" class="hot"/>
+<text x="173.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">47</text>
+<rect x="192" y="58" width="38" height="28" class="cell"/>
+<text x="211.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">01</text>
+<rect x="230" y="58" width="38" height="28" class="cell"/>
+<text x="249.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="268" y="58" width="38" height="28" class="cell"/>
+<text x="287.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">01</text>
+<rect x="306" y="58" width="38" height="28" class="cell"/>
+<text x="325.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="344" y="58" width="38" height="28" class="cell"/>
+<text x="363.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="382" y="58" width="38" height="28" class="cell"/>
+<text x="401.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="420" y="58" width="38" height="28" class="cell"/>
+<text x="439.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">03</text>
+<rect x="458" y="58" width="38" height="28" class="cell"/>
+<text x="477.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="496" y="58" width="38" height="28" class="cell"/>
+<text x="515.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="534" y="58" width="38" height="28" class="cell"/>
+<text x="553.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="572" y="58" width="38" height="28" class="cell"/>
+<text x="591.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">5A</text>
+<rect x="610" y="58" width="38" height="28" class="cell"/>
+<text x="629.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">69</text>
+<rect x="648" y="58" width="38" height="28" class="cell"/>
+<text x="667.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">67</text>
+<rect x="686" y="58" width="38" height="28" class="cell"/>
+<text x="705.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">14</text>
+<rect x="724" y="58" width="38" height="28" class="cell"/>
+<text x="743.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="762" y="58" width="38" height="28" class="cell"/>
+<text x="781.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="800" y="58" width="38" height="28" class="cell"/>
+<text x="819.0" y="76.0" class="l" text-anchor="middle" style="font-size:11px">00</text>
+<rect x="40" y="86" width="38" height="22" class="void"/>
+<text x="59.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">L</text>
+<rect x="78" y="86" width="38" height="22" class="void"/>
+<text x="97.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">Z</text>
+<rect x="116" y="86" width="38" height="22" class="void"/>
+<text x="135.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">I</text>
+<rect x="154" y="86" width="38" height="22" class="void"/>
+<text x="173.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">G</text>
+<rect x="192" y="86" width="38" height="22" class="void"/>
+<text x="211.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="230" y="86" width="38" height="22" class="void"/>
+<text x="249.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="268" y="86" width="38" height="22" class="void"/>
+<text x="287.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="306" y="86" width="38" height="22" class="void"/>
+<text x="325.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="344" y="86" width="38" height="22" class="void"/>
+<text x="363.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="382" y="86" width="38" height="22" class="void"/>
+<text x="401.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="420" y="86" width="38" height="22" class="void"/>
+<text x="439.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="458" y="86" width="38" height="22" class="void"/>
+<text x="477.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="496" y="86" width="38" height="22" class="void"/>
+<text x="515.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="534" y="86" width="38" height="22" class="void"/>
+<text x="553.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="572" y="86" width="38" height="22" class="void"/>
+<text x="591.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">Z</text>
+<rect x="610" y="86" width="38" height="22" class="void"/>
+<text x="629.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">i</text>
+<rect x="648" y="86" width="38" height="22" class="void"/>
+<text x="667.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">g</text>
+<rect x="686" y="86" width="38" height="22" class="void"/>
+<text x="705.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="724" y="86" width="38" height="22" class="void"/>
+<text x="743.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="762" y="86" width="38" height="22" class="void"/>
+<text x="781.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<rect x="800" y="86" width="38" height="22" class="void"/>
+<text x="819.0" y="101.0" class="l" text-anchor="middle" style="font-size:10px">·</text>
+<text x="43" y="124" class="f" text-anchor="start">0</text>
+<text x="195" y="124" class="f" text-anchor="start">4</text>
+<text x="271" y="124" class="f" text-anchor="start">6</text>
+<text x="423" y="124" class="f" text-anchor="start">10</text>
+<text x="575" y="124" class="f" text-anchor="start">14</text>
+<text x="689" y="124" class="f" text-anchor="start">17</text>
+<text x="32" y="76" class="s" text-anchor="end">bytes</text>
+<text x="32" y="102" class="s" text-anchor="end">ascii</text>
+<text x="846" y="76" class="f" text-anchor="start">21 B</text>
+<text x="40" y="152" class="a" text-anchor="start">MAGIC</text>
+<text x="122" y="152" class="s" text-anchor="start">"LZIG" at offset 0 — reject a JPEG at byte four, before allocating a 4 GB "key" from random bytes.</text>
+<text x="40" y="178" class="a" text-anchor="start">VERSION</text>
+<text x="122" y="178" class="s" text-anchor="start">u16 — a future layout bumps to 2, and an old reader refuses it cleanly instead of misreading it.</text>
+<text x="40" y="204" class="a" text-anchor="start">KEY_LEN</text>
+<text x="122" y="204" class="s" text-anchor="start">u32 then exactly that many bytes — any byte is legal data, so a binary format cannot delimit.</text>
+<text x="40" y="230" class="a" text-anchor="start">VALUE</text>
+<text x="122" y="230" class="s" text-anchor="start">14 00 00 00 is 20 little-endian, low byte first. Writer and reader must agree or every number scrambles.</text>
+</svg>

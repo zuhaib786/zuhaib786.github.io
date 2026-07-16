@@ -90,6 +90,12 @@ pub fn close(self: *Self, io: std.Io) void {
 }
 ```
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/signal-vs-broadcast.svg" alt="Two panels. With signal, only one of four workers blocked in pop is woken and exits while the other three stay blocked forever and shutdown hangs. With broadcast, all four are woken, drain, and exit, so join returns.">
+  <img class="plate-dark" src="/images/zig/signal-vs-broadcast-dark.svg" alt="Two panels. With signal, only one of four workers blocked in pop is woken and exits while the other three stay blocked forever and shutdown hangs. With broadcast, all four are woken, drain, and exit, so join returns.">
+  <figcaption><strong>One word, and the difference between exiting and hanging.</strong> All four workers are asleep inside <code>pop</code>, and a sleeping thread cannot notice that <code>closed</code> went true — it has to be woken to re-check the predicate. (a) <code>signal</code> wakes exactly one; the other three never re-check, never return, and <code>join</code> waits on them forever. (b) <code>broadcast</code> reaches all of them. <em>The test that proves it submits no work at all: if shutdown returns, everyone woke up.</em></figcaption>
+</figure>
+
 `broadcast`, not `signal` — and this is the single most important line in the file. `signal` wakes *one* waiter; `broadcast` wakes *all* of them. If four worker threads are blocked in `pop` on an empty queue and `close` only `signal`ed, exactly one would wake, see the queue closed, and exit — and the other three would sleep forever, hanging shutdown. There's a test built specifically to catch this: start a pool of 4 workers, submit *nothing*, and shut down. If `close` used `signal` it would deadlock; reaching the end of the test proves all four idle workers woke and exited. The `pop` predicate is the other half: `while (count == 0 and !closed)` — once closed, the loop falls through, and `if (count == 0) return null` hands the worker its "we're done" signal. A closed queue still drains its remaining items first, *then* starts returning null.
 
 ## The worker pool: graceful shutdown and errors that come back

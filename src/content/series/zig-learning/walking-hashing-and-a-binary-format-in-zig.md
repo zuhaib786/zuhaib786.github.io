@@ -101,6 +101,12 @@ pub fn writeRecords(writer: *std.Io.Writer, records: []const Record) !void {
 }
 ```
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/binary-layout.svg" alt="A byte ruler of a single 21-byte record: the four-byte LZIG magic, a two-byte little-endian version, a four-byte count, a four-byte key length, the three key bytes spelling Zig, and a four-byte little-endian value of 20 written as 14 00 00 00.">
+  <img class="plate-dark" src="/images/zig/binary-layout-dark.svg" alt="A byte ruler of a single 21-byte record: the four-byte LZIG magic, a two-byte little-endian version, a four-byte count, a four-byte key length, the three key bytes spelling Zig, and a four-byte little-endian value of 20 written as 14 00 00 00.">
+  <figcaption><strong>Twenty-one bytes, every one of them decided.</strong> This is the whole file for a single record. Nothing is delimited and nothing is whitespace — each field's position is known because the field before it declared its length. Read the <code>ascii</code> row to see why text intuitions stop working here: only the magic and the key are legible, and every other byte is a number that happens to be printable or not. <em>The reader is the exact mirror of the writer, which is what makes the round-trip test the real specification.</em></figcaption>
+</figure>
+
 The magic `"LZIG"` is a four-byte signature at offset zero. Its only job is to let the reader reject a file that isn't ours *before* it tries to interpret a single number — open a JPEG by mistake and you find out immediately instead of allocating a four-gigabyte "key" from random bytes. The version `u16` right after it is the forward-compatibility hook: a future layout bumps to `2`, and old readers can refuse it cleanly instead of silently misreading.
 
 The body is the part that makes binary binary. `writeInt(u32, value, .little)` writes a number as **exactly four bytes in little-endian order** — not the text `"42"`, but the raw machine representation. The `.little` is not optional decoration: endianness is the order the four bytes go on disk, and writer and reader *must agree* or every multi-byte number comes back scrambled. Picking it explicitly means the file reads the same on a big-endian machine as a little-endian one.

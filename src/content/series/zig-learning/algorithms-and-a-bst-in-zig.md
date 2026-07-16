@@ -51,6 +51,12 @@ Two details worth flagging. `mid` is computed as `low + (high - low)/2` rather t
 
 The sorts are the clearest illustration of how the allocator threads through algorithm design. Each one makes a different bargain with memory.
 
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/zig/three-sorts.svg" alt="Three animated panels sorting the same five values. Insertion sort shifts values within one row with no allocator. Merge sort drops every value down into a separate scratch row in merge order and lifts them back sorted. Quicksort swaps around a highlighted pivot within one row.">
+  <img class="plate-dark" src="/images/zig/three-sorts-dark.svg" alt="Three animated panels sorting the same five values. Insertion sort shifts values within one row with no allocator. Merge sort drops every value down into a separate scratch row in merge order and lifts them back sorted. Quicksort swaps around a highlighted pivot within one row.">
+  <figcaption><strong>The same job, three bargains.</strong> Each panel replays a real trace of its own algorithm. Watch where the values <em>go</em>: insertion and quicksort never leave their row — they only ever rearrange the array they were handed, and quicksort's sole extra cost is the recursion. Merge sort is the one that visibly needs a second row to work in, because merging two sorted runs has nowhere to put the result. <em>That extra row is the whole difference, and it's why merge sort is the only one of the three whose signature takes an <code>Allocator</code>.</em></figcaption>
+</figure>
+
 **Insertion sort** touches no allocator at all — it shifts in place:
 
 ```zig

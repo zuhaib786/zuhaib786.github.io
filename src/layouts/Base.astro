@@ -9,6 +9,8 @@ import "@fontsource/monaspace-xenon/400-italic.css";
 import "@fontsource/monaspace-xenon/500.css";
 import "@fontsource/monaspace-xenon/600.css";
 import "@fontsource/monaspace-xenon/700.css";
+import "@fontsource/instrument-serif/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import Header from "../components/Header.astro";
@@ -60,8 +62,9 @@ const { title, description = "Zuhaib Ul Zamann — software engineer. Writing on
       <div class="orb orb-2"></div>
       <div class="orb orb-3"></div>
     </div>
+    <canvas class="sky" aria-hidden="true"></canvas>
     <Header />
-    <main class="page glass-main">
+    <main class="page plate-glass">
       <slot />
     </main>
     <Footer />
@@ -95,9 +98,148 @@ const { title, description = "Zuhaib Ul Zamann — software engineer. Writing on
         els.forEach((el) => io.observe(el));
       };
 
+      // ----------------------------------------------------------------
+      // The field. Stars sit in polar coordinates around a celestial pole
+      // off the top-right of the frame and turn about it, the way the real
+      // sky does — a full revolution takes 20 minutes, so the motion reads
+      // as drift rather than animation. Dark mode paints the sky as
+      // observed; light mode is the plate negative, so stars go dark.
+      // ----------------------------------------------------------------
+      const TURN_MS = 20 * 60 * 1000;
+
+      let frame: number | undefined;
+      let teardown: AbortController | undefined;
+      let stars: { r: number; a: number; size: number; phase: number }[] = [];
+
+      const startSky = () => {
+        // a view transition swaps in a fresh canvas — drop the old canvas's
+        // frame and listeners before wiring up the new one
+        if (frame !== undefined) cancelAnimationFrame(frame);
+        frame = undefined;
+        teardown?.abort();
+        teardown = new AbortController();
+        const { signal } = teardown;
+
+        const canvas = document.querySelector<HTMLCanvasElement>("canvas.sky");
+        const ctx = canvas?.getContext("2d");
+        if (!canvas || !ctx) return;
+
+        const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let w = 0;
+        let h = 0;
+        let poleX = 0;
+        let poleY = 0;
+        let maxR = 0;
+        let starColor = "#dce6ff";
+
+        const readColor = () => {
+          starColor =
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--star")
+              .trim() || starColor;
+        };
+
+        const layout = () => {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          w = canvas.clientWidth;
+          h = canvas.clientHeight;
+          canvas.width = Math.round(w * dpr);
+          canvas.height = Math.round(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          poleX = w * 0.86;
+          poleY = h * -0.3;
+          // reach the farthest corner so rotation never sweeps in a bald patch
+          maxR = Math.hypot(
+            Math.max(poleX, w - poleX),
+            Math.max(poleY, h - poleY),
+          );
+
+          // Stars are seeded across the whole rotation disc, most of which
+          // lies off-frame, so seed by disc area and let the cull in draw()
+          // discard the rest — sizing by viewport area would leave the
+          // canvas nearly empty. Density scales with the viewport so a
+          // phone doesn't get a crowded sky.
+          const visible = (w * h) / 4200;
+          const onCanvas = (w * h) / (Math.PI * maxR * maxR);
+          const count = Math.round(Math.min(visible / onCanvas, 1800));
+          stars = Array.from({ length: count }, () => ({
+            // sqrt keeps stars evenly spread by area rather than bunched at the pole
+            r: Math.sqrt(Math.random()) * maxR,
+            a: Math.random() * Math.PI * 2,
+            size: Math.random() < 0.86 ? Math.random() * 0.7 + 0.35 : Math.random() * 1.1 + 1,
+            phase: Math.random() * Math.PI * 2,
+          }));
+        };
+
+        const draw = (t: number) => {
+          const spin = still.matches ? 0 : (t / TURN_MS) * Math.PI * 2;
+          ctx.clearRect(0, 0, w, h);
+          ctx.fillStyle = starColor;
+
+          for (const s of stars) {
+            const a = s.a + spin;
+            const x = poleX + Math.cos(a) * s.r;
+            const y = poleY + Math.sin(a) * s.r;
+            if (x < -4 || x > w + 4 || y < -4 || y > h + 4) continue;
+
+            const twinkle = still.matches
+              ? 0.7
+              : 0.55 + 0.45 * Math.sin(t / 1400 + s.phase);
+            ctx.globalAlpha = Math.min(1, 0.28 + twinkle * 0.62);
+            ctx.beginPath();
+            ctx.arc(x, y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        };
+
+        const loop = (t: number) => {
+          draw(t);
+          frame = requestAnimationFrame(loop);
+        };
+
+        const run = () => {
+          if (frame !== undefined) cancelAnimationFrame(frame);
+          frame = undefined;
+          if (still.matches || document.hidden) {
+            draw(performance.now());
+          } else {
+            frame = requestAnimationFrame(loop);
+          }
+        };
+
+        readColor();
+        layout();
+        run();
+
+        window.addEventListener(
+          "resize",
+          () => {
+            layout();
+            if (frame === undefined) draw(performance.now());
+          },
+          { signal },
+        );
+        // stop burning frames on a tab nobody is looking at
+        document.addEventListener("visibilitychange", run, { signal });
+        still.addEventListener("change", run, { signal });
+        // the theme toggle flips --star between the sky and its negative
+        const themeWatch = new MutationObserver(() => {
+          readColor();
+          if (frame === undefined) draw(performance.now());
+        });
+        themeWatch.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["data-theme"],
+        });
+        signal.addEventListener("abort", () => themeWatch.disconnect());
+      };
+
       const init = () => {
         syncHeader();
         reveal();
+        startSky();
       };
       init();
       document.addEventListener("astro:page-load", init);

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 216" width="900" height="216" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #e8ecf7; font-size: 13px; font-weight: 600; }
+  .l   { fill: #e8ecf7; font-size: 11.5px; }
+  .s   { fill: #99a3c0; font-size: 11px; }
+  .f   { fill: #5f6884; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #8a9cff; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #6fd6ff; font-size: 11px; font-weight: 600; }
+  .box { fill: #0a0e1e; fill-opacity: 0.55; stroke: #3a4468; }
+  .cell{ fill: #0a0e1e; fill-opacity: 0.55; stroke: #3a4468; }
+  .hot { fill: #0a0e1e; fill-opacity: 0.55; stroke: #8a9cff; stroke-width: 1.5; }
+  .void{ fill: #1d2445; fill-opacity: .5; stroke: #3a4468; stroke-dasharray: 3 3; }
+  .ln  { stroke: #3a4468; fill: none; }
+  .ar  { stroke: #99a3c0; fill: none; stroke-width: 1.4; }
+  .arA { stroke: #8a9cff; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #8a9cff; }
+  .hd  { fill: #99a3c0; }
+  .strike { stroke: #8a9cff; stroke-width: 1.6; }
+</style>
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/>
+  </marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/>
+  </marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">one word, two feed() calls</text>
+<text x="160.0" y="44" class="s" text-anchor="middle">feed("hel")</text>
+<text x="380.0" y="44" class="s" text-anchor="middle">feed("lo world")</text>
+<path d="M100 56 V50 H216 V56" class="ln"/>
+<path d="M224 56 V50 H540 V56" class="ln"/>
+<rect x="100" y="70" width="40" height="32" class="cell"/>
+<text x="120.0" y="90.0" class="l" text-anchor="middle">h</text>
+<rect x="140" y="70" width="40" height="32" class="cell"/>
+<text x="160.0" y="90.0" class="l" text-anchor="middle">e</text>
+<rect x="180" y="70" width="40" height="32" class="cell"/>
+<text x="200.0" y="90.0" class="l" text-anchor="middle">l</text>
+<rect x="220" y="70" width="40" height="32" class="cell"/>
+<text x="240.0" y="90.0" class="l" text-anchor="middle">l</text>
+<rect x="260" y="70" width="40" height="32" class="cell"/>
+<text x="280.0" y="90.0" class="l" text-anchor="middle">o</text>
+<rect x="300" y="70" width="40" height="32" class="cell"/>
+<text x="320.0" y="90.0" class="l" text-anchor="middle">·</text>
+<rect x="340" y="70" width="40" height="32" class="cell"/>
+<text x="360.0" y="90.0" class="l" text-anchor="middle">w</text>
+<rect x="380" y="70" width="40" height="32" class="cell"/>
+<text x="400.0" y="90.0" class="l" text-anchor="middle">o</text>
+<rect x="420" y="70" width="40" height="32" class="cell"/>
+<text x="440.0" y="90.0" class="l" text-anchor="middle">r</text>
+<rect x="460" y="70" width="40" height="32" class="cell"/>
+<text x="480.0" y="90.0" class="l" text-anchor="middle">l</text>
+<rect x="500" y="70" width="40" height="32" class="cell"/>
+<text x="520.0" y="90.0" class="l" text-anchor="middle">d</text>
+<path d="M220 50 V186" class="arA" stroke-dasharray="3 3"/>
+<text x="220" y="30" class="a" text-anchor="middle">chunk boundary</text>
+<text x="92" y="156" class="s" text-anchor="end">in_word</text>
+<path d="M100 150 H300 V172 H340 V150 H540" class="ar" fill="none"/>
+<path d="M300 140 V186" class="arA" stroke-dasharray="2 2"/>
+<text x="306" y="200" class="a" text-anchor="start">words++ → 1</text>
+<text x="540" y="200" class="a" text-anchor="end">finish() → words++ → 2</text>
+<path d="M570 6 V210" class="ln" stroke-dasharray="2 4"/>
+<text x="592" y="16" class="t" text-anchor="start">the flag is the memory</text>
+<text x="592" y="44" class="s" text-anchor="start">"hel" ends mid-word, so in_word</text>
+<text x="592" y="62" class="s" text-anchor="start">stays true across the boundary.</text>
+<text x="592" y="80" class="s" text-anchor="start"></text>
+<text x="592" y="98" class="s" text-anchor="start">"hello" is counted once — at the</text>
+<text x="592" y="116" class="s" text-anchor="start">space, not when its bytes arrive.</text>
+<text x="592" y="134" class="s" text-anchor="start"></text>
+<text x="592" y="152" class="s" text-anchor="start">finish() settles the last word,</text>
+<text x="592" y="170" class="s" text-anchor="start">which never sees a closing space.</text>
+<text x="592" y="200" class="a2" text-anchor="start">count the transition, not the bytes</text>
+</svg>

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 232" width="900" height="232" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #131824; font-size: 13px; font-weight: 600; }
+  .l   { fill: #131824; font-size: 11.5px; }
+  .s   { fill: #4d5670; font-size: 11px; }
+  .f   { fill: #808aa4; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #c8401a; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #4b3fd6; font-size: 11px; font-weight: 600; }
+  .box { fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .cell{ fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .hot { fill: #ffffff; fill-opacity: 0.72; stroke: #c8401a; stroke-width: 1.5; }
+  .void{ fill: #dde3ef; fill-opacity: .5; stroke: #a9b3c9; stroke-dasharray: 3 3; }
+  .ln  { stroke: #a9b3c9; fill: none; }
+  .ar  { stroke: #4d5670; fill: none; stroke-width: 1.4; }
+  .arA { stroke: #c8401a; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #c8401a; }
+  .hd  { fill: #4d5670; }
+  .strike { stroke: #c8401a; stroke-width: 1.6; }
+</style>
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/>
+  </marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/>
+  </marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">(a) ring buffer — @mod</text>
+<text x="179" y="38" class="s" text-anchor="middle">head</text>
+<path d="M179 42 V54" class="ar" marker-end="url(#h)"/>
+<text x="89" y="38" class="a" text-anchor="middle">tail</text>
+<path d="M89 42 V54" class="arA" marker-end="url(#hA)"/>
+<rect x="14" y="56" width="30" height="28" class="cell"/>
+<text x="29.0" y="74.0" class="l" text-anchor="middle">e</text>
+<rect x="44" y="56" width="30" height="28" class="cell"/>
+<text x="59.0" y="74.0" class="l" text-anchor="middle">f</text>
+<rect x="74" y="56" width="30" height="28" class="void"/>
+<rect x="104" y="56" width="30" height="28" class="void"/>
+<rect x="134" y="56" width="30" height="28" class="void"/>
+<rect x="164" y="56" width="30" height="28" class="cell"/>
+<text x="179.0" y="74.0" class="l" text-anchor="middle">a</text>
+<rect x="194" y="56" width="30" height="28" class="cell"/>
+<text x="209.0" y="74.0" class="l" text-anchor="middle">b</text>
+<rect x="224" y="56" width="30" height="28" class="cell"/>
+<text x="239.0" y="74.0" class="l" text-anchor="middle">c</text>
+<text x="29" y="100" class="f" text-anchor="middle">0</text>
+<text x="59" y="100" class="f" text-anchor="middle">1</text>
+<text x="89" y="100" class="f" text-anchor="middle">2</text>
+<text x="119" y="100" class="f" text-anchor="middle">3</text>
+<text x="149" y="100" class="f" text-anchor="middle">4</text>
+<text x="179" y="100" class="f" text-anchor="middle">5</text>
+<text x="209" y="100" class="f" text-anchor="middle">6</text>
+<text x="239" y="100" class="f" text-anchor="middle">7</text>
+<path d="M254 88 V112 H20 V90" class="ar" marker-end="url(#h)"/>
+<text x="134" y="126" class="s" text-anchor="middle">wrap</text>
+<text x="14" y="154" class="a" text-anchor="start">tail = (head + count) % len</text>
+<text x="14" y="172" class="s" text-anchor="start">computed, never stored</text>
+<text x="14" y="194" class="f" text-anchor="start">one alloc in init, one free in deinit</text>
+<text x="314" y="16" class="t" text-anchor="start">(b) stack — doubling</text>
+<rect x="314" y="40" width="30" height="28" class="cell"/>
+<text x="329.0" y="58.0" class="l" text-anchor="middle">a</text>
+<rect x="344" y="40" width="30" height="28" class="cell"/>
+<text x="359.0" y="58.0" class="l" text-anchor="middle">b</text>
+<rect x="374" y="40" width="30" height="28" class="cell"/>
+<text x="389.0" y="58.0" class="l" text-anchor="middle">c</text>
+<rect x="404" y="40" width="30" height="28" class="cell"/>
+<text x="419.0" y="58.0" class="l" text-anchor="middle">d</text>
+<text x="440" y="58" class="s" text-anchor="start">len = cap = 4 → full</text>
+<path d="M370 72 V96" class="arA" marker-end="url(#hA)"/>
+<text x="382" y="88" class="a" text-anchor="start">realloc @max(8, len*2)</text>
+<rect x="314" y="100" width="30" height="28" class="cell"/>
+<text x="329.0" y="118.0" class="l" text-anchor="middle">a</text>
+<rect x="344" y="100" width="30" height="28" class="cell"/>
+<text x="359.0" y="118.0" class="l" text-anchor="middle">b</text>
+<rect x="374" y="100" width="30" height="28" class="cell"/>
+<text x="389.0" y="118.0" class="l" text-anchor="middle">c</text>
+<rect x="404" y="100" width="30" height="28" class="cell"/>
+<text x="419.0" y="118.0" class="l" text-anchor="middle">d</text>
+<rect x="434" y="100" width="30" height="28" class="void"/>
+<rect x="464" y="100" width="30" height="28" class="void"/>
+<rect x="494" y="100" width="30" height="28" class="void"/>
+<rect x="524" y="100" width="30" height="28" class="void"/>
+<text x="314" y="146" class="f" text-anchor="start">CAP = 8 · LEN = 4</text>
+<text x="314" y="172" class="s" text-anchor="start">pop() never shrinks —</text>
+<text x="314" y="190" class="s" text-anchor="start">capacity is kept for reuse</text>
+<text x="314" y="212" class="a2" text-anchor="start">N pushes cost O(N) total ✓</text>
+<text x="614" y="16" class="t" text-anchor="start">(c) LRU — two layers</text>
+<rect x="614" y="34" width="120" height="24" rx="3" class="box"/>
+<text x="674" y="50" class="s" text-anchor="middle">StringHashMap</text>
+<rect x="614" y="88" width="56" height="24" rx="3" class="box"/>
+<text x="642" y="104" class="s" text-anchor="middle">MRU</text>
+<path d="M670 100 H678" class="ar" marker-end="url(#h)"/>
+<rect x="680" y="88" width="56" height="24" rx="3" class="box"/>
+<text x="708" y="104" class="s" text-anchor="middle">·</text>
+<path d="M736 100 H744" class="ar" marker-end="url(#h)"/>
+<rect x="746" y="88" width="56" height="24" rx="3" class="box"/>
+<text x="774" y="104" class="s" text-anchor="middle">LRU</text>
+<text x="774" y="128" class="f" text-anchor="middle">evict ▸</text>
+<path d="M650 60 V84" class="ar" marker-end="url(#h)"/>
+<rect x="614" y="140" width="52" height="24" rx="3" class="hot"/>
+<text x="640" y="156" class="l" text-anchor="middle">"a"</text>
+<path d="M630 60 V136" class="arA" marker-end="url(#hA)"/>
+<path d="M642 114 V136" class="arA" marker-end="url(#hA)"/>
+<text x="676" y="156" class="a" text-anchor="start">one duped key,</text>
+<text x="676" y="172" class="a" text-anchor="start">two referents</text>
+<text x="614" y="200" class="s" text-anchor="start">deinit: map first (buckets only),</text>
+<text x="614" y="216" class="s" text-anchor="start">then walk the list and free keys</text>
+<path d="M290 6 V224" class="ln" stroke-dasharray="2 4"/>
+<path d="M590 6 V224" class="ln" stroke-dasharray="2 4"/>
+</svg>

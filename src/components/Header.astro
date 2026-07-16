@@ -128,10 +128,10 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 
   /* Z-sub-u squared — Zuhaib and Zamann are the Z², ul is the subscript */
   .mark {
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--font-display);
     font-style: italic;
-    font-weight: 700;
-    font-size: 1.25rem;
+    font-weight: 400;
+    font-size: 1.5rem;
     line-height: 1;
     background: linear-gradient(120deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
@@ -170,7 +170,11 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
   nav {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    /* must wrap: five links plus both toggles are wider than a phone, and
+       an unwrapped row would force the whole page to scroll sideways */
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem 1.5rem;
   }
 
   .theme-toggle {
@@ -268,6 +272,15 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
   @media (max-width: 540px) {
     .name {
       display: none;
+    }
+
+    nav {
+      gap: 0.625rem 0.875rem;
+    }
+
+    .nav-link {
+      font-size: 0.6875rem;
+      letter-spacing: 0.08em;
     }
   }
 </style>

@@ -30,7 +30,12 @@ So let us start
 In a pinhole camera light enters through a small aperture (known as pinhole) and is projected inside of the light proof box forming an inverted image on the image plane.
 
 It can be mathematically modeled as shown below
-![Pinhole Camera](/images/pinhole_camera.jpg)
+
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/camera/pinhole.svg" alt="Two panels. Left: a 3D view with the camera centre C at the origin of the X, Y, Z axes, an image plane at Z equals f, and a ray from a world point X through C piercing the plane at the image point x, with the principal point p where the Z axis meets the plane. Right: the same ray seen side on in the Y-Z plane, forming two similar triangles with the projected height labelled f times Y over Z.">
+  <img class="plate-dark" src="/images/camera/pinhole-dark.svg" alt="Two panels. Left: a 3D view with the camera centre C at the origin of the X, Y, Z axes, an image plane at Z equals f, and a ray from a world point X through C piercing the plane at the image point x, with the principal point p where the Z axis meets the plane. Right: the same ray seen side on in the Y-Z plane, forming two similar triangles with the projected height labelled f times Y over Z.">
+  <figcaption><strong>The whole camera, before any matrices.</strong> (a) Put the world origin at the camera centre <strong>C</strong> and the image plane at <em>Z = f</em>. A world point <strong>X</strong> and its image <strong>x</strong> lie on one line through <strong>C</strong> — that single sentence is the entire model. The principal axis is <em>Z</em>, and it meets the plane at the principal point <strong>p</strong>. (b) Look at that ray edge-on and it is just two similar triangles sharing the vertex <strong>C</strong>: the far one has legs <em>Z</em> and <em>Y</em>, the near one <em>f</em> and the projected height. <em>Every equation below is that ratio, rearranged.</em></figcaption>
+</figure>
 
 Assuming the world coordinate frame be centered(origin) at the camera center and the image plane(or the focal plane) being $Z = f$ a point $(X, Y, Z)$ is mapped to a point $(x, y, f)$ such that the line joining $(X, Y, Z)$ and $(x, y, f)$ passes through the camera center (in this case,  origin).
 Since $(0, 0,0), (X, Y, Z), (x, y, f)$ all lie on the same line, we have $(x, y, f) = \lambda (X, Y, Z) + (0, 0, 0)$

@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 236" width="900" height="236" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #131824; font-size: 13px; font-weight: 600; }
+  .l   { fill: #131824; font-size: 11.5px; }
+  .s   { fill: #4d5670; font-size: 11px; }
+  .f   { fill: #808aa4; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #c8401a; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #4b3fd6; font-size: 11px; font-weight: 600; }
+  .box { fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .cell{ fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .hot { fill: #ffffff; fill-opacity: 0.72; stroke: #c8401a; stroke-width: 1.5; }
+  .void{ fill: #dde3ef; fill-opacity: .5; stroke: #a9b3c9; stroke-dasharray: 3 3; }
+  .ln  { stroke: #a9b3c9; fill: none; }
+  .ar  { stroke: #4d5670; fill: none; stroke-width: 1.4; }
+  .arA { stroke: #c8401a; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #c8401a; }
+  .hd  { fill: #4d5670; }
+  .strike { stroke: #c8401a; stroke-width: 1.6; }
+</style>
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/>
+  </marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/>
+  </marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">(a) after two appends</text>
+<rect x="14" y="30" width="176" height="46" rx="3" class="box"/>
+<text x="26" y="47" class="s" text-anchor="start">sb: StringBuilder</text>
+<text x="26" y="66" class="l" text-anchor="start">buf</text>
+<text x="118" y="66" class="l" text-anchor="start">len = 11</text>
+<path d="M52 62 H92 V104" class="ar" marker-end="url(#h)"/>
+<rect x="14" y="108" width="15" height="22" class="cell"/>
+<text x="21.5" y="123.0" class="l" text-anchor="middle">H</text>
+<rect x="29" y="108" width="15" height="22" class="cell"/>
+<text x="36.5" y="123.0" class="l" text-anchor="middle">e</text>
+<rect x="44" y="108" width="15" height="22" class="cell"/>
+<text x="51.5" y="123.0" class="l" text-anchor="middle">l</text>
+<rect x="59" y="108" width="15" height="22" class="cell"/>
+<text x="66.5" y="123.0" class="l" text-anchor="middle">l</text>
+<rect x="74" y="108" width="15" height="22" class="cell"/>
+<text x="81.5" y="123.0" class="l" text-anchor="middle">o</text>
+<rect x="89" y="108" width="15" height="22" class="cell"/>
+<text x="96.5" y="123.0" class="l" text-anchor="middle"> </text>
+<rect x="104" y="108" width="15" height="22" class="cell"/>
+<text x="111.5" y="123.0" class="l" text-anchor="middle">W</text>
+<rect x="119" y="108" width="15" height="22" class="cell"/>
+<text x="126.5" y="123.0" class="l" text-anchor="middle">o</text>
+<rect x="134" y="108" width="15" height="22" class="cell"/>
+<text x="141.5" y="123.0" class="l" text-anchor="middle">r</text>
+<rect x="149" y="108" width="15" height="22" class="cell"/>
+<text x="156.5" y="123.0" class="l" text-anchor="middle">l</text>
+<rect x="164" y="108" width="15" height="22" class="cell"/>
+<text x="171.5" y="123.0" class="l" text-anchor="middle">d</text>
+<rect x="179" y="108" width="15" height="22" class="void"/>
+<rect x="194" y="108" width="15" height="22" class="void"/>
+<rect x="209" y="108" width="15" height="22" class="void"/>
+<rect x="224" y="108" width="15" height="22" class="void"/>
+<rect x="239" y="108" width="15" height="22" class="void"/>
+<text x="14" y="150" class="f" text-anchor="start">HEAP · CAPACITY 16 · LEN 11</text>
+<text x="14" y="170" class="s" text-anchor="start">the builder owns the buffer</text>
+<text x="314" y="16" class="t" text-anchor="start">(b) toOwnedSlice</text>
+<rect x="314" y="30" width="176" height="46" rx="3" class="box"/>
+<text x="326" y="47" class="s" text-anchor="start">sb: StringBuilder</text>
+<text x="326" y="66" class="l" text-anchor="start">buf</text>
+<text x="356" y="66" class="a" text-anchor="start">= &amp;.{}</text>
+<text x="418" y="66" class="l" text-anchor="start">len = 0</text>
+<text x="314" y="96" class="a" text-anchor="start">self.buf = &amp;.{}  ← the null-out</text>
+<text x="314" y="122" class="l" text-anchor="start">out</text>
+<path d="M344 118 H372 V136" class="arA" marker-end="url(#hA)"/>
+<rect x="314" y="140" width="15" height="22" class="cell"/>
+<text x="321.5" y="155.0" class="l" text-anchor="middle">H</text>
+<rect x="329" y="140" width="15" height="22" class="cell"/>
+<text x="336.5" y="155.0" class="l" text-anchor="middle">e</text>
+<rect x="344" y="140" width="15" height="22" class="cell"/>
+<text x="351.5" y="155.0" class="l" text-anchor="middle">l</text>
+<rect x="359" y="140" width="15" height="22" class="cell"/>
+<text x="366.5" y="155.0" class="l" text-anchor="middle">l</text>
+<rect x="374" y="140" width="15" height="22" class="cell"/>
+<text x="381.5" y="155.0" class="l" text-anchor="middle">o</text>
+<rect x="389" y="140" width="15" height="22" class="cell"/>
+<text x="396.5" y="155.0" class="l" text-anchor="middle"> </text>
+<rect x="404" y="140" width="15" height="22" class="cell"/>
+<text x="411.5" y="155.0" class="l" text-anchor="middle">W</text>
+<rect x="419" y="140" width="15" height="22" class="cell"/>
+<text x="426.5" y="155.0" class="l" text-anchor="middle">o</text>
+<rect x="434" y="140" width="15" height="22" class="cell"/>
+<text x="441.5" y="155.0" class="l" text-anchor="middle">r</text>
+<rect x="449" y="140" width="15" height="22" class="cell"/>
+<text x="456.5" y="155.0" class="l" text-anchor="middle">l</text>
+<rect x="464" y="140" width="15" height="22" class="cell"/>
+<text x="471.5" y="155.0" class="l" text-anchor="middle">d</text>
+<text x="314" y="182" class="f" text-anchor="start">REALLOC’D TO 11 · CALLER OWNS IT</text>
+<text x="614" y="16" class="t" text-anchor="start">(c) two defers, LIFO</text>
+<text x="614" y="40" class="l" text-anchor="start">(1) allocator.free(out)</text>
+<path d="M624 48 V70" class="arA" marker-end="url(#hA)"/>
+<rect x="614" y="74" width="15" height="22" class="void"/>
+<text x="621.5" y="89.0" class="l" text-anchor="middle">H</text>
+<rect x="629" y="74" width="15" height="22" class="void"/>
+<text x="636.5" y="89.0" class="l" text-anchor="middle">e</text>
+<rect x="644" y="74" width="15" height="22" class="void"/>
+<text x="651.5" y="89.0" class="l" text-anchor="middle">l</text>
+<rect x="659" y="74" width="15" height="22" class="void"/>
+<text x="666.5" y="89.0" class="l" text-anchor="middle">l</text>
+<rect x="674" y="74" width="15" height="22" class="void"/>
+<text x="681.5" y="89.0" class="l" text-anchor="middle">o</text>
+<rect x="689" y="74" width="15" height="22" class="void"/>
+<text x="696.5" y="89.0" class="l" text-anchor="middle"> </text>
+<rect x="704" y="74" width="15" height="22" class="void"/>
+<text x="711.5" y="89.0" class="l" text-anchor="middle">W</text>
+<rect x="719" y="74" width="15" height="22" class="void"/>
+<text x="726.5" y="89.0" class="l" text-anchor="middle">o</text>
+<rect x="734" y="74" width="15" height="22" class="void"/>
+<text x="741.5" y="89.0" class="l" text-anchor="middle">r</text>
+<rect x="749" y="74" width="15" height="22" class="void"/>
+<text x="756.5" y="89.0" class="l" text-anchor="middle">l</text>
+<rect x="764" y="74" width="15" height="22" class="void"/>
+<text x="771.5" y="89.0" class="l" text-anchor="middle">d</text>
+<path d="M614 96 L779 74" class="strike" stroke-opacity=".7"/>
+<text x="614" y="116" class="a" text-anchor="start">freed once ✓</text>
+<text x="614" y="146" class="l" text-anchor="start">(2) sb.deinit(a)</text>
+<path d="M624 154 V174" class="ar" marker-end="url(#h)"/>
+<rect x="614" y="178" width="52" height="22" rx="0" class="void"/>
+<text x="640" y="193" class="s" text-anchor="middle">∅</text>
+<text x="676" y="193" class="s" text-anchor="start">frees an empty slice</text>
+<text x="614" y="220" class="a2" text-anchor="start">no-op — no double free ✓</text>
+<path d="M290 6 V226" class="ln" stroke-dasharray="2 4"/>
+<path d="M590 6 V226" class="ln" stroke-dasharray="2 4"/>
+</svg>

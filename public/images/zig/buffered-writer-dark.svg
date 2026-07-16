@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 230" width="900" height="230" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #e8ecf7; font-size: 13px; font-weight: 600; }
+  .l   { fill: #e8ecf7; font-size: 11.5px; }
+  .s   { fill: #99a3c0; font-size: 11px; }
+  .f   { fill: #5f6884; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #8a9cff; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #6fd6ff; font-size: 11px; font-weight: 600; }
+  .box { fill: #0a0e1e; fill-opacity: 0.55; stroke: #3a4468; }
+  .cell{ fill: #0a0e1e; fill-opacity: 0.55; stroke: #3a4468; }
+  .hot { fill: #0a0e1e; fill-opacity: 0.55; stroke: #8a9cff; stroke-width: 1.5; }
+  .void{ fill: #1d2445; fill-opacity: .5; stroke: #3a4468; stroke-dasharray: 3 3; }
+  .ln  { stroke: #3a4468; fill: none; }
+  .ar  { stroke: #99a3c0; fill: none; stroke-width: 1.4; }
+  .arA { stroke: #8a9cff; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #8a9cff; }
+  .hd  { fill: #99a3c0; }
+  .strike { stroke: #8a9cff; stroke-width: 1.6; }
+</style>
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/>
+  </marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/>
+  </marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">(a) print fills a buffer</text>
+<text x="14" y="40" class="s" text-anchor="start">out.print("hello", .{})</text>
+<text x="14" y="59" class="s" text-anchor="start">out.print(" zig", .{})</text>
+<text x="14" y="78" class="s" text-anchor="start">out.print("\n", .{})</text>
+<path d="M40 104 V126" class="ar" marker-end="url(#h)"/>
+<rect x="14" y="130" width="262" height="30" rx="3" class="box"/>
+<text x="24" y="150" class="l" text-anchor="start">hello zig</text>
+<rect x="96" y="130" width="180" height="30" class="void"/>
+<text x="186" y="150" class="f" text-anchor="middle">unused</text>
+<text x="14" y="176" class="f" text-anchor="start">out_buffer: [4096]u8 — ON THE STACK</text>
+<text x="14" y="198" class="a" text-anchor="start">no syscall yet</text>
+<text x="314" y="16" class="t" text-anchor="start">(b) flush drains it</text>
+<rect x="314" y="34" width="262" height="30" rx="3" class="box"/>
+<text x="324" y="54" class="l" text-anchor="start">hello zig</text>
+<path d="M350 68 V96" class="arA" marker-end="url(#hA)"/>
+<text x="360" y="86" class="a" text-anchor="start">defer out.flush()</text>
+<rect x="314" y="100" width="262" height="26" rx="3" class="hot"/>
+<text x="445" y="118" class="f" text-anchor="middle">write(2) — ONE syscall</text>
+<path d="M350 130 V156" class="arA" marker-end="url(#hA)"/>
+<rect x="314" y="160" width="262" height="30" rx="3" class="box"/>
+<text x="324" y="180" class="l" text-anchor="start">$ hello zig</text>
+<text x="314" y="210" class="a2" text-anchor="start">the terminal · bytes arrive ✓</text>
+<text x="614" y="16" class="t" text-anchor="start">(c) forget the flush</text>
+<rect x="614" y="34" width="262" height="30" rx="3" class="box"/>
+<text x="624" y="54" class="l" text-anchor="start">hello zig</text>
+<path d="M650 68 V96" class="ar" marker-end="url(#h)"/>
+<text x="660" y="86" class="s" text-anchor="start">main returns</text>
+<path d="M636 100 L664 128 M664 100 L636 128" class="strike"/>
+<text x="680" y="118" class="a" text-anchor="start">buffer discarded</text>
+<rect x="614" y="160" width="262" height="30" rx="3" class="void"/>
+<text x="624" y="180" class="l" text-anchor="start">$</text>
+<text x="614" y="210" class="a" text-anchor="start">runs cleanly · prints nothing ✗</text>
+<path d="M290 6 V220" class="ln" stroke-dasharray="2 4"/>
+<path d="M590 6 V220" class="ln" stroke-dasharray="2 4"/>
+</svg>

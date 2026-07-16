@@ -63,7 +63,7 @@ const sections = [
     <p class="label label--accent">
       ML Engineering · Distributed Systems · Agentic AI
     </p>
-    <h1>Zuhaib Ul Zamann</h1>
+    <h1>Zuhaib <span class="family">Ul Zamann</span></h1>
     <p class="role label">Software Engineer II, AI/ML · Uber</p>
     <p class="intro">
       I build agentic AI systems and the infrastructure that keeps them
@@ -136,7 +136,7 @@ const sections = [
   .hero {
     position: relative;
     padding: 4.5rem 0 3.5rem;
-    border-bottom: 3px solid var(--rule-strong);
+    border-bottom: 2px solid var(--rule-heavy);
   }
 
   /* soft two-hue glow behind the name — ambient, theme-aware */
@@ -195,16 +195,21 @@ const sections = [
     }
   }
 
+  /* the engraved plate title — the one place the display face appears
+     at size, set against the mono everything else is measured in */
   h1 {
-    /* sized so the full name always fits on a single line:
-       16 mono chars ≈ 9.6em, container = 100vw − 2×gutter, max 72rem */
-    font-size: min(4.5rem, 9.5vw - 0.4rem);
-    white-space: nowrap;
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    margin: 1.25rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 10vw, 6rem);
+    font-weight: 400;
+    line-height: 0.94;
+    letter-spacing: -0.015em;
+    margin: 1.5rem 0 1.25rem;
+    text-wrap: balance;
+  }
+
+  .family {
+    font-style: italic;
+    color: var(--ink-soft);
   }
 
   .role {
@@ -337,7 +342,7 @@ const sections = [
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 3px solid var(--rule-strong);
+    border-bottom: 2px solid var(--rule-heavy);
     padding-bottom: 0.75rem;
   }
 

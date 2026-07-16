@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="900" height="240" role="img">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t   { fill: #131824; font-size: 13px; font-weight: 600; }
+  .l   { fill: #131824; font-size: 11.5px; }
+  .s   { fill: #4d5670; font-size: 11px; }
+  .f   { fill: #808aa4; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #c8401a; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #4b3fd6; font-size: 11px; font-weight: 600; }
+  .cell{ fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
+  .hot { fill: #ffffff; fill-opacity: 0.72; stroke: #c8401a; stroke-width: 1.5; }
+  .void{ fill: #dde3ef; fill-opacity: .5; stroke: #a9b3c9; stroke-dasharray: 3 3; }
+  .ln  { stroke: #a9b3c9; fill: none; }
+  .arA { stroke: #c8401a; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #c8401a; }
+  .e   { animation-duration: 8s; animation-iteration-count: infinite;
+          animation-timing-function: cubic-bezier(.65,0,.35,1); }
+  @media (prefers-reduced-motion: reduce) {
+    .e { animation: none; }
+  }
+@keyframes ins2 {
+  0.0% { transform: translate(14px, 40px); }
+  8.0% { transform: translate(14px, 40px); }
+  19.7% { transform: translate(29.0px, 53px); }
+  31.4% { transform: translate(44px, 40px); }
+  44.0% { transform: translate(44px, 40px); }
+  67.4% { transform: translate(44px, 40px); }
+  80.0% { transform: translate(44px, 40px); }
+  100.0% { transform: translate(44px, 40px); }
+}
+@keyframes ins4 {
+  0.0% { transform: translate(44px, 40px); }
+  8.0% { transform: translate(44px, 40px); }
+  19.7% { transform: translate(59.0px, 53px); }
+  31.4% { transform: translate(74px, 40px); }
+  44.0% { transform: translate(74px, 40px); }
+  55.7% { transform: translate(89.0px, 53px); }
+  67.4% { transform: translate(104px, 40px); }
+  80.0% { transform: translate(104px, 40px); }
+  100.0% { transform: translate(104px, 40px); }
+}
+@keyframes ins1 {
+  0.0% { transform: translate(74px, 40px); }
+  8.0% { transform: translate(74px, 40px); }
+  19.7% { transform: translate(44.0px, 27px); }
+  31.4% { transform: translate(14px, 40px); }
+  44.0% { transform: translate(14px, 40px); }
+  67.4% { transform: translate(14px, 40px); }
+  80.0% { transform: translate(14px, 40px); }
+  100.0% { transform: translate(14px, 40px); }
+}
+@keyframes ins3 {
+  0.0% { transform: translate(104px, 40px); }
+  8.0% { transform: translate(104px, 40px); }
+  31.4% { transform: translate(104px, 40px); }
+  44.0% { transform: translate(104px, 40px); }
+  55.7% { transform: translate(89.0px, 27px); }
+  67.4% { transform: translate(74px, 40px); }
+  80.0% { transform: translate(74px, 40px); }
+  100.0% { transform: translate(74px, 40px); }
+}
+@keyframes ins5 {
+  0.0% { transform: translate(134px, 40px); }
+  8.0% { transform: translate(134px, 40px); }
+  31.4% { transform: translate(134px, 40px); }
+  44.0% { transform: translate(134px, 40px); }
+  67.4% { transform: translate(134px, 40px); }
+  80.0% { transform: translate(134px, 40px); }
+  100.0% { transform: translate(134px, 40px); }
+}
+@keyframes mrg1 {
+  0.0% { transform: translate(314px, 40px); }
+  8.0% { transform: translate(314px, 40px); }
+  31.4% { transform: translate(314px, 104px); }
+  44.0% { transform: translate(314px, 104px); }
+  67.4% { transform: translate(314px, 40px); }
+  80.0% { transform: translate(314px, 40px); }
+  100.0% { transform: translate(314px, 40px); }
+}
+@keyframes mrg3 {
+  0.0% { transform: translate(344px, 40px); }
+  8.0% { transform: translate(344px, 40px); }
+  31.4% { transform: translate(374px, 104px); }
+  44.0% { transform: translate(374px, 104px); }
+  67.4% { transform: translate(374px, 40px); }
+  80.0% { transform: translate(374px, 40px); }
+  100.0% { transform: translate(374px, 40px); }
+}
+@keyframes mrg2 {
+  0.0% { transform: translate(374px, 40px); }
+  8.0% { transform: translate(374px, 40px); }
+  31.4% { transform: translate(344px, 104px); }
+  44.0% { transform: translate(344px, 104px); }
+  67.4% { transform: translate(344px, 40px); }
+  80.0% { transform: translate(344px, 40px); }
+  100.0% { transform: translate(344px, 40px); }
+}
+@keyframes mrg4 {
+  0.0% { transform: translate(404px, 40px); }
+  8.0% { transform: translate(404px, 40px); }
+  31.4% { transform: translate(404px, 104px); }
+  44.0% { transform: translate(404px, 104px); }
+  67.4% { transform: translate(404px, 40px); }
+  80.0% { transform: translate(404px, 40px); }
+  100.0% { transform: translate(404px, 40px); }
+}
+@keyframes mrg5 {
+  0.0% { transform: translate(434px, 40px); }
+  8.0% { transform: translate(434px, 40px); }
+  31.4% { transform: translate(434px, 104px); }
+  44.0% { transform: translate(434px, 104px); }
+  67.4% { transform: translate(434px, 40px); }
+  80.0% { transform: translate(434px, 40px); }
+  100.0% { transform: translate(434px, 40px); }
+}
+@keyframes qck2 {
+  0.0% { transform: translate(614px, 40px); }
+  8.0% { transform: translate(614px, 40px); }
+  23.6% { transform: translate(614px, 40px); }
+  32.0% { transform: translate(614px, 40px); }
+  47.6% { transform: translate(614px, 40px); }
+  56.0% { transform: translate(614px, 40px); }
+  63.8% { transform: translate(629.0px, 53px); }
+  71.6% { transform: translate(644px, 40px); }
+  80.0% { transform: translate(644px, 40px); }
+  100.0% { transform: translate(644px, 40px); }
+}
+@keyframes qck5 {
+  0.0% { transform: translate(644px, 40px); }
+  8.0% { transform: translate(644px, 40px); }
+  15.8% { transform: translate(659.0px, 53px); }
+  23.6% { transform: translate(674px, 40px); }
+  32.0% { transform: translate(674px, 40px); }
+  39.8% { transform: translate(704.0px, 53px); }
+  47.6% { transform: translate(734px, 40px); }
+  56.0% { transform: translate(734px, 40px); }
+  71.6% { transform: translate(734px, 40px); }
+  80.0% { transform: translate(734px, 40px); }
+  100.0% { transform: translate(734px, 40px); }
+}
+@keyframes qck1 {
+  0.0% { transform: translate(674px, 40px); }
+  8.0% { transform: translate(674px, 40px); }
+  15.8% { transform: translate(659.0px, 27px); }
+  23.6% { transform: translate(644px, 40px); }
+  32.0% { transform: translate(644px, 40px); }
+  47.6% { transform: translate(644px, 40px); }
+  56.0% { transform: translate(644px, 40px); }
+  63.8% { transform: translate(629.0px, 27px); }
+  71.6% { transform: translate(614px, 40px); }
+  80.0% { transform: translate(614px, 40px); }
+  100.0% { transform: translate(614px, 40px); }
+}
+@keyframes qck4 {
+  0.0% { transform: translate(704px, 40px); }
+  8.0% { transform: translate(704px, 40px); }
+  23.6% { transform: translate(704px, 40px); }
+  32.0% { transform: translate(704px, 40px); }
+  47.6% { transform: translate(704px, 40px); }
+  56.0% { transform: translate(704px, 40px); }
+  71.6% { transform: translate(704px, 40px); }
+  80.0% { transform: translate(704px, 40px); }
+  100.0% { transform: translate(704px, 40px); }
+}
+@keyframes qck3 {
+  0.0% { transform: translate(734px, 40px); }
+  8.0% { transform: translate(734px, 40px); }
+  23.6% { transform: translate(734px, 40px); }
+  32.0% { transform: translate(734px, 40px); }
+  39.8% { transform: translate(704.0px, 27px); }
+  47.6% { transform: translate(674px, 40px); }
+  56.0% { transform: translate(674px, 40px); }
+  71.6% { transform: translate(674px, 40px); }
+  80.0% { transform: translate(674px, 40px); }
+  100.0% { transform: translate(674px, 40px); }
+}
+</style>
+<defs>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/></marker>
+</defs>
+<text x="14" y="16" class="t" text-anchor="start">(a) insertion</text>
+<g class="e" style="animation-name:ins2" transform="translate(44,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">2</text></g>
+<g class="e" style="animation-name:ins4" transform="translate(104,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">4</text></g>
+<g class="e" style="animation-name:ins1" transform="translate(14,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">1</text></g>
+<g class="e" style="animation-name:ins3" transform="translate(74,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">3</text></g>
+<g class="e" style="animation-name:ins5" transform="translate(134,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">5</text></g>
+<text x="14" y="100" class="s" text-anchor="start">each value shifts right to</text>
+<text x="14" y="116" class="s" text-anchor="start">open a gap — nothing is copied</text>
+<text x="14" y="132" class="s" text-anchor="start">anywhere else</text>
+<text x="14" y="196" class="f" text-anchor="start">ALLOCATOR: NONE</text>
+<text x="14" y="218" class="a2" text-anchor="start">shifts in place</text>
+<text x="314" y="16" class="t" text-anchor="start">(b) merge</text>
+<rect x="314" y="104" width="30" height="28" rx="2" class="void"/>
+<rect x="344" y="104" width="30" height="28" rx="2" class="void"/>
+<rect x="374" y="104" width="30" height="28" rx="2" class="void"/>
+<rect x="404" y="104" width="30" height="28" rx="2" class="void"/>
+<rect x="434" y="104" width="30" height="28" rx="2" class="void"/>
+<path d="M464 74 V96" class="arA" marker-end="url(#hA)"/>
+<text x="476" y="90" class="a" text-anchor="start">alloc scratch</text>
+<g class="e" style="animation-name:mrg1" transform="translate(314,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">1</text></g>
+<g class="e" style="animation-name:mrg3" transform="translate(374,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">3</text></g>
+<g class="e" style="animation-name:mrg2" transform="translate(344,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">2</text></g>
+<g class="e" style="animation-name:mrg4" transform="translate(404,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">4</text></g>
+<g class="e" style="animation-name:mrg5" transform="translate(434,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">5</text></g>
+<text x="314" y="150" class="f" text-anchor="start">SCRATCH — O(n) EXTRA, FREED AFTER</text>
+<text x="314" y="172" class="s" text-anchor="start">the merge has nowhere to land</text>
+<text x="314" y="188" class="s" text-anchor="start">but a second buffer</text>
+<text x="314" y="208" class="f" text-anchor="start">ALLOCATOR: ALLOC n</text>
+<text x="314" y="226" class="a" text-anchor="start">needs a scratch buffer</text>
+<text x="614" y="16" class="t" text-anchor="start">(c) quick</text>
+<g class="e" style="animation-name:qck2" transform="translate(644,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">2</text></g>
+<g class="e" style="animation-name:qck5" transform="translate(734,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">5</text></g>
+<g class="e" style="animation-name:qck1" transform="translate(614,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">1</text></g>
+<g class="e" style="animation-name:qck4" transform="translate(704,40)"><rect width="30" height="28" rx="2" class="cell"/><text x="15.0" y="18.0" class="l" text-anchor="middle">4</text></g>
+<g class="e" style="animation-name:qck3" transform="translate(674,40)"><rect width="30" height="28" rx="2" class="hot"/><text x="15.0" y="18.0" class="l" text-anchor="middle">3</text></g>
+<text x="614" y="100" class="a" text-anchor="start">pivot 3 swaps into place,</text>
+<text x="614" y="116" class="s" text-anchor="start">then each side sorts itself</text>
+<text x="614" y="132" class="s" text-anchor="start">— only the recursion costs</text>
+<text x="614" y="148" class="s" text-anchor="start">anything, at O(log n)</text>
+<text x="614" y="196" class="f" text-anchor="start">ALLOCATOR: NONE</text>
+<text x="614" y="218" class="a2" text-anchor="start">partitions in place</text>
+<path d="M290 6 V232" class="ln" stroke-dasharray="2 4"/>
+<path d="M590 6 V232" class="ln" stroke-dasharray="2 4"/>
+</svg>
