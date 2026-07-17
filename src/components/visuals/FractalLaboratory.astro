@@ -1,0 +1,83 @@
+<fractal-laboratory>
+  <section class="math-instrument" aria-label="Interactive fractal dynamics laboratory">
+    <div class="math-bar">
+      <div class="math-state"><i></i><span data-state>Linked parameter and dynamical planes</span></div>
+      <div class="math-actions">
+        <div class="math-tabs" aria-label="Fractal family">
+          <button class="active" data-mode="linked">Mandelbrot ↔ Julia</button>
+          <button data-mode="newton">Newton basins</button>
+          <button data-mode="ifs">Chaos game</button>
+        </div>
+        <button class="math-button" data-reset>Reset view</button>
+      </div>
+    </div>
+    <div class="math-dashboard">
+      <div class="math-stage">
+        <span class="math-stage-label label" data-stage-label>parameter plane <em>c</em> · dynamical plane <em>z₀</em></span>
+        <canvas data-canvas aria-label="Linked fractal planes"></canvas>
+      </div>
+      <aside class="math-readout">
+        <p class="label label--accent">Complex iteration</p>
+        <h2 data-title>One parameter, two worlds</h2>
+        <p data-description>Choose c in the Mandelbrot set and the corresponding Julia set is rebuilt beside it. Click the Julia plane to expose one orbit.</p>
+        <div class="math-formula" data-formula>zₙ₊₁ = zₙᵖ + c</div>
+        <div class="math-metrics"><div><strong data-metric-1>−0.745 + 0.113i</strong><small data-metric-1-label>Parameter c</small></div><div><strong data-metric-2>80</strong><small data-metric-2-label>Iterations</small></div><div><strong data-metric-3>1.00×</strong><small data-metric-3-label>Magnification</small></div></div>
+        <div class="math-controls">
+          <div class="math-control"><label><span data-iteration-label>Iteration budget</span><b data-iterations-value>80</b></label><input data-iterations type="range" min="30" max="180" step="5" value="80" /></div>
+          <div class="math-control"><label><span data-power-label>Power p</span><b data-power-value>2</b></label><input data-power type="range" min="2" max="6" step="1" value="2" /></div>
+          <div class="math-control" data-c-real-control><label><span>Re(c)</span><b data-real-value>−0.745</b></label><input data-real type="range" min="-2" max="1" step="0.001" value="-0.745" /></div>
+          <div class="math-control" data-c-imag-control><label><span>Im(c)</span><b data-imag-value>0.113</b></label><input data-imag type="range" min="-1.5" max="1.5" step="0.001" value="0.113" /></div>
+        </div>
+        <div class="math-legend"><span><i></i>bounded / selected</span><span><i></i>escaping / alternate basin</span><span><i></i>orbit</span></div>
+        <div class="math-trace"><p class="label">Orbit trace</p><ol data-trace><li>Click either plane to inspect an orbit</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</fractal-laboratory>
+
+<script>
+  type Mode="linked"|"newton"|"ifs";
+  type C={r:number;i:number};
+  const INFO:Record<Mode,[string,string,string,string]>={
+    linked:["One parameter, two worlds","Choose c in the Mandelbrot set and the corresponding Julia set is rebuilt beside it. Click the Julia plane to expose one orbit.","zₙ₊₁ = zₙᵖ + c","parameter plane c · dynamical plane z₀"],
+    newton:["Convergence has geography","Every starting point is coloured by the root Newton's method reaches. Basin boundaries contain points whose destination changes under arbitrarily small perturbations.","zₙ₊₁ = zₙ − (zₙᵖ−1) / (p zₙᵖ⁻¹)","root basins · click to trace Newton iteration"],
+    ifs:["Random steps, rigid structure","The chaos game chooses one affine contraction at random. Individual moves are unpredictable; the invariant set is not.","xₙ₊₁ = fᵢ(xₙ),  i ∼ Uniform{1,2,3}","iterated function system · 3 contractions"],
+  };
+  class FractalLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;mode:Mode="linked";iterations=80;power=2;c:C={r:-.745,i:.113};scaleL=3.1;scaleR=3;centerL:C={r:-.55,i:0};centerR:C={r:0,i:0};seed:C={r:0,i:0};orbit:C[]=[];resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();pending=0;
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.schedule());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.layout();}
+    disconnectedCallback(){this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();cancelAnimationFrame(this.pending);}
+    bind(){const signal=this.aborter.signal;this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach(b=>b.addEventListener("click",()=>{this.mode=b.dataset.mode as Mode;this.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("active",x===b));this.configure();this.resetView();},{signal}));this.querySelector("[data-reset]")?.addEventListener("click",()=>this.resetView(),{signal});
+      const range=(q:string,apply:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{apply(Number((e.currentTarget as HTMLInputElement).value));this.schedule();},{signal});
+      range("[data-iterations]",v=>{this.iterations=v;this.text("[data-iterations-value]",String(v));});range("[data-power]",v=>{this.power=v;this.text("[data-power-value]",String(v));});range("[data-real]",v=>{this.c.r=v;this.text("[data-real-value]",this.signed(v));});range("[data-imag]",v=>{this.c.i=v;this.text("[data-imag-value]",this.signed(v));});
+      this.canvas.addEventListener("pointerdown",e=>this.choose(e),{signal});this.canvas.addEventListener("wheel",e=>{e.preventDefault();const panel=this.panelAt(e.clientX-this.canvas.getBoundingClientRect().left);const factor=e.deltaY>0?1.22:.82;if(panel===0)this.scaleL*=factor;else this.scaleR*=factor;this.schedule();},{signal,passive:false});}
+    configure(){const info=INFO[this.mode];this.text("[data-title]",info[0]);this.text("[data-description]",info[1]);this.text("[data-formula]",info[2]);this.text("[data-stage-label]",info[3]);const cControls=this.querySelectorAll<HTMLElement>("[data-c-real-control],[data-c-imag-control]");cControls.forEach(x=>x.hidden=this.mode!=="linked");this.text("[data-power-label]",this.mode==="ifs"?"Contraction preset":"Power p");this.text("[data-iteration-label]",this.mode==="ifs"?"Points × 1,000":"Iteration budget");}
+    resetView(){this.scaleL=3.1;this.scaleR=3;this.centerL={r:-.55,i:0};this.centerR={r:0,i:0};this.seed={r:0,i:0};this.orbit=[];if(this.mode==="linked"){this.c={r:-.745,i:.113};this.setInput("[data-real]",this.c.r);this.setInput("[data-imag]",this.c.i);this.text("[data-real-value]",this.signed(this.c.r));this.text("[data-imag-value]",this.signed(this.c.i));}this.schedule();}
+    panelAt(x:number){return this.mode==="linked"&&x>this.width/2?1:0;}
+    point(event:PointerEvent,panel:number){const r=this.canvas.getBoundingClientRect(),gap=10,pw=this.mode==="linked"?(this.width-gap)/2:this.width,px=event.clientX-r.left-(panel?pw+gap:0),py=event.clientY-r.top,useRight=this.mode!=="linked"||panel===1,center=useRight?this.centerR:this.centerL,scale=useRight?this.scaleR:this.scaleL;return{r:center.r+(px/pw-.5)*scale,i:center.i-(py/this.height-.5)*scale*this.height/pw};}
+    choose(event:PointerEvent){if(this.mode==="ifs")return;const panel=this.panelAt(event.clientX-this.canvas.getBoundingClientRect().left),p=this.point(event,panel);if(this.mode==="linked"&&panel===0){this.c=p;this.setInput("[data-real]",p.r);this.setInput("[data-imag]",p.i);this.text("[data-real-value]",this.signed(p.r));this.text("[data-imag-value]",this.signed(p.i));this.state(`c = ${this.complex(p)}`);}else{this.seed=p;this.traceOrbit();}this.schedule();}
+    traceOrbit(){this.orbit=[];let z={...this.seed};if(this.mode==="newton"){for(let n=0;n<18;n++){this.orbit.push({...z});z=this.newtonStep(z);if(this.abs(this.sub(this.pow(z,this.power),{r:1,i:0}))<1e-8)break;}}else{for(let n=0;n<Math.min(32,this.iterations);n++){this.orbit.push({...z});z=this.add(this.pow(z,this.power),this.c);if(this.abs(z)>4)break;}}const list=this.querySelector("[data-trace]");if(list){list.replaceChildren();this.orbit.slice(0,6).forEach((z,n)=>{const li=document.createElement("li");li.textContent=`z${n} = ${this.complex(z)}`;list.append(li);});if(this.orbit.length>6){const li=document.createElement("li");li.textContent=`… ${this.orbit.length} iterates total`;list.append(li);}}}
+    schedule(){cancelAnimationFrame(this.pending);this.pending=requestAnimationFrame(()=>this.render());}
+    layout(){const r=this.canvas.getBoundingClientRect();if(!r.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=r.width;this.height=r.height;this.canvas.width=Math.round(r.width*d);this.canvas.height=Math.round(r.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.schedule();}
+    render(){if(!this.width)return;const c=this.ctx;c.clearRect(0,0,this.width,this.height);if(this.mode==="linked")this.renderLinked();else if(this.mode==="newton")this.renderNewton();else this.renderIFS();}
+    raster(x:number,y:number,w:number,h:number,sample:(z:C)=>[number,number,number]){const rw=Math.max(100,Math.floor(w*.62)),rh=Math.max(100,Math.floor(h*.62)),off=document.createElement("canvas");off.width=rw;off.height=rh;const oc=off.getContext("2d")!,image=oc.createImageData(rw,rh),data=image.data;for(let py=0;py<rh;py++)for(let px=0;px<rw;px++){const [r,g,b]=sample({r:px/(rw-1),i:py/(rh-1)}),k=(py*rw+px)*4;data[k]=r;data[k+1]=g;data[k+2]=b;data[k+3]=255;}oc.putImageData(image,0,0);this.ctx.imageSmoothingEnabled=true;this.ctx.drawImage(off,x,y,w,h);}
+    mapPoint(unit:C,center:C,scale:number,w:number,h:number){return{r:center.r+(unit.r-.5)*scale,i:center.i-(unit.i-.5)*scale*h/w};}
+    palette(iter:number,max:number,phase=0):[number,number,number]{const dark=document.documentElement.dataset.theme==="dark";if(iter>=max)return dark?[8,14,34]:[241,242,247];const t=(iter/max+phase)%1,h=360*t;return this.hsv(h,dark ? .78 : .72,dark ? .95 : .72);}
+    escape(z:C,c:C){let n=0;for(;n<this.iterations&&z.r*z.r+z.i*z.i<=16;n++)z=this.add(this.pow(z,this.power),c);if(n>=this.iterations)return n;const mag=Math.max(1.0001,this.abs(z));return Math.min(this.iterations,n+1-Math.log(Math.log(mag))/Math.log(this.power));}
+    renderLinked(){const gap=10,pw=(this.width-gap)/2,h=this.height;this.raster(0,0,pw,h,u=>{const p=this.mapPoint(u,this.centerL,this.scaleL,pw,h);return this.palette(this.escape({r:0,i:0},p),this.iterations,.59);});this.raster(pw+gap,0,pw,h,u=>{const p=this.mapPoint(u,this.centerR,this.scaleR,pw,h);return this.palette(this.escape(p,this.c),this.iterations,.03);});const c=this.ctx,tagY=h-34;c.fillStyle="rgba(8,12,28,.82)";c.fillRect(pw-53,tagY,47,20);c.fillRect(pw+gap+6,tagY,42,20);c.fillStyle="#fff";c.font="600 9px IBM Plex Mono";c.fillText("M(c)",pw-45,tagY+13);c.fillText("J(c)",pw+gap+13,tagY+13);this.drawCross(0,this.c,this.centerL,this.scaleL,pw,h);this.drawOrbit(pw+gap,this.centerR,this.scaleR,pw,h);this.text("[data-metric-1]",this.complex(this.c));this.text("[data-metric-1-label]","Parameter c");this.text("[data-metric-2]",String(this.iterations));this.text("[data-metric-2-label]","Iterations");this.text("[data-metric-3]",`${(3/this.scaleR).toFixed(2)}×`);this.text("[data-metric-3-label]","Magnification");}
+    renderNewton(){const w=this.width,h=this.height,roots=Array.from({length:this.power},(_,k)=>({r:Math.cos(2*Math.PI*k/this.power),i:Math.sin(2*Math.PI*k/this.power)}));this.raster(0,0,w,h,u=>{let z=this.mapPoint(u,this.centerR,this.scaleR,w,h),n=0;for(;n<this.iterations;n++){z=this.newtonStep(z);if(this.abs(this.sub(this.pow(z,this.power),{r:1,i:0}))<1e-6)break;}let best=0;roots.forEach((r,k)=>{if(this.abs(this.sub(z,r))<this.abs(this.sub(z,roots[best])))best=k;});return this.palette(n,this.iterations,best/this.power);});roots.forEach((r,k)=>this.drawRoot(r,k,w,h));this.drawOrbit(0,this.centerR,this.scaleR,w,h);const last=this.orbit.at(-1);this.text("[data-metric-1]",String(this.power));this.text("[data-metric-1-label]","Roots");this.text("[data-metric-2]",last?String(this.orbit.length):"—");this.text("[data-metric-2-label]","Selected orbit");this.text("[data-metric-3]",last?this.complex(last):"click a basin");this.text("[data-metric-3-label]","Last iterate");}
+    renderIFS(){const c=this.ctx,w=this.width,h=this.height;c.fillStyle=getComputedStyle(this).getPropertyValue("--paper-sunken");c.fillRect(0,0,w,h);const verts=[{r:w*.5,i:h*.1},{r:w*.13,i:h*.88},{r:w*.87,i:h*.88}],colors=["#6fd6ff","#ff8b59","#59c99b"];let p={r:w*.47,i:h*.52},count=this.iterations*1000;c.globalAlpha=.72;for(let n=0;n<count;n++){const k=Math.floor(this.random(n)*3),v=verts[k],ratio=this.power===2?.5:Math.min(.68,.42+(this.power-2)*.055);p={r:p.r+(v.r-p.r)*ratio,i:p.i+(v.i-p.i)*ratio};if(n>15){c.fillStyle=colors[k];c.fillRect(p.r,p.i,1,1);}}c.globalAlpha=1;verts.forEach((v,k)=>{c.fillStyle=colors[k];c.beginPath();c.arc(v.r,v.i,5,0,Math.PI*2);c.fill();c.font="600 9px IBM Plex Mono";c.fillText(`f${k+1}`,v.r+8,v.i);});const dimension=Math.log(3)/Math.log(1/(this.power===2?.5:Math.min(.68,.42+(this.power-2)*.055)));this.text("[data-metric-1]","3");this.text("[data-metric-1-label]","Affine maps");this.text("[data-metric-2]",count.toLocaleString());this.text("[data-metric-2-label]","Random choices");this.text("[data-metric-3]",dimension.toFixed(3));this.text("[data-metric-3-label]","Similarity dimension");}
+    drawCross(offset:number,p:C,center:C,scale:number,w:number,h:number){const x=offset+(p.r-center.r)/scale*w+w/2,y=(center.i-p.i)/scale*w+h/2,c=this.ctx;c.strokeStyle="#fff";c.lineWidth=1.3;c.beginPath();c.moveTo(x-7,y);c.lineTo(x+7,y);c.moveTo(x,y-7);c.lineTo(x,y+7);c.stroke();}
+    drawRoot(p:C,k:number,w:number,h:number){const x=(p.r-this.centerR.r)/this.scaleR*w+w/2,y=(this.centerR.i-p.i)/this.scaleR*w+h/2,c=this.ctx;c.fillStyle="#fff";c.beginPath();c.arc(x,y,5,0,Math.PI*2);c.fill();c.fillStyle="#11162a";c.font="600 7px IBM Plex Mono";c.textAlign="center";c.textBaseline="middle";c.fillText(String(k+1),x,y);c.textAlign="left";}
+    drawOrbit(offset:number,center:C,scale:number,w:number,h:number){if(this.orbit.length<2)return;const c=this.ctx;c.strokeStyle="#59c99b";c.lineWidth=1.2;c.beginPath();this.orbit.forEach((p,n)=>{const x=offset+(p.r-center.r)/scale*w+w/2,y=(center.i-p.i)/scale*w+h/2;n?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();this.orbit.slice(0,18).forEach(p=>{const x=offset+(p.r-center.r)/scale*w+w/2,y=(center.i-p.i)/scale*w+h/2;c.fillStyle="#59c99b";c.beginPath();c.arc(x,y,2.2,0,Math.PI*2);c.fill();});}
+    newtonStep(z:C){const zn=this.pow(z,this.power),num=this.sub(zn,{r:1,i:0}),den=this.mul({r:this.power,i:0},this.pow(z,this.power-1));return this.sub(z,this.div(num,den));}
+    add(a:C,b:C):C{return{r:a.r+b.r,i:a.i+b.i}}sub(a:C,b:C):C{return{r:a.r-b.r,i:a.i-b.i}}mul(a:C,b:C):C{return{r:a.r*b.r-a.i*b.i,i:a.r*b.i+a.i*b.r}}div(a:C,b:C):C{const d=b.r*b.r+b.i*b.i||1e-16;return{r:(a.r*b.r+a.i*b.i)/d,i:(a.i*b.r-a.r*b.i)/d}}pow(z:C,n:number){let out={r:1,i:0};for(let k=0;k<n;k++)out=this.mul(out,z);return out}abs(z:C){return Math.hypot(z.r,z.i)}
+    hsv(h:number,s:number,v:number):[number,number,number]{const c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c;let q=[0,0,0];if(h<60)q=[c,x,0];else if(h<120)q=[x,c,0];else if(h<180)q=[0,c,x];else if(h<240)q=[0,x,c];else if(h<300)q=[x,0,c];else q=[c,0,x];return q.map(n=>Math.round((n+m)*255)) as [number,number,number];}
+    random(n:number){let x=Math.sin(n*127.1+this.power*311.7)*43758.5453;return x-Math.floor(x);}complex(z:C){return`${z.r.toFixed(3)} ${z.i<0?"−":"+"} ${Math.abs(z.i).toFixed(3)}i`}signed(n:number){return`${n<0?"−":""}${Math.abs(n).toFixed(3)}`}state(s:string){this.text("[data-state]",s)}text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}setInput(q:string,n:number){const e=this.querySelector<HTMLInputElement>(q);if(e)e.value=String(n)}
+  }
+  if(!customElements.get("fractal-laboratory"))customElements.define("fractal-laboratory",FractalLaboratory);
+</script>
+
+<style>
+  fractal-laboratory{display:block}.math-stage{display:grid;grid-template-rows:auto minmax(0,1fr)}.math-stage-label{position:static;display:flex;min-height:2.5rem;align-items:center;padding:.65rem .9rem;overflow:hidden;border-bottom:1px solid var(--glass-border);background:color-mix(in srgb,var(--glass) 72%,transparent);text-overflow:ellipsis;white-space:nowrap}.math-stage canvas{height:100%;min-height:35.5rem;cursor:crosshair}.math-readout [hidden]{display:none}.math-trace ol{max-height:7.5rem;overflow:auto}@media(max-width:44rem){.math-stage canvas{min-height:27.5rem}}
+</style>

@@ -29,6 +29,33 @@ const experiments = [
       "Twelve executable models of storage, consensus, runtimes, networking, parallelism, and reliability.",
     kind: "systems",
   },
+  {
+    number: "004",
+    href: "/sky",
+    title: "The Night Sky",
+    kicker: "Celestial mechanics · Star catalog · Live clock",
+    description:
+      "A planetarium in the browser: two thousand real stars, the planets computed from their orbits, and the sky over your head right now.",
+    kind: "sky",
+  },
+  {
+    number: "005",
+    href: "/mathematics",
+    title: "Mathematics",
+    kicker: "Six instruments · Analysis · Geometry · Probability",
+    description:
+      "Complex dynamics, Pappus, domain colouring, phase portraits, linear maps, and Monte Carlo estimation — all manipulable.",
+    kind: "measure",
+  },
+  {
+    number: "006",
+    href: "/physics",
+    title: "Physics",
+    kicker: "Six instruments · Dynamics · Fields · Matter",
+    description:
+      "Orbits, fields, waves, Hamiltonian chaos, quantum packets, and phase transitions — with invariants and numerical error exposed.",
+    kind: "physics",
+  },
 ];
 ---
 
@@ -73,10 +100,47 @@ const experiments = [
                   ),
                 )}
               </div>
-            ) : (
+            ) : experiment.kind === "systems" ? (
               <div class="mini-system">
                 <span>WAL</span><i></i><span>MEM</span><i></i><span>SST</span>
                 <b>packet / state / time</b>
+              </div>
+            ) : experiment.kind === "measure" ? (
+              <div class="mini-measure">
+                <svg viewBox="0 0 200 130" aria-hidden="true">
+                  <line class="axis" x1="70" y1="8" x2="70" y2="122" />
+                  <path class="profile" d="M70,97 A32,32 0 0 1 70,33 Z" />
+                  <ellipse class="ring" cx="70" cy="65" rx="42" ry="13" />
+                  <ellipse class="ghost" cx="70" cy="65" rx="21" ry="6.5" />
+                  <circle class="centroid" cx="84" cy="65" r="3" />
+                </svg>
+              </div>
+            ) : experiment.kind === "physics" ? (
+              <div class="mini-physics">
+                <svg viewBox="0 0 220 140" aria-hidden="true">
+                  <ellipse class="trajectory" cx="110" cy="70" rx="82" ry="34" />
+                  <ellipse class="trajectory trajectory--second" cx="110" cy="70" rx="55" ry="22" />
+                  <circle class="mass mass--primary" cx="110" cy="70" r="9" />
+                  <circle class="mass mass--orbiter" cx="192" cy="70" r="4" />
+                  <path class="wave" d="M18,112 C34,92 48,132 64,112 S94,92 110,112 S140,132 156,112 S186,92 202,112" />
+                </svg>
+              </div>
+            ) : (
+              <div class="mini-sky">
+                <svg viewBox="0 0 200 130" aria-hidden="true">
+                  <path class="figure" d="M28,96 L52,74 L74,82 L96,58 L124,66 L146,38 L170,46" />
+                  <path class="figure" d="M96,58 L108,34 L146,38" />
+                  <circle class="s1" cx="28" cy="96" r="2.6" />
+                  <circle class="s2" cx="52" cy="74" r="2" />
+                  <circle class="s1" cx="74" cy="82" r="1.6" />
+                  <circle class="s3" cx="96" cy="58" r="2.8" />
+                  <circle class="s2" cx="124" cy="66" r="1.7" />
+                  <circle class="s1" cx="146" cy="38" r="2.4" />
+                  <circle class="s2" cx="170" cy="46" r="1.8" />
+                  <circle class="s3" cx="108" cy="34" r="1.5" />
+                  <circle class="planet" cx="58" cy="112" r="3" />
+                </svg>
+                <i class="mini-horizon"></i>
               </div>
             )}
             <span class="preview-index">EXP / {experiment.number}</span>
@@ -299,9 +363,98 @@ const experiments = [
     70% { transform: scaleY(1); opacity: 1; }
   }
 
+  .mini-sky {
+    position: relative;
+    z-index: 1;
+    width: min(72%, 15rem);
+  }
+
+  .mini-sky svg { display: block; width: 100%; }
+
+  .mini-sky .figure {
+    fill: none;
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  .mini-sky circle { fill: var(--ink-soft); }
+  .mini-sky .s1 { animation: twinkle 3.2s ease-in-out infinite; }
+  .mini-sky .s2 { animation: twinkle 3.2s ease-in-out infinite; animation-delay: -1.1s; }
+  .mini-sky .s3 { fill: var(--interact); animation: twinkle 3.2s ease-in-out infinite; animation-delay: -2.2s; }
+
+  .mini-sky .planet {
+    fill: var(--interact);
+    filter: drop-shadow(0 0 6px var(--interact));
+  }
+
+  .mini-horizon {
+    display: block;
+    height: 1px;
+    margin-top: 0.4rem;
+    background: linear-gradient(90deg, transparent, var(--ink-soft), transparent);
+  }
+
+  @keyframes twinkle {
+    50% { opacity: 0.35; }
+  }
+
+  .mini-measure {
+    position: relative;
+    z-index: 1;
+    width: min(64%, 13rem);
+  }
+
+  .mini-measure svg { display: block; width: 100%; }
+
+  .mini-measure .axis {
+    stroke: var(--interact);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+  }
+
+  .mini-measure .profile {
+    fill: color-mix(in srgb, var(--accent-2) 14%, transparent);
+    stroke: var(--ink-soft);
+    stroke-width: 1.4;
+  }
+
+  .mini-measure .ring,
+  .mini-measure .ghost {
+    fill: none;
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  .mini-measure .ring {
+    stroke: var(--ink-soft);
+    stroke-dasharray: 3 4;
+  }
+
+  .mini-measure .centroid {
+    fill: var(--interact);
+    filter: drop-shadow(0 0 6px var(--interact));
+    offset-path: path("M 112 65 A 42 13 0 1 1 28 65 A 42 13 0 1 1 112 65 Z");
+    animation: revolve 6s linear infinite;
+  }
+
+  .mini-physics { position:relative;z-index:1;width:min(76%,17rem); }
+  .mini-physics svg { display:block;width:100%;overflow:visible; }
+  .mini-physics .trajectory { fill:none;stroke:var(--rule-strong);stroke-width:1.2;transform-origin:110px 70px;transform:rotate(-14deg); }
+  .mini-physics .trajectory--second { stroke:var(--rule);stroke-dasharray:4 5;transform:rotate(28deg); }
+  .mini-physics .mass { fill:var(--interact);filter:drop-shadow(0 0 7px var(--interact)); }
+  .mini-physics .mass--orbiter { offset-path:path("M 28 70 A 82 34 0 1 0 192 70 A 82 34 0 1 0 28 70");animation:revolve 7s linear infinite; }
+  .mini-physics .wave { fill:none;stroke:var(--accent-2);stroke-width:1.5;stroke-linecap:round; }
+
+  @keyframes revolve {
+    to { offset-distance: 100%; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .quake,
-    .mini-bars span { animation: none; }
+    .mini-bars span,
+    .mini-sky circle,
+    .mini-measure .centroid,
+    .mini-physics .mass--orbiter { animation: none; }
   }
 
   @media (max-width: 45rem) {

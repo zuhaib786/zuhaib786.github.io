@@ -1,0 +1,88 @@
+---
+import Base from "../layouts/Base.astro";
+import SkyAtlas from "../components/visuals/SkyAtlas.astro";
+---
+
+<Base
+  title="The Night Sky — Visuals by Zuhaib Ul Zamann"
+  description="A live planetarium in the browser: real star catalog, planets from Keplerian elements, and your local sidereal time."
+>
+  <section class="experiment-head">
+    <div>
+      <a href="/visuals" class="label back">← Visual laboratory</a>
+      <p class="label label--accent">Experiment 004 · Celestial mechanics</p>
+      <h1>The Night Sky</h1>
+    </div>
+    <p class="lede">
+      This site pretends to be an astronomical glass plate; this page stops
+      pretending. A real star catalog, the planets computed from their orbital
+      elements, and the sky over your head right now — drag to look around,
+      run the clock to watch it turn.
+    </p>
+  </section>
+
+  <SkyAtlas />
+
+  <footer class="source-note">
+    <span class="label">Data provenance</span>
+    <p>
+      Stars to magnitude 5.2 from the
+      <a href="https://www.astronexus.com/hyg">HYG database v4.1</a>
+      (Hipparcos / Yale / Gliese); constellation figures from
+      <a href="https://github.com/ofrohn/d3-celestial">d3-celestial</a>.
+      Planetary, lunar, and solar positions are computed in your browser from
+      Keplerian orbital elements — no feed, no server, no library.
+    </p>
+  </footer>
+</Base>
+
+<style>
+  .experiment-head {
+    display: grid;
+    grid-template-columns: 1fr minmax(19rem, 0.68fr);
+    align-items: end;
+    gap: 3rem;
+    padding: 3rem 0 2rem;
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 8.5vw, 6.5rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.85;
+  }
+
+  .lede {
+    max-width: 31rem;
+    padding-bottom: 0.2rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+  }
+
+  .source-note {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+  }
+
+  .source-note p { max-width: 43rem; }
+
+  @media (max-width: 44rem) {
+    .experiment-head { grid-template-columns: 1fr; gap: 1.5rem; }
+    .source-note { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,1230 @@
+<mdp-laboratory>
+  <section class="lab" aria-label="Interactive Markov decision process laboratory">
+    <div class="instrument-bar">
+      <div class="run-state">
+        <span class="signal" aria-hidden="true"></span>
+        <span data-run-state>Solving…</span>
+      </div>
+      <div class="controls" aria-label="Laboratory controls">
+        <div class="segments" aria-label="Algorithm">
+          <button type="button" data-mode="vi" class="active">Value iter</button>
+          <button type="button" data-mode="pi">Policy iter</button>
+          <button type="button" data-mode="ql">Q-learning</button>
+        </div>
+        <div class="segments" aria-label="Paint brush">
+          <button type="button" data-brush="wall" class="active">Wall</button>
+          <button type="button" data-brush="goal">Goal</button>
+          <button type="button" data-brush="trap">Trap</button>
+          <button type="button" data-brush="erase">Erase</button>
+        </div>
+        <button type="button" class="control-button active" data-rollout>Rollout · on</button>
+        <button type="button" class="control-button" data-reset>Reset values</button>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="grid-panel">
+        <div class="plot-title label">Grid world · <em>paint with the selected brush · hover a cell for its backup</em></div>
+        <canvas data-grid aria-label="Editable grid world showing values and policy"></canvas>
+      </div>
+
+      <div class="readout">
+        <div class="readout-head">
+          <div>
+            <p class="label label--accent">The Bellman equation</p>
+            <h2>V(s) ← max<sub>a</sub> [ R + γ Σ P·V(s′) ]</h2>
+          </div>
+        </div>
+
+        <div class="stats" aria-label="Solver metrics">
+          <article>
+            <span class="stat-value" data-stat-1>0</span>
+            <span class="stat-label" data-stat-1-label>Sweeps</span>
+            <small data-stat-1-note>Full passes over all states</small>
+          </article>
+          <article>
+            <span class="stat-value" data-stat-2>—</span>
+            <span class="stat-label" data-stat-2-label>Bellman residual</span>
+            <small data-stat-2-note>Zero means the equation holds</small>
+          </article>
+          <article>
+            <span class="stat-value" data-stat-3>—</span>
+            <span class="stat-label" data-stat-3-label>Policy changes</span>
+            <small data-stat-3-note>Arrows that flipped last sweep</small>
+          </article>
+        </div>
+
+        <section class="inspector" data-inspector>
+          <h3 class="label">Backup anatomy · <span data-inspector-cell>watching the solver</span></h3>
+          <div class="action-rows" data-actions></div>
+          <p class="inspector-note" data-inspector-note>
+            Each row is one action: immediate reward plus γ times the
+            probability-weighted value of where the slip model may land you.
+            The policy keeps the largest.
+          </p>
+        </section>
+
+        <section class="knobs">
+          <div class="scenario-row">
+            <span class="label">Scenario</span>
+            <div class="segments" aria-label="Scenario">
+              <button type="button" data-scenario="classic" class="active">Classic</button>
+              <button type="button" data-scenario="cliff">Cliff</button>
+              <button type="button" data-scenario="maze">Maze</button>
+              <button type="button" data-scenario="empty">Empty</button>
+            </div>
+          </div>
+          <div class="knob">
+            <label class="label" for="mdp-gamma">Discount γ · <span data-gamma-value>0.95</span></label>
+            <input id="mdp-gamma" type="range" min="0.5" max="0.99" step="0.01" value="0.95" data-gamma />
+          </div>
+          <div class="knob">
+            <label class="label" for="mdp-noise">Slip probability · <span data-noise-value>0.20</span></label>
+            <input id="mdp-noise" type="range" min="0" max="0.6" step="0.05" value="0.2" data-noise />
+          </div>
+          <div class="knob">
+            <label class="label" for="mdp-step">Step reward · <span data-step-value>−0.04</span></label>
+            <input id="mdp-step" type="range" min="-0.2" max="0" step="0.01" value="-0.04" data-step />
+          </div>
+          <div class="knob knob-ql">
+            <label class="label" for="mdp-alpha">Learning rate α · <span data-alpha-value>0.25</span> <i>Q-learning</i></label>
+            <input id="mdp-alpha" type="range" min="0.05" max="0.8" step="0.05" value="0.25" data-alpha />
+          </div>
+          <div class="knob knob-ql">
+            <label class="label" for="mdp-eps">Exploration ε · <span data-eps-value>0.20</span> <i>Q-learning</i></label>
+            <input id="mdp-eps" type="range" min="0" max="0.6" step="0.05" value="0.2" data-eps />
+          </div>
+        </section>
+
+        <section class="method">
+          <h3 class="label">Method</h3>
+          <p>
+            Value and policy iteration see the model — exact probability flow,
+            deterministic convergence. Q-learning sees only sampled
+            transitions: watch the agent wander, slip, fall, and still
+            assemble the same arrows from noise. Paint walls and rewards at
+            any time; every algorithm absorbs the edit and keeps going.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+</mdp-laboratory>
+
+<script>
+  const W = 12;
+  const H = 7;
+  const N = W * H;
+  const DIRS: [number, number][] = [[0, 1], [1, 0], [0, -1], [-1, 0]]; // up right down left
+  const GLYPHS = ["↑", "→", "↓", "←"];
+
+  type Mode = "vi" | "pi" | "ql";
+  type Brush = "wall" | "goal" | "trap" | "erase";
+  const CELL = { EMPTY: 0, WALL: 1, GOAL: 2, TRAP: 3 } as const;
+
+  type Scenario = { cells: (x: number, y: number) => number; start: [number, number] };
+  const SCENARIOS: Record<string, Scenario> = {
+    classic: {
+      cells: (x, y) => {
+        if (x === 5 && y >= 1 && y <= 4) return CELL.WALL;
+        if (x === 8 && (y === 3 || y === 4)) return CELL.WALL;
+        if (x === 11 && y === 5) return CELL.GOAL;
+        if (x === 11 && y === 4) return CELL.TRAP;
+        return CELL.EMPTY;
+      },
+      start: [0, 1],
+    },
+    cliff: {
+      cells: (x, y) => {
+        if (y === 0 && x > 0 && x < 11) return CELL.TRAP;
+        if (x === 11 && y === 0) return CELL.GOAL;
+        return CELL.EMPTY;
+      },
+      start: [0, 0],
+    },
+    maze: {
+      cells: (x, y) => {
+        if (x === 2 && y >= 1) return CELL.WALL;
+        if (x === 5 && y <= 5) return CELL.WALL;
+        if (x === 8 && y >= 1) return CELL.WALL;
+        if (x === 11 && y === 6) return CELL.GOAL;
+        return CELL.EMPTY;
+      },
+      start: [0, 6],
+    },
+    empty: {
+      cells: (x, y) => (x === 11 && y === 6 ? CELL.GOAL : CELL.EMPTY),
+      start: [0, 0],
+    },
+  };
+
+  class MdpLaboratory extends HTMLElement {
+    canvas!: HTMLCanvasElement;
+    ctx!: CanvasRenderingContext2D;
+    cells = new Uint8Array(N);
+    V = new Float64Array(N);
+    Q = new Float64Array(N * 4);
+    policy = new Int8Array(N).fill(-1);
+    mode: Mode = "vi";
+    brush: Brush = "wall";
+    gamma = 0.95;
+    noise = 0.2;
+    stepReward = -0.04;
+    alpha = 0.25;
+    epsilon = 0.2;
+    start: [number, number] = [0, 1];
+    // solver bookkeeping
+    cursor = 0;
+    sweeps = 0;
+    residual = 0;
+    sweepResidual = 0;
+    policyChanges = 0;
+    converged = false;
+    piPhase: "eval" | "improve" = "eval";
+    // q-learning
+    agent: [number, number] = [0, 1];
+    trail: [number, number][] = [];
+    episodes = 0;
+    steps = 0;
+    currentReturn = 0;
+    returns: number[] = [];
+    // rollout particle
+    rolloutOn = true;
+    rollout = { x: 0, y: 1, tx: 0, ty: 1, t: 1 };
+    hover = -1;
+    lastBackup = -1;
+    painting = false;
+    frame = 0;
+    lastFrame = 0;
+    aborter = new AbortController();
+    resizeObserver?: ResizeObserver;
+    themeObserver?: MutationObserver;
+
+    connectedCallback() {
+      this.canvas = this.querySelector("[data-grid]") as HTMLCanvasElement;
+      const ctx = this.canvas.getContext("2d");
+      if (!ctx) return;
+      this.ctx = ctx;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) this.rolloutOn = false;
+      this.bind();
+      this.resizeObserver = new ResizeObserver(() => this.layout());
+      this.resizeObserver.observe(this.canvas);
+      this.themeObserver = new MutationObserver(() => this.render());
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+      this.loadScenario("classic");
+      this.layout();
+      this.frame = requestAnimationFrame((t) => this.tick(t));
+    }
+
+    disconnectedCallback() {
+      cancelAnimationFrame(this.frame);
+      this.aborter.abort();
+      this.resizeObserver?.disconnect();
+      this.themeObserver?.disconnect();
+    }
+
+    bind() {
+      const signal = this.aborter.signal;
+      const segment = (attr: string, apply: (value: string) => void) => {
+        this.querySelectorAll<HTMLButtonElement>(`[data-${attr}]`).forEach((button) => {
+          button.addEventListener("click", () => {
+            this.querySelectorAll(`[data-${attr}]`).forEach((item) =>
+              item.classList.toggle("active", item === button),
+            );
+            apply(button.dataset[attr] as string);
+          }, { signal });
+        });
+      };
+      segment("mode", (value) => {
+        this.mode = value as Mode;
+        this.classList.toggle("mode-ql", this.mode === "ql");
+        this.resetSolver();
+        this.updateStatLabels();
+        this.render();
+      });
+      segment("brush", (value) => (this.brush = value as Brush));
+      segment("scenario", (value) => this.loadScenario(value));
+
+      const rollout = this.querySelector<HTMLButtonElement>("[data-rollout]");
+      rollout?.addEventListener("click", () => {
+        this.rolloutOn = !this.rolloutOn;
+        rollout.textContent = `Rollout · ${this.rolloutOn ? "on" : "off"}`;
+        rollout.classList.toggle("active", this.rolloutOn);
+        this.render();
+      }, { signal });
+
+      this.querySelector("[data-reset]")?.addEventListener("click", () => {
+        this.resetSolver();
+        this.render();
+      }, { signal });
+
+      const knob = (selector: string, label: string, apply: (v: number) => void, fmt?: (v: number) => string) => {
+        const input = this.querySelector<HTMLInputElement>(selector);
+        input?.addEventListener("input", () => {
+          const v = Number(input.value);
+          apply(v);
+          this.text(label, (fmt || ((x) => x.toFixed(2)))(v));
+          this.converged = false;
+          this.piPhase = "eval";
+        }, { signal });
+      };
+      knob("[data-gamma]", "[data-gamma-value]", (v) => (this.gamma = v));
+      knob("[data-noise]", "[data-noise-value]", (v) => (this.noise = v));
+      knob("[data-step]", "[data-step-value]", (v) => (this.stepReward = v), (v) => (v < 0 ? "−" : "") + Math.abs(v).toFixed(2));
+      knob("[data-alpha]", "[data-alpha-value]", (v) => (this.alpha = v));
+      knob("[data-eps]", "[data-eps-value]", (v) => (this.epsilon = v));
+
+      this.canvas.addEventListener("pointerdown", (event) => {
+        this.painting = true;
+        this.canvas.setPointerCapture(event.pointerId);
+        this.paint(event);
+      }, { signal });
+      this.canvas.addEventListener("pointermove", (event) => {
+        if (this.painting) this.paint(event);
+        else {
+          const cell = this.cellAt(event);
+          if (cell !== this.hover) {
+            this.hover = cell;
+            this.render();
+            this.updateInspector();
+          }
+        }
+      }, { signal });
+      const release = (event: PointerEvent) => {
+        this.painting = false;
+        if (this.canvas.hasPointerCapture(event.pointerId)) {
+          this.canvas.releasePointerCapture(event.pointerId);
+        }
+      };
+      this.canvas.addEventListener("pointerup", release, { signal });
+      this.canvas.addEventListener("pointercancel", release, { signal });
+      this.canvas.addEventListener("pointerleave", () => {
+        this.hover = -1;
+        this.render();
+        this.updateInspector();
+      }, { signal });
+    }
+
+    loadScenario(name: string) {
+      const scenario = SCENARIOS[name] || SCENARIOS.classic;
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) this.cells[y * W + x] = scenario.cells(x, y);
+      }
+      this.start = [...scenario.start] as [number, number];
+      this.resetSolver();
+      this.updateStatLabels();
+      this.render();
+    }
+
+    resetSolver() {
+      this.V.fill(0);
+      this.Q.fill(0);
+      this.policy.fill(-1);
+      if (this.mode === "pi") {
+        for (let i = 0; i < N; i++) {
+          const x = i % W, y = Math.floor(i / W);
+          if (this.cellType(x, y) === CELL.EMPTY) this.policy[i] = 0;
+        }
+      }
+      this.cursor = 0;
+      this.sweeps = 0;
+      this.residual = 0;
+      this.sweepResidual = 0;
+      this.policyChanges = 0;
+      this.converged = false;
+      this.piPhase = "eval";
+      this.episodes = 0;
+      this.steps = 0;
+      this.returns = [];
+      this.currentReturn = 0;
+      this.trail = [];
+      this.resetAgent();
+    }
+
+    resetAgent() {
+      let [sx, sy] = this.start;
+      if (this.cells[sy * W + sx] !== CELL.EMPTY) {
+        outer: for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            if (this.cells[y * W + x] === CELL.EMPTY) { sx = x; sy = y; break outer; }
+          }
+        }
+      }
+      this.agent = [sx, sy];
+      this.rollout = { x: sx, y: sy, tx: sx, ty: sy, t: 1 };
+      this.trail = [];
+      this.currentReturn = 0;
+    }
+
+    // --- the MDP -----------------------------------------------------------
+
+    cellType(x: number, y: number) {
+      return this.cells[y * W + x];
+    }
+
+    terminalValue(x: number, y: number) {
+      const t = this.cellType(x, y);
+      return t === CELL.GOAL ? 1 : t === CELL.TRAP ? -1 : null;
+    }
+
+    moveResult(x: number, y: number, dir: number): [number, number] {
+      const nx = x + DIRS[dir][0];
+      const ny = y + DIRS[dir][1];
+      if (nx < 0 || nx >= W || ny < 0 || ny >= H || this.cellType(nx, ny) === CELL.WALL) return [x, y];
+      return [nx, ny];
+    }
+
+    /** Slip branches for an intended action: [direction, probability]. */
+    branches(action: number): [number, number][] {
+      return [
+        [action, 1 - this.noise],
+        [(action + 1) % 4, this.noise / 2],
+        [(action + 3) % 4, this.noise / 2],
+      ];
+    }
+
+    /** Model-based action value from the current V. */
+    qModel(x: number, y: number, action: number) {
+      let expected = 0;
+      for (const [dir, p] of this.branches(action)) {
+        const [nx, ny] = this.moveResult(x, y, dir);
+        expected += p * this.V[ny * W + nx];
+      }
+      return this.stepReward + this.gamma * expected;
+    }
+
+    bestAction(x: number, y: number) {
+      if (this.mode === "ql") {
+        const base = (y * W + x) * 4;
+        let best = 0;
+        let allZero = true;
+        for (let a = 0; a < 4; a++) {
+          if (this.Q[base + a] !== 0) allZero = false;
+          if (this.Q[base + a] > this.Q[base + best]) best = a;
+        }
+        return allZero ? -1 : best;
+      }
+      let best = 0;
+      for (let a = 1; a < 4; a++) {
+        if (this.qModel(x, y, a) > this.qModel(x, y, best)) best = a;
+      }
+      return best;
+    }
+
+    /** One state backup. Returns the residual contribution. */
+    backup(index: number) {
+      const x = index % W;
+      const y = Math.floor(index / W);
+      const type = this.cellType(x, y);
+      if (type === CELL.WALL) return 0;
+      const terminal = this.terminalValue(x, y);
+      let target: number;
+      if (terminal !== null) {
+        target = terminal;
+      } else if (this.mode === "pi" && this.piPhase === "eval" && this.policy[index] >= 0) {
+        target = this.qModel(x, y, this.policy[index]);
+      } else {
+        target = Math.max(...[0, 1, 2, 3].map((a) => this.qModel(x, y, a)));
+      }
+      const change = Math.abs(target - this.V[index]);
+      this.V[index] = target;
+      this.lastBackup = index;
+      return change;
+    }
+
+    finishSweep() {
+      this.sweeps++;
+      this.residual = this.sweepResidual;
+      this.sweepResidual = 0;
+      if (this.mode === "vi") {
+        let changes = 0;
+        for (let i = 0; i < N; i++) {
+          const x = i % W, y = Math.floor(i / W);
+          if (this.cellType(x, y) !== CELL.EMPTY) continue;
+          const best = this.bestAction(x, y);
+          if (best !== this.policy[i]) changes++;
+          this.policy[i] = best;
+        }
+        this.policyChanges = changes;
+        if (this.residual < 1e-4) {
+          this.converged = true;
+          this.setRunState(`Converged · ${this.sweeps} sweeps · edit the grid to continue`, "idle");
+        }
+      } else if (this.mode === "pi") {
+        if (this.piPhase === "eval" && this.residual < 1e-3) {
+          // improvement pass
+          let changes = 0;
+          for (let i = 0; i < N; i++) {
+            const x = i % W, y = Math.floor(i / W);
+            if (this.cellType(x, y) !== CELL.EMPTY) continue;
+            let best = 0;
+            for (let a = 1; a < 4; a++) {
+              if (this.qModel(x, y, a) > this.qModel(x, y, best)) best = a;
+            }
+            if (best !== this.policy[i]) changes++;
+            this.policy[i] = best;
+          }
+          this.policyChanges = changes;
+          if (changes === 0 && this.sweeps > 1) {
+            this.converged = true;
+            this.setRunState(`Policy stable · ${this.sweeps} sweeps · edit the grid to continue`, "idle");
+          }
+        }
+      }
+    }
+
+    qlStep() {
+      const [x, y] = this.agent;
+      const index = y * W + x;
+      const base = index * 4;
+      let action: number;
+      if (Math.random() < this.epsilon) {
+        action = Math.floor(Math.random() * 4);
+      } else {
+        action = 0;
+        for (let a = 1; a < 4; a++) {
+          if (this.Q[base + a] > this.Q[base + action]) action = a;
+        }
+      }
+      // sample the slip
+      const roll = Math.random();
+      let dir = action;
+      if (roll > 1 - this.noise) dir = roll > 1 - this.noise / 2 ? (action + 1) % 4 : (action + 3) % 4;
+      const [nx, ny] = this.moveResult(x, y, dir);
+      const terminal = this.terminalValue(nx, ny);
+      // Match the model-based convention: terminal utilities live in V(s′),
+      // so entering one yields the step reward plus its discounted utility.
+      const reward = terminal !== null ? this.stepReward + this.gamma * terminal : this.stepReward;
+      const nextBase = (ny * W + nx) * 4;
+      const nextMax = terminal !== null ? 0 : Math.max(this.Q[nextBase], this.Q[nextBase + 1], this.Q[nextBase + 2], this.Q[nextBase + 3]);
+      this.Q[base + action] += this.alpha * (reward + this.gamma * nextMax - this.Q[base + action]);
+      this.V[index] = Math.max(this.Q[base], this.Q[base + 1], this.Q[base + 2], this.Q[base + 3]);
+      this.currentReturn += reward;
+      this.steps++;
+      this.lastBackup = index;
+      this.trail.push([x, y]);
+      if (this.trail.length > 40) this.trail.shift();
+      if (terminal !== null) {
+        this.episodes++;
+        this.returns.push(this.currentReturn);
+        if (this.returns.length > 20) this.returns.shift();
+        this.resetAgent();
+      } else {
+        this.agent = [nx, ny];
+      }
+    }
+
+    // --- animation ---------------------------------------------------------
+
+    tick(time: number) {
+      const elapsed = Math.min(time - (this.lastFrame || time), 60);
+      this.lastFrame = time;
+      if (!document.hidden) {
+        let worked = false;
+        if (this.mode === "ql") {
+          for (let i = 0; i < 8; i++) this.qlStep();
+          worked = true;
+        } else if (!this.converged) {
+          for (let i = 0; i < 4; i++) {
+            this.sweepResidual = Math.max(this.sweepResidual, this.backup(this.cursor));
+            this.cursor = (this.cursor + 1) % N;
+            if (this.cursor === 0) this.finishSweep();
+          }
+          worked = true;
+          if (!this.converged) {
+            this.setRunState(
+              this.mode === "pi"
+                ? `Policy iteration · ${this.piPhase === "eval" ? "evaluating π" : "improving π"}`
+                : "Value iteration · backing up states",
+              "good",
+            );
+          }
+        }
+        if (this.rolloutOn) {
+          this.rollout.t += elapsed / 220;
+          if (this.rollout.t >= 1) this.rolloutStep();
+          worked = true;
+        }
+        if (worked) {
+          this.render();
+          this.updateStats();
+          if (this.hover < 0) this.updateInspector();
+        }
+      }
+      this.frame = requestAnimationFrame((next) => this.tick(next));
+    }
+
+    rolloutStep() {
+      const { tx, ty } = this.rollout;
+      if (this.terminalValue(tx, ty) !== null || this.cellType(tx, ty) === CELL.WALL) {
+        const [sx, sy] = this.startCell();
+        this.rollout = { x: tx, y: ty, tx: sx, ty: sy, t: 0 };
+        return;
+      }
+      const action = this.bestAction(tx, ty);
+      if (action < 0) {
+        this.rollout.t = 0;
+        return;
+      }
+      const roll = Math.random();
+      let dir = action;
+      if (roll > 1 - this.noise) dir = roll > 1 - this.noise / 2 ? (action + 1) % 4 : (action + 3) % 4;
+      const [nx, ny] = this.moveResult(tx, ty, dir);
+      this.rollout = { x: tx, y: ty, tx: nx, ty: ny, t: 0 };
+    }
+
+    startCell(): [number, number] {
+      let [sx, sy] = this.start;
+      if (this.cells[sy * W + sx] !== CELL.EMPTY) {
+        for (let i = 0; i < N; i++) {
+          if (this.cells[i] === CELL.EMPTY) { sx = i % W; sy = Math.floor(i / W); break; }
+        }
+      }
+      return [sx, sy];
+    }
+
+    // --- painting ----------------------------------------------------------
+
+    metrics() {
+      const rect = this.canvas.getBoundingClientRect();
+      const size = Math.min((rect.width - 16) / W, (rect.height - 16) / H);
+      return {
+        rect,
+        size,
+        ox: (rect.width - size * W) / 2,
+        oy: (rect.height - size * H) / 2,
+      };
+    }
+
+    cellAt(event: PointerEvent) {
+      const { rect, size, ox, oy } = this.metrics();
+      const x = Math.floor((event.clientX - rect.left - ox) / size);
+      const yTop = Math.floor((event.clientY - rect.top - oy) / size);
+      const y = H - 1 - yTop;
+      if (x < 0 || x >= W || y < 0 || y >= H) return -1;
+      return y * W + x;
+    }
+
+    paint(event: PointerEvent) {
+      const index = this.cellAt(event);
+      if (index < 0) return;
+      const value =
+        this.brush === "wall" ? CELL.WALL :
+        this.brush === "goal" ? CELL.GOAL :
+        this.brush === "trap" ? CELL.TRAP : CELL.EMPTY;
+      if (this.cells[index] === value) return;
+      this.cells[index] = value;
+      this.V[index] = 0;
+      for (let a = 0; a < 4; a++) this.Q[index * 4 + a] = 0;
+      this.policy[index] = -1;
+      this.converged = false;
+      this.piPhase = "eval";
+      this.setRunState("Grid edited · re-solving", "good");
+      this.render();
+    }
+
+    // --- rendering ---------------------------------------------------------
+
+    css(name: string) {
+      return getComputedStyle(this).getPropertyValue(name).trim();
+    }
+
+    hexToRgb(hex: string): [number, number, number] {
+      let value = hex.replace("#", "").trim();
+      if (value.length === 3) value = value[0] + value[0] + value[1] + value[1] + value[2] + value[2];
+      const n = parseInt(value, 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+
+    layout() {
+      const rect = this.canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      this.canvas.width = Math.round(rect.width * dpr);
+      this.canvas.height = Math.round(rect.height * dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.render();
+    }
+
+    cellRect(x: number, y: number) {
+      const { size, ox, oy } = this.metrics();
+      return { px: ox + x * size, py: oy + (H - 1 - y) * size, size };
+    }
+
+    render() {
+      const ctx = this.ctx;
+      const rect = this.canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      const pos = this.hexToRgb(this.css("--mdp-pos"));
+      const neg = this.hexToRgb(this.css("--mdp-neg"));
+      let vmax = 0.4;
+      for (let i = 0; i < N; i++) vmax = Math.max(vmax, Math.abs(this.V[i]));
+
+      const { size } = this.metrics();
+      const fontSmall = Math.max(8, size * 0.16);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const index = y * W + x;
+          const { px, py } = this.cellRect(x, y);
+          const type = this.cells[index];
+          if (type === CELL.WALL) {
+            ctx.fillStyle = this.css("--mdp-wall");
+            ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+            continue;
+          }
+          const value = this.V[index];
+          const rgb = value >= 0 ? pos : neg;
+          const strength = Math.min(1, Math.abs(value) / vmax);
+          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${(strength * 0.42).toFixed(3)})`;
+          ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+          ctx.strokeStyle = this.css("--mdp-cell-border");
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px + 0.5, py + 0.5, size - 1, size - 1);
+
+          const terminal = this.terminalValue(x, y);
+          if (terminal !== null) {
+            ctx.strokeStyle = `rgb(${(terminal > 0 ? pos : neg).join(",")})`;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(px + 2.5, py + 2.5, size - 5, size - 5);
+            ctx.fillStyle = this.css("--mdp-ink");
+            ctx.font = `600 ${size * 0.3}px 'IBM Plex Mono', monospace`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(terminal > 0 ? "+1" : "−1", px + size / 2, py + size / 2);
+            continue;
+          }
+
+          // value text + policy arrow
+          ctx.fillStyle = this.css("--mdp-ink-faint");
+          ctx.font = `${fontSmall}px 'IBM Plex Mono', monospace`;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "alphabetic";
+          ctx.fillText(value.toFixed(2), px + 4, py + size - 5);
+          const action = this.mode === "ql" ? this.bestAction(x, y) : this.policy[index];
+          if (action >= 0) {
+            this.drawArrow(ctx, px + size / 2, py + size * 0.42, size * 0.16, action);
+          }
+        }
+      }
+
+      // highlight the state being backed up right now
+      if (this.lastBackup >= 0 && (this.mode === "ql" || !this.converged)) {
+        const bx = this.lastBackup % W, by = Math.floor(this.lastBackup / W);
+        const { px, py } = this.cellRect(bx, by);
+        ctx.strokeStyle = this.css("--mdp-active");
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px + 1.5, py + 1.5, size - 3, size - 3);
+      }
+
+      // hover: probability flow of every action
+      if (this.hover >= 0 && this.cells[this.hover] === CELL.EMPTY) {
+        this.drawFlows(ctx, this.hover % W, Math.floor(this.hover / W));
+      }
+
+      // start marker
+      const [sx, sy] = this.startCell();
+      const startRect = this.cellRect(sx, sy);
+      ctx.fillStyle = this.css("--mdp-ink-faint");
+      ctx.font = `${fontSmall}px 'IBM Plex Mono', monospace`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText("S", startRect.px + 4, startRect.py + 4);
+      ctx.textBaseline = "alphabetic";
+
+      // q-learning agent + trail
+      if (this.mode === "ql") {
+        ctx.strokeStyle = this.css("--mdp-active");
+        ctx.globalAlpha = 0.35;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        this.trail.forEach(([tx, ty], i) => {
+          const r = this.cellRect(tx, ty);
+          const cx = r.px + size / 2, cy = r.py + size / 2;
+          if (i === 0) ctx.moveTo(cx, cy);
+          else ctx.lineTo(cx, cy);
+        });
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        const a = this.cellRect(this.agent[0], this.agent[1]);
+        ctx.fillStyle = this.css("--mdp-active");
+        ctx.beginPath();
+        ctx.arc(a.px + size / 2, a.py + size / 2, size * 0.14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // rollout particle gliding along the greedy policy
+      if (this.rolloutOn) {
+        const from = this.cellRect(this.rollout.x, this.rollout.y);
+        const to = this.cellRect(this.rollout.tx, this.rollout.ty);
+        const t = Math.min(1, this.rollout.t);
+        const cx = from.px + (to.px - from.px) * t + size / 2;
+        const cy = from.py + (to.py - from.py) * t + size / 2;
+        ctx.strokeStyle = this.css("--mdp-active");
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.12, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    drawArrow(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, dir: number) {
+      const [dx, dy] = DIRS[dir];
+      // canvas y is flipped relative to grid y
+      const ax = dx, ay = -dy;
+      ctx.strokeStyle = this.css("--mdp-arrow");
+      ctx.fillStyle = this.css("--mdp-arrow");
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(cx - ax * r, cy - ay * r);
+      ctx.lineTo(cx + ax * r * 0.4, cy + ay * r * 0.4);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx + ax * r, cy + ay * r);
+      ctx.lineTo(cx + ax * r * 0.1 - ay * r * 0.5, cy + ay * r * 0.1 + ax * r * 0.5);
+      ctx.lineTo(cx + ax * r * 0.1 + ay * r * 0.5, cy + ay * r * 0.1 - ax * r * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    drawFlows(ctx: CanvasRenderingContext2D, x: number, y: number) {
+      const best = this.bestAction(x, y);
+      const { size } = this.metrics();
+      const from = this.cellRect(x, y);
+      const fx = from.px + size / 2, fy = from.py + size / 2;
+      for (let a = 0; a < 4; a++) {
+        for (const [dir, p] of this.branches(a)) {
+          if (a !== best && dir !== a) continue; // non-best: intended branch only
+          if (p <= 0) continue;
+          const [nx, ny] = this.moveResult(x, y, dir);
+          if (nx === x && ny === y) continue;
+          const to = this.cellRect(nx, ny);
+          const tx = to.px + size / 2, ty = to.py + size / 2;
+          ctx.strokeStyle = a === best ? this.css("--mdp-active") : this.css("--mdp-ink-faint");
+          ctx.globalAlpha = a === best ? 0.35 + p * 0.6 : 0.3;
+          ctx.lineWidth = 1 + p * 5;
+          ctx.beginPath();
+          ctx.moveTo(fx, fy);
+          ctx.lineTo(fx + (tx - fx) * 0.86, fy + (ty - fy) * 0.86);
+          ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = this.css("--mdp-active");
+      ctx.lineWidth = 2;
+      ctx.strokeRect(from.px + 1.5, from.py + 1.5, size - 3, size - 3);
+    }
+
+    // --- readout -----------------------------------------------------------
+
+    updateStatLabels() {
+      if (this.mode === "ql") {
+        this.text("[data-stat-1-label]", "Episodes");
+        this.text("[data-stat-1-note]", "Runs from S to a terminal cell");
+        this.text("[data-stat-2-label]", "Avg return · last 20");
+        this.text("[data-stat-2-note]", "Reward collected per episode");
+        this.text("[data-stat-3-label]", "Steps sampled");
+        this.text("[data-stat-3-note]", "One TD update per step");
+      } else {
+        this.text("[data-stat-1-label]", "Sweeps");
+        this.text("[data-stat-1-note]", "Full passes over all states");
+        this.text("[data-stat-2-label]", "Bellman residual");
+        this.text("[data-stat-2-note]", "Zero means the equation holds");
+        this.text("[data-stat-3-label]", "Policy changes");
+        this.text("[data-stat-3-note]", "Arrows that flipped last sweep");
+      }
+    }
+
+    updateStats() {
+      if (this.mode === "ql") {
+        this.text("[data-stat-1]", String(this.episodes));
+        const avg = this.returns.length
+          ? this.returns.reduce((a, b) => a + b, 0) / this.returns.length
+          : null;
+        this.text("[data-stat-2]", avg === null ? "—" : avg.toFixed(2));
+        this.text("[data-stat-3]", this.steps.toLocaleString());
+        this.setRunState(`Q-learning · ε-greedy sampling`, "good");
+      } else {
+        this.text("[data-stat-1]", String(this.sweeps));
+        this.text("[data-stat-2]", this.sweeps ? this.residual.toExponential(1) : "—");
+        this.text("[data-stat-3]", this.sweeps ? String(this.policyChanges) : "—");
+      }
+    }
+
+    updateInspector() {
+      const target = this.hover >= 0 ? this.hover : this.lastBackup;
+      const list = this.querySelector("[data-actions]");
+      if (!list || target < 0) return;
+      const x = target % W, y = Math.floor(target / W);
+      if (this.cells[target] !== CELL.EMPTY) {
+        this.text("[data-inspector-cell]", this.cells[target] === CELL.WALL ? "a wall — no state here" : "terminal — no action to choose");
+        list.replaceChildren();
+        return;
+      }
+      this.text(
+        "[data-inspector-cell]",
+        `${this.hover >= 0 ? "cell" : "just updated"} (${x}, ${y})`,
+      );
+      const values = [0, 1, 2, 3].map((a) =>
+        this.mode === "ql" ? this.Q[target * 4 + a] : this.qModel(x, y, a),
+      );
+      const best = values.indexOf(Math.max(...values));
+      const span = Math.max(...values.map(Math.abs), 0.1);
+      list.replaceChildren();
+      values.forEach((value, a) => {
+        const row = document.createElement("div");
+        row.className = "action-row" + (a === best ? " best" : "");
+        const glyph = document.createElement("span");
+        glyph.textContent = GLYPHS[a];
+        const track = document.createElement("i");
+        const bar = document.createElement("b");
+        bar.style.width = `${Math.min(100, (Math.abs(value) / span) * 100)}%`;
+        bar.classList.toggle("neg", value < 0);
+        track.append(bar);
+        const number = document.createElement("strong");
+        number.textContent = value.toFixed(3);
+        row.append(glyph, track, number);
+        list.append(row);
+      });
+      this.text(
+        "[data-inspector-note]",
+        this.mode === "ql"
+          ? "Learned action values — sampled estimates, still wobbling. The agent keeps whichever is largest, except when ε says explore."
+          : "Each row is one action: immediate reward plus γ times the probability-weighted value of where the slip model may land you. The policy keeps the largest.",
+      );
+    }
+
+    setRunState(message: string, kind: "idle" | "good" | "bad") {
+      this.text("[data-run-state]", message);
+      this.classList.toggle("is-live", kind === "good");
+      this.classList.toggle("is-bad", kind === "bad");
+    }
+
+    text(selector: string, value: string) {
+      const element = this.querySelector(selector);
+      if (element) element.textContent = value;
+    }
+  }
+
+  if (!customElements.get("mdp-laboratory")) {
+    customElements.define("mdp-laboratory", MdpLaboratory);
+  }
+</script>
+
+<style>
+  mdp-laboratory {
+    --mdp-pos: #4b3fd6;
+    --mdp-neg: #c8401a;
+    --mdp-wall: rgba(19, 24, 36, 0.55);
+    --mdp-cell-border: rgba(19, 24, 36, 0.16);
+    --mdp-ink: #131824;
+    --mdp-ink-faint: rgba(19, 24, 36, 0.45);
+    --mdp-arrow: rgba(19, 24, 36, 0.75);
+    --mdp-active: #c8401a;
+    display: block;
+  }
+
+  :global(html[data-theme="dark"]) mdp-laboratory {
+    --mdp-pos: #6fd6ff;
+    --mdp-neg: #ff5572;
+    --mdp-wall: rgba(182, 207, 255, 0.28);
+    --mdp-cell-border: rgba(152, 184, 255, 0.16);
+    --mdp-ink: #eef1ff;
+    --mdp-ink-faint: rgba(212, 228, 255, 0.5);
+    --mdp-arrow: rgba(238, 241, 255, 0.8);
+    --mdp-active: #6fd6ff;
+  }
+
+  .lab {
+    overflow: hidden;
+    background: color-mix(in srgb, var(--glass) 78%, transparent);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
+  }
+
+  .instrument-bar {
+    min-height: 3.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.9rem 0.65rem 1.1rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--glass);
+  }
+
+  .run-state,
+  .controls,
+  .segments {
+    display: flex;
+    align-items: center;
+  }
+
+  .run-state {
+    gap: 0.55rem;
+    color: var(--ink-soft);
+    font-size: 0.6875rem;
+  }
+
+  .signal {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--ink-faint);
+  }
+
+  .is-live .signal {
+    background: #34b886;
+    box-shadow: 0 0 10px rgba(52, 184, 134, 0.7);
+  }
+
+  .controls { gap: 0.5rem; flex-wrap: wrap; }
+
+  button {
+    font: inherit;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  .segments {
+    padding: 3px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+
+  .segments button,
+  .control-button {
+    border: 0;
+    background: transparent;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .segments button {
+    padding: 0.32rem 0.58rem;
+    border-radius: 5px;
+  }
+
+  .segments button.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .control-button {
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+  }
+
+  .control-button:hover,
+  .control-button.active {
+    color: var(--interact);
+    border-color: var(--interact);
+  }
+
+  .dashboard {
+    display: grid;
+    grid-template-columns: minmax(26rem, 1.15fr) minmax(24rem, 0.85fr);
+    min-height: 36rem;
+  }
+
+  .grid-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 36rem;
+    overflow: hidden;
+    border-right: 1px solid var(--glass-border);
+    background:
+      linear-gradient(to right, var(--reseau) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--reseau) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .plot-title {
+    padding: 0.9rem 1rem 0.4rem;
+    color: var(--ink-faint);
+  }
+
+  .plot-title em {
+    color: var(--interact);
+    font-style: normal;
+  }
+
+  [data-grid] {
+    display: block;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .readout { padding: 1.5rem; }
+
+  .readout-head h2 {
+    margin-top: 0.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .readout-head sub { font-size: 0.55em; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+  }
+
+  .stats article {
+    min-width: 0;
+    padding: 0.9rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 9px;
+  }
+
+  .stat-value,
+  .stat-label,
+  .stats small { display: block; }
+  .stat-value { font-size: clamp(1.1rem, 2.6vw, 1.5rem); line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .stat-label { margin-top: 0.35rem; color: var(--ink-soft); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .stats small { margin-top: 0.45rem; color: var(--ink-faint); font-size: 0.58rem; line-height: 1.35; }
+
+  .inspector {
+    margin-top: 1.4rem;
+    padding: 0.9rem 1rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 9px;
+  }
+
+  .action-rows {
+    display: grid;
+    gap: 0.3rem;
+    margin-top: 0.7rem;
+    min-height: 5.2rem;
+  }
+
+  :global(.action-row) {
+    display: grid;
+    grid-template-columns: 1.2rem 1fr 3.6rem;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+  }
+
+  :global(.action-row.best) { color: var(--interact); }
+
+  :global(.action-row i) {
+    height: 7px;
+    overflow: hidden;
+    background: var(--accent-soft);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  :global(.action-row b) {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-2), var(--interact));
+    transition: width 300ms var(--ease-out);
+  }
+
+  :global(.action-row b.neg) {
+    background: linear-gradient(90deg, #d94b50, #9a2f33);
+  }
+
+  :global(.action-row strong) {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .inspector-note {
+    margin-top: 0.7rem;
+    color: var(--ink-faint);
+    font-size: 0.6rem;
+    line-height: 1.5;
+  }
+
+  .knobs { margin-top: 1.4rem; display: grid; gap: 0.9rem; }
+
+  .scenario-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+
+  .scenario-row .label { color: var(--ink-soft); }
+
+  .knob label { display: block; color: var(--ink-soft); }
+
+  .knob label i {
+    color: var(--ink-faint);
+    font-size: 0.55rem;
+    font-style: normal;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .knob input[type="range"] {
+    width: 100%;
+    margin-top: 0.45rem;
+    height: 2px;
+    appearance: none;
+    background: var(--rule);
+    accent-color: var(--interact);
+  }
+
+  .knob input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--interact);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--interact) 60%, transparent);
+    cursor: pointer;
+  }
+
+  .knob-ql { opacity: 0.45; transition: opacity 200ms ease; }
+  .mode-ql .knob-ql { opacity: 1; }
+
+  .method {
+    margin-top: 1.65rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .method p {
+    margin-top: 0.6rem;
+    max-width: 32rem;
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 72rem) {
+    .dashboard { grid-template-columns: 1fr; }
+    .grid-panel { min-height: 26rem; border-right: 0; border-bottom: 1px solid var(--glass-border); }
+  }
+
+  @media (max-width: 42rem) {
+    .instrument-bar { align-items: flex-start; flex-direction: column; }
+    .controls { width: 100%; }
+    .run-state { min-height: 1.5rem; }
+    .grid-panel { min-height: 20rem; }
+    .readout { padding: 1rem; }
+    .stats { grid-template-columns: 1fr; }
+    .scenario-row { align-items: flex-start; flex-direction: column; }
+  }
+</style>

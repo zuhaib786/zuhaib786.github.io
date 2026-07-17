@@ -101,6 +101,8 @@
 </earthquake-observatory>
 
 <script>
+  import { LAND } from "../../data/land110m";
+
   type Quake = {
     lon: number;
     lat: number;
@@ -136,30 +138,6 @@
     [100, -5, "Sunda Strait"], [-178, 51, "western Aleutians"],
   ] as const;
 
-  const COASTS: [number, number][][] = [
-    // North America
-    [[-168,72],[-145,70],[-128,55],[-124,48],[-117,33],[-105,24],[-96,19],[-87,21],[-82,25],[-80,31],[-75,39],[-66,45],[-60,53],[-68,59],[-82,63],[-96,71],[-120,74],[-145,73],[-168,72]],
-    // Greenland
-    [[-73,60],[-52,59],[-36,68],[-22,76],[-28,83],[-52,84],[-67,76],[-73,60]],
-    // South America
-    [[-81,12],[-72,11],[-60,7],[-50,1],[-35,-7],[-39,-20],[-48,-29],[-55,-39],[-66,-55],[-73,-50],[-75,-37],[-80,-19],[-81,12]],
-    // Africa
-    [[-17,37],[0,36],[12,37],[30,31],[36,22],[51,12],[43,-2],[40,-16],[32,-34],[18,-35],[8,-28],[-1,-18],[-15,-5],[-17,14],[-10,29],[-17,37]],
-    // Europe + Asia
-    [[-10,36],[-8,44],[2,52],[16,59],[30,60],[42,68],[70,73],[100,76],[132,70],[160,62],[180,65],[178,52],[150,45],[142,36],[130,32],[121,23],[108,18],[100,8],[82,8],[72,22],[56,26],[43,12],[36,22],[30,31],[16,39],[5,43],[-10,36]],
-    // India + SE Asia
-    [[60,25],[69,22],[78,8],[84,7],[89,21],[96,27],[106,20],[122,18],[119,8],[105,1],[99,7],[91,8],[82,8],[72,22],[60,25]],
-    // Japan
-    [[130,31],[134,34],[138,36],[142,43],[145,44],[143,36],[137,32],[130,31]],
-    // Australia
-    [[113,-22],[115,-34],[130,-39],[146,-39],[154,-28],[151,-15],[137,-11],[124,-14],[113,-22]],
-    // New Zealand
-    [[166,-47],[172,-42],[178,-37],[176,-35],[170,-41],[166,-47]],
-    // Madagascar
-    [[48,-13],[51,-18],[49,-26],[44,-24],[44,-17],[48,-13]],
-    // Antarctica
-    [[-180,-70],[-140,-75],[-100,-72],[-60,-78],[-20,-72],[20,-70],[60,-75],[100,-71],[140,-75],[180,-70]],
-  ];
 
   class EarthquakeObservatory extends HTMLElement {
     canvas!: HTMLCanvasElement;
@@ -469,8 +447,8 @@
       ctx.clip();
 
       this.drawGrid(ctx, cx, cy, radius, color("--eq-grid"));
-      for (const coast of COASTS) {
-        this.drawCoast(ctx, coast, cx, cy, radius, color("--eq-land"), color("--eq-coast"));
+      for (const ring of LAND) {
+        this.drawLand(ctx, ring, cx, cy, radius, color("--eq-land"), color("--eq-coast"));
       }
 
       this.points = [];
@@ -549,29 +527,83 @@
       ctx.stroke();
     }
 
-    drawCoast(ctx: CanvasRenderingContext2D, coast: [number, number][], cx: number, cy: number, radius: number, fill: string, stroke: string) {
-      let drawing = false;
-      let visiblePoints = 0;
+    // Unit-sphere coordinates in the view frame: x right, y up, z toward
+    // the viewer. z < 0 means the point is on the far side of the globe.
+    sphere(lon: number, lat: number) {
+      const rad = Math.PI / 180;
+      const lambda = (lon - this.centerLon) * rad;
+      const phi = lat * rad;
+      const phi0 = this.centerLat * rad;
+      const cosPhi = Math.cos(phi);
+      return {
+        x: cosPhi * Math.sin(lambda),
+        y: Math.cos(phi0) * Math.sin(phi) - Math.sin(phi0) * cosPhi * Math.cos(lambda),
+        z: Math.sin(phi0) * Math.sin(phi) + Math.cos(phi0) * cosPhi * Math.cos(lambda),
+      };
+    }
+
+    drawLand(ctx: CanvasRenderingContext2D, ring: [number, number][], cx: number, cy: number, radius: number, fill: string, stroke: string) {
+      // Fill pass: far-side points are clamped to the limb so polygons that
+      // cross the horizon still fill correctly; runs of clamped points follow
+      // the limb as a true arc instead of chording across the disc.
+      let started = false;
+      let anyVisible = false;
+      let prevClamped = false;
+      let prevAngle = 0;
       ctx.beginPath();
-      for (const [lon, lat] of coast) {
-        const point = this.project(lon, lat, cx, cy, radius);
-        if (!point.visible) {
+      for (const [lon, lat] of ring) {
+        const p = this.sphere(lon, lat);
+        const behind = p.z < 0;
+        let sx: number, sy: number;
+        let angle = 0;
+        if (behind) {
+          const m = Math.hypot(p.x, p.y) || 1;
+          sx = cx + radius * (p.x / m);
+          sy = cy - radius * (p.y / m);
+          angle = Math.atan2(-p.y / m, p.x / m);
+        } else {
+          anyVisible = true;
+          sx = cx + radius * p.x;
+          sy = cy - radius * p.y;
+        }
+        if (!started) {
+          ctx.moveTo(sx, sy);
+          started = true;
+        } else if (behind && prevClamped) {
+          let delta = angle - prevAngle;
+          if (delta > Math.PI) delta -= Math.PI * 2;
+          if (delta < -Math.PI) delta += Math.PI * 2;
+          ctx.arc(cx, cy, radius, prevAngle, angle, delta < 0);
+        } else {
+          ctx.lineTo(sx, sy);
+        }
+        prevClamped = behind;
+        prevAngle = angle;
+      }
+      if (!anyVisible) return;
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+
+      // Stroke pass: only truly visible segments, so the coastline never
+      // traces along the limb where the land is merely clipped.
+      ctx.beginPath();
+      let drawing = false;
+      for (const [lon, lat] of ring) {
+        const p = this.sphere(lon, lat);
+        if (p.z < 0) {
           drawing = false;
           continue;
         }
-        if (!drawing) ctx.moveTo(point.x, point.y);
-        else ctx.lineTo(point.x, point.y);
+        const sx = cx + radius * p.x;
+        const sy = cy - radius * p.y;
+        if (!drawing) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
         drawing = true;
-        visiblePoints++;
       }
-      if (visiblePoints > 2) {
-        ctx.closePath();
-        ctx.fillStyle = fill;
-        ctx.fill();
-        ctx.strokeStyle = stroke;
-        ctx.lineWidth = 0.9;
-        ctx.stroke();
-      }
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 0.9;
+      ctx.stroke();
     }
 
     project(lon: number, lat: number, cx: number, cy: number, radius: number) {

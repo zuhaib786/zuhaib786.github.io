@@ -1,0 +1,18 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import MdpLaboratory from "../../components/visuals/MdpLaboratory.astro";
+---
+
+<AlgorithmPage
+  title="Markov Decision Processes"
+  description="Edit a stochastic grid world and compare value iteration, policy iteration, and model-free Q-learning."
+  number="011"
+  eyebrow="Decision under uncertainty"
+  heading="Choose with an"
+  accent="uncertain future."
+  lede="Paint rewards and obstacles, change the transition noise, and watch probability, discounting, and repeated Bellman backups assemble a policy over the entire state space."
+  noteTitle="Model and experience"
+  note="Value and policy iteration can sum over every transition because they know the MDP. Q-learning sees only sampled experience. Their arrows can agree even though the information used to produce them is fundamentally different."
+>
+  <MdpLaboratory />
+</AlgorithmPage>

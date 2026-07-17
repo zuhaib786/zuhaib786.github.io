@@ -1,0 +1,97 @@
+:where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory),
+.math-instrument {
+  --math-a: #4b3fd6;
+  --math-b: #c8401a;
+  --math-good: #238766;
+  --math-bad: #c84052;
+}
+
+.math-instrument {
+  overflow: hidden;
+  background: color-mix(in srgb, var(--glass) 80%, transparent);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
+}
+
+html[data-theme="dark"] :where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory),
+html[data-theme="dark"] .math-instrument {
+  --math-a: #78d9ff;
+  --math-b: #ff8a62;
+  --math-good: #50c49b;
+  --math-bad: #ff657a;
+}
+
+.math-bar {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .65rem .9rem .65rem 1.05rem;
+  background: var(--glass);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.math-state,
+.math-tabs,
+.math-actions { display: flex; align-items: center; }
+.math-state { gap: .55rem; color: var(--ink-soft); font-size: .65rem; }
+.math-state i { width: 7px; height: 7px; flex: 0 0 auto; background: var(--math-a); border-radius: 50%; box-shadow: 0 0 10px color-mix(in srgb, var(--math-a) 65%, transparent); }
+.math-actions { justify-content: flex-end; gap: .45rem; flex-wrap: wrap; }
+.math-tabs { padding: 3px; border: 1px solid var(--rule); border-radius: 8px; }
+
+.math-instrument button,
+.math-instrument input,
+.math-instrument select { font-family: var(--font-mono); }
+
+.math-tabs button,
+.math-button {
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  font-size: .59rem;
+  letter-spacing: .045em;
+  cursor: pointer;
+}
+
+.math-tabs button { padding: .34rem .58rem; }
+.math-tabs button.active { color: var(--paper); background: var(--ink); }
+.math-button { min-height: 2rem; padding: .35rem .6rem; border: 1px solid var(--rule); }
+.math-button:hover { color: var(--interact); border-color: var(--interact); }
+
+.math-dashboard { display: grid; grid-template-columns: minmax(32rem, 1.35fr) minmax(19rem, .65fr); min-height: 38rem; }
+.math-stage { position: relative; min-width: 0; min-height: 38rem; overflow: hidden; border-right: 1px solid var(--glass-border); background: linear-gradient(to right,var(--reseau) 1px,transparent 1px),linear-gradient(to bottom,var(--reseau) 1px,transparent 1px),color-mix(in srgb,var(--paper-sunken) 44%,transparent); background-size:24px 24px; }
+.math-stage canvas { display: block; width: 100%; height: 100%; min-height: 38rem; touch-action: none; }
+.math-stage-label { position: absolute; top: .8rem; left: .9rem; z-index: 2; color: var(--ink-faint); pointer-events: none; }
+.math-stage-label em { color: var(--math-a); font-style: normal; }
+.physics-stage { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.physics-stage .math-stage-label { position: static; display: flex; min-height: 2.5rem; align-items: center; padding: .65rem .9rem; overflow: hidden; border-bottom: 1px solid var(--glass-border); background: color-mix(in srgb,var(--glass) 72%,transparent); text-overflow: ellipsis; white-space: nowrap; }
+.physics-stage canvas { height: 100%; min-height: 35.5rem; }
+.math-readout { padding: 1.4rem; background: color-mix(in srgb,var(--paper-sunken) 28%,transparent); }
+.math-readout h2 { margin: .45rem 0 .7rem; font-family: var(--font-display); font-size: clamp(1.7rem,3vw,2.35rem); font-weight: 400; line-height: 1; }
+.math-readout > p:not(.label) { min-height: 3.8rem; color: var(--ink-soft); font-size: .67rem; }
+.math-formula { margin: 1rem 0; padding: .9rem; overflow-x: auto; color: var(--ink); background: var(--glass); border: 1px solid var(--glass-border); border-radius: 8px; font-family: var(--font-display); font-size: 1.15rem; white-space: nowrap; }
+.math-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: .45rem; margin-top: 1rem; }
+.math-metrics div { min-width: 0; padding: .65rem; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 7px; }
+.math-metrics strong,.math-metrics small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.math-metrics strong { font-size: .9rem; font-weight: 500; }
+.math-metrics small { margin-top:.2rem; color:var(--ink-faint); font-size:.44rem; letter-spacing:.06em; text-transform:uppercase; }
+.math-controls { display:grid; gap:.85rem; margin-top:1.15rem; padding-top:1rem; border-top:1px solid var(--rule); }
+.math-control { display:grid; gap:.32rem; }
+.math-control label { display:flex; justify-content:space-between; gap:1rem; color:var(--ink-faint); font-size:.52rem; letter-spacing:.055em; text-transform:uppercase; }
+.math-control input[type="range"] { width:100%; height:3px; accent-color:var(--math-a); cursor:pointer; }
+.math-control input[type="number"],.math-control select { width:100%; min-height:2.2rem; padding:.4rem .55rem; color:var(--ink); background:var(--glass); border:1px solid var(--rule); border-radius:6px; font-size:.62rem; }
+.math-legend { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1rem; color:var(--ink-faint); font-size:.5rem; }
+.math-legend span { display:flex; align-items:center; gap:.35rem; }
+.math-legend i { width:8px; height:8px; border-radius:50%; background:var(--math-a); }.math-legend span:nth-child(2) i{background:var(--math-b)}.math-legend span:nth-child(3) i{background:var(--math-good)}
+.math-trace { margin-top:1.1rem; padding-top:1rem; border-top:1px solid var(--rule); }
+.math-trace ol { margin:.55rem 0 0; padding-left:1.1rem; color:var(--ink-soft); font-size:.54rem; line-height:1.55; }
+
+@media(max-width:58rem){
+  .math-dashboard{grid-template-columns:1fr}.math-stage{border-right:0;border-bottom:1px solid var(--glass-border)}.math-metrics{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:44rem){
+  .math-bar{align-items:flex-start;flex-direction:column}.math-actions{justify-content:flex-start;width:100%}.math-tabs{max-width:100%;overflow-x:auto}.math-stage,.math-stage canvas{min-height:30rem}.physics-stage canvas{min-height:27.5rem}.math-metrics{grid-template-columns:1fr}
+}

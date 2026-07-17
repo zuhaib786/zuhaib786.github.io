@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import MonteCarloLaboratory from "../../components/visuals/MonteCarloLaboratory.astro";
+---
+<ExperimentPage title="Monte Carlo Methods" description="Interactive Monte Carlo geometry, integration, importance sampling, random walks, and convergence." number="M06" eyebrow="Probability" heading="Randomness becomes an" accent="estimator." lede="Generate reproducible samples, watch the running mean wander, and compare its actual error with the uncertainty predicted from sample variance." noteTitle="The square-root law" note="Independent sampling is dimensionally robust but statistically slow: standard error decreases like N⁻¹ᐟ². Importance sampling changes where computation is spent, then uses likelihood weights to preserve the target expectation." backHref="/mathematics" backLabel="Mathematics">
+  <MonteCarloLaboratory />
+</ExperimentPage>
