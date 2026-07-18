@@ -1,0 +1,800 @@
+<zkp-laboratory data-mode="honest">
+  <section class="instrument zkp-lab" aria-label="Interactive zero-knowledge proof laboratory">
+    <div class="instrument-tabs" aria-label="Zero-knowledge experiments">
+      <button type="button" class="active" data-mode="honest">Honest proof</button>
+      <button type="button" data-mode="impostor">Impostor</button>
+      <button type="button" data-mode="simulator">Simulator</button>
+      <button type="button" data-mode="reuse">Reuse the nonce</button>
+    </div>
+
+    <div class="instrument-status">
+      <span><strong data-state>Witness ready</strong> · <span data-message>The secret stays with the prover</span></span>
+      <span class="hint">Toy Schnorr group · p = 23 · q = 11 · g = 2</span>
+    </div>
+
+    <div class="zkp-layout">
+      <div class="proof-stage">
+        <div class="stage-label label">Live protocol transcript</div>
+
+        <div class="participants">
+          <article class="party prover">
+            <div class="party-mark" aria-hidden="true">P</div>
+            <div>
+              <span class="label label--accent">Prover</span>
+              <strong data-secret>x = 7</strong>
+              <small data-secret-note>Private witness · never sent</small>
+            </div>
+          </article>
+
+          <div class="relation" aria-hidden="true">
+            <span></span><i>knowledge → confidence</i><span></span>
+          </div>
+
+          <article class="party verifier">
+            <div class="party-mark" aria-hidden="true">V</div>
+            <div>
+              <span class="label label--accent" data-verifier-role>Verifier</span>
+              <strong data-public-key>y = 13</strong>
+              <small data-verifier-note>Public statement · y = gˣ</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="protocol-scene">
+          <div class="message-line" data-line="commit">
+            <span class="message-index">01</span>
+            <span class="message-name">Commitment</span>
+            <div class="message-wire"><i></i><b>→</b></div>
+            <code data-commitment>t = —</code>
+          </div>
+          <div class="message-line reverse" data-line="challenge">
+            <span class="message-index">02</span>
+            <span class="message-name">Challenge</span>
+            <div class="message-wire"><i></i><b>←</b></div>
+            <code data-challenge>c = —</code>
+          </div>
+          <div class="message-line" data-line="response">
+            <span class="message-index">03</span>
+            <span class="message-name">Response</span>
+            <div class="message-wire"><i></i><b>→</b></div>
+            <code data-response>s = —</code>
+          </div>
+
+          <div class="verification" data-verification>
+            <span class="label">Verifier equation</span>
+            <div class="equation">
+              <code data-lhs>gˢ mod p</code>
+              <b data-relation>=?</b>
+              <code data-rhs>t · yᶜ mod p</code>
+            </div>
+            <p data-verdict>Waiting for a response</p>
+          </div>
+        </div>
+
+        <div class="simulator-scene" aria-label="Real and simulated transcript comparison">
+          <div class="sim-intro">
+            <span class="label label--accent">The simulator knows y, but never x</span>
+            <p>One transcript came from the prover. The other was assembled backwards from a response and challenge. Can the verifier tell which is which?</p>
+          </div>
+          <div class="transcript-pair">
+            <button type="button" class="transcript-card" data-guess="0" disabled>
+              <span class="label">Transcript A</span>
+              <code data-pair-values>t = — · c = — · s = —</code>
+              <small data-pair-origin>Origin sealed</small>
+            </button>
+            <button type="button" class="transcript-card" data-guess="1" disabled>
+              <span class="label">Transcript B</span>
+              <code data-pair-values>t = — · c = — · s = —</code>
+              <small data-pair-origin>Origin sealed</small>
+            </button>
+          </div>
+          <div class="sim-check">
+            <span>Both transcripts satisfy</span>
+            <code>gˢ = t · yᶜ mod p</code>
+          </div>
+        </div>
+      </div>
+
+      <aside class="proof-readout">
+        <div class="concept">
+          <p class="label label--accent" data-concept-label>Property 01 · Completeness</p>
+          <h2 data-concept-title>Knowledge convinces.</h2>
+          <p data-concept-copy>An honest prover can answer every fresh challenge because the response combines the private witness with new randomness.</p>
+        </div>
+
+        <div class="property-rail" aria-label="Proof properties">
+          <div class="active" data-property="honest"><i></i><span>Complete</span><small>Honest proofs pass</small></div>
+          <div data-property="impostor"><i></i><span>Sound</span><small>False claims fail</small></div>
+          <div data-property="simulator"><i></i><span>Zero knowledge</span><small>Transcripts reveal no witness</small></div>
+        </div>
+
+        <div class="instrument-metrics">
+          <div><span data-round-count>3</span><small>Independent rounds</small></div>
+          <div><span data-cheat-odds>1 / 1,331</span><small>Cheat probability</small></div>
+          <div><span data-exposure>None</span><small>Witness exposure</small></div>
+        </div>
+
+        <section class="round-log">
+          <div><span class="label">Round record</span><small data-round-note>No completed batch</small></div>
+          <div class="round-dots" data-rounds><i></i><i></i><i></i></div>
+        </section>
+
+        <section class="ledger">
+          <p class="label">Public ledger</p>
+          <dl>
+            <div><dt>Group</dt><dd>p = 23 · q = 11 · g = 2</dd></div>
+            <div><dt>Statement</dt><dd data-ledger-public>y = 13</dd></div>
+            <div><dt>Transcript</dt><dd data-ledger-transcript>t = — · c = — · s = —</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </div>
+
+    <div class="instrument-toolbar">
+      <button type="button" class="instrument-action primary" data-next>Send commitment →</button>
+      <button type="button" class="instrument-action" data-run>Run 3 rounds</button>
+      <button type="button" class="instrument-action" data-reset>New witness</button>
+      <label class="instrument-range">
+        <span>Independent rounds <b data-rounds-label>3</b></span>
+        <input data-round-input type="range" min="1" max="8" value="3" />
+      </label>
+    </div>
+  </section>
+</zkp-laboratory>
+
+<script>
+  type Mode = "honest" | "impostor" | "simulator" | "reuse";
+  type Transcript = {
+    t: number;
+    c: number;
+    s: number;
+    origin?: "real prover" | "simulated";
+  };
+
+  const INFO: Record<Mode, { label: string; title: string; copy: string }> = {
+    honest: {
+      label: "Property 01 · Completeness",
+      title: "Knowledge convinces.",
+      copy: "An honest prover can answer every fresh challenge because the response combines the private witness with new randomness.",
+    },
+    impostor: {
+      label: "Property 02 · Soundness",
+      title: "A bluff predicts once.",
+      copy: "Without the witness, an impostor can prepare for one challenge. A verifier choosing uniformly from eleven possibilities catches the bluff with probability 10/11.",
+    },
+    simulator: {
+      label: "Property 03 · Zero knowledge",
+      title: "A transcript proves nothing more.",
+      copy: "An honest verifier's transcript can be generated from public information alone. Seeing one therefore cannot be evidence that reveals the witness itself.",
+    },
+    reuse: {
+      label: "Failure mode · Reused randomness",
+      title: "The nonce is part of the secret.",
+      copy: "Two responses sharing one commitment cancel the nonce. Their difference becomes a direct equation for the private witness.",
+    },
+  };
+
+  class ZeroKnowledgeLaboratory extends HTMLElement {
+    readonly p = 23;
+    readonly q = 11;
+    readonly g = 2;
+    mode: Mode = "honest";
+    secret = 7;
+    publicKey = 13;
+    nonce = 0;
+    commitment = 0;
+    challenge: number | null = null;
+    response: number | null = null;
+    guessedChallenge = 0;
+    plannedResponse = 0;
+    secondChallenge = 0;
+    secondResponse = 0;
+    accepted: boolean | null = null;
+    step = 0;
+    rounds = 3;
+    outcomes: boolean[] = [];
+    pair: Transcript[] = [];
+    simulatorGuess: number | null = null;
+    aborter = new AbortController();
+
+    connectedCallback() {
+      this.bind();
+      this.newWitness();
+    }
+
+    disconnectedCallback() {
+      this.aborter.abort();
+    }
+
+    bind() {
+      const signal = this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.mode = button.dataset.mode as Mode;
+          this.dataset.mode = this.mode;
+          this.querySelectorAll("[data-mode]").forEach((item) =>
+            item.classList.toggle("active", item === button),
+          );
+          this.prepareScenario();
+          this.render();
+          this.syncStatus();
+        }, { signal });
+      });
+
+      this.querySelector("[data-next]")?.addEventListener("click", () => this.next(), { signal });
+      this.querySelector("[data-run]")?.addEventListener("click", () => this.run(), { signal });
+      this.querySelector("[data-reset]")?.addEventListener("click", () => this.newWitness(), { signal });
+      this.querySelector<HTMLInputElement>("[data-round-input]")?.addEventListener("input", (event) => {
+        this.rounds = Number((event.currentTarget as HTMLInputElement).value);
+        this.outcomes = [];
+        this.render();
+      }, { signal });
+      this.querySelectorAll<HTMLButtonElement>("[data-guess]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (this.mode !== "simulator" || this.step !== 1) return;
+          this.simulatorGuess = Number(button.dataset.guess);
+          this.step = 2;
+          this.render();
+          const correct = this.pair[this.simulatorGuess]?.origin === "real prover";
+          this.status(
+            correct ? "A lucky guess" : "Indistinguishable",
+            correct
+              ? "Correct—but both transcripts have exactly the same distribution"
+              : "The simulated transcript verifies exactly like the real one",
+          );
+        }, { signal });
+      });
+    }
+
+    newWitness() {
+      this.secret = this.random(this.q - 1) + 1;
+      this.publicKey = this.pow(this.g, this.secret, this.p);
+      this.prepareScenario();
+      this.render();
+      this.syncStatus();
+    }
+
+    prepareScenario() {
+      this.step = 0;
+      this.accepted = null;
+      this.challenge = null;
+      this.response = null;
+      this.outcomes = [];
+      this.simulatorGuess = null;
+
+      if (this.mode === "honest") {
+        this.nonce = this.random(this.q);
+        this.commitment = this.pow(this.g, this.nonce, this.p);
+      } else if (this.mode === "impostor") {
+        this.guessedChallenge = this.random(this.q);
+        this.plannedResponse = this.random(this.q);
+        const numerator = this.pow(this.g, this.plannedResponse, this.p);
+        const denominator = this.pow(this.publicKey, this.guessedChallenge, this.p);
+        this.commitment = this.mod(numerator * this.inverse(denominator, this.p), this.p);
+      } else if (this.mode === "simulator") {
+        this.preparePair();
+      } else {
+        this.nonce = this.random(this.q);
+        this.commitment = this.pow(this.g, this.nonce, this.p);
+        this.challenge = this.random(this.q);
+        do this.secondChallenge = this.random(this.q);
+        while (this.secondChallenge === this.challenge);
+        this.response = this.mod(this.nonce + this.challenge * this.secret, this.q);
+        this.secondResponse = this.mod(this.nonce + this.secondChallenge * this.secret, this.q);
+      }
+    }
+
+    preparePair() {
+      const r = this.random(this.q);
+      const realC = this.random(this.q);
+      const real: Transcript = {
+        t: this.pow(this.g, r, this.p),
+        c: realC,
+        s: this.mod(r + realC * this.secret, this.q),
+        origin: "real prover",
+      };
+      const simC = this.random(this.q);
+      const simS = this.random(this.q);
+      const sim: Transcript = {
+        t: this.mod(
+          this.pow(this.g, simS, this.p) *
+            this.inverse(this.pow(this.publicKey, simC, this.p), this.p),
+          this.p,
+        ),
+        c: simC,
+        s: simS,
+        origin: "simulated",
+      };
+      this.pair = this.random(2) ? [real, sim] : [sim, real];
+    }
+
+    next() {
+      if (this.mode === "simulator") {
+        if (this.step === 0) this.step = 1;
+        else if (this.step === 1) this.step = 2;
+        else {
+          this.preparePair();
+          this.simulatorGuess = null;
+          this.step = 1;
+        }
+        this.render();
+        this.syncStatus();
+        return;
+      }
+
+      if (this.mode === "reuse") {
+        if (this.step >= 3) {
+          this.prepareScenario();
+        } else {
+          this.step++;
+        }
+        this.render();
+        this.syncStatus();
+        return;
+      }
+
+      if (this.step >= 3) this.prepareScenario();
+      this.step++;
+      if (this.step === 2) this.challenge = this.random(this.q);
+      if (this.step === 3) {
+        this.response = this.mode === "honest"
+          ? this.mod(this.nonce + (this.challenge ?? 0) * this.secret, this.q)
+          : this.plannedResponse;
+        this.accepted = this.verify({
+          t: this.commitment,
+          c: this.challenge ?? 0,
+          s: this.response,
+        });
+        this.outcomes = [this.accepted];
+      }
+      this.render();
+      this.syncStatus();
+    }
+
+    run() {
+      if (this.mode === "simulator") {
+        this.step = 2;
+        this.render();
+        this.status("Origins revealed", "Both transcripts verify; only one ever used the witness");
+        return;
+      }
+      if (this.mode === "reuse") {
+        this.step = 3;
+        this.render();
+        this.syncStatus();
+        return;
+      }
+
+      const results: boolean[] = [];
+      for (let i = 0; i < this.rounds; i++) {
+        if (this.mode === "honest") {
+          this.nonce = this.random(this.q);
+          this.commitment = this.pow(this.g, this.nonce, this.p);
+          this.challenge = this.random(this.q);
+          this.response = this.mod(this.nonce + this.challenge * this.secret, this.q);
+        } else {
+          this.guessedChallenge = this.random(this.q);
+          this.plannedResponse = this.random(this.q);
+          const numerator = this.pow(this.g, this.plannedResponse, this.p);
+          const denominator = this.pow(this.publicKey, this.guessedChallenge, this.p);
+          this.commitment = this.mod(numerator * this.inverse(denominator, this.p), this.p);
+          this.challenge = this.random(this.q);
+          this.response = this.plannedResponse;
+        }
+        this.accepted = this.verify({
+          t: this.commitment,
+          c: this.challenge,
+          s: this.response,
+        });
+        results.push(this.accepted);
+      }
+      this.outcomes = results;
+      this.step = 3;
+      this.render();
+      const allPass = results.every(Boolean);
+      this.status(
+        allPass ? "All rounds accepted" : "Batch rejected",
+        this.mode === "honest"
+          ? `${this.rounds} fresh nonces produced ${this.rounds} valid responses`
+          : allPass
+            ? `The impostor guessed every challenge—a 1 in ${this.format(Math.pow(this.q, this.rounds))} event`
+            : "At least one fresh challenge did not match the impostor's prepared bluff",
+      );
+    }
+
+    verify(transcript: Transcript) {
+      const lhs = this.pow(this.g, transcript.s, this.p);
+      const rhs = this.mod(
+        transcript.t * this.pow(this.publicKey, transcript.c, this.p),
+        this.p,
+      );
+      return lhs === rhs;
+    }
+
+    render() {
+      const info = INFO[this.mode];
+      this.text("[data-concept-label]", info.label);
+      this.text("[data-concept-title]", info.title);
+      this.text("[data-concept-copy]", info.copy);
+      this.text("[data-public-key]", `y = ${this.publicKey}`);
+      this.text("[data-ledger-public]", `y = ${this.publicKey} = 2${this.sup(this.secret)} mod 23`);
+
+      const secretText = this.mode === "impostor"
+        ? "x = unknown"
+        : this.mode === "simulator"
+          ? "x = not used"
+          : `x = ${this.secret}`;
+      this.text("[data-secret]", secretText);
+      this.text(
+        "[data-secret-note]",
+        this.mode === "simulator" ? "Simulator has public information only" : "Private witness · never sent",
+      );
+      this.text("[data-verifier-role]", this.mode === "reuse" && this.step >= 3 ? "Observer" : "Verifier");
+      this.text(
+        "[data-verifier-note]",
+        this.mode === "reuse" && this.step >= 3
+          ? `Recovered witness · x = ${this.recoveredSecret()}`
+          : "Public statement · y = gˣ",
+      );
+
+      this.querySelectorAll("[data-property]").forEach((item) => {
+        const property = (item as HTMLElement).dataset.property;
+        item.classList.toggle(
+          "active",
+          property === this.mode || (this.mode === "reuse" && property === "simulator"),
+        );
+        item.classList.toggle("broken", this.mode === "reuse" && property === "simulator");
+      });
+
+      this.renderProtocol();
+      this.renderPair();
+      this.renderMetrics();
+      this.renderRounds();
+      this.renderControls();
+    }
+
+    renderProtocol() {
+      const commitLine = this.querySelector<HTMLElement>("[data-line=commit]");
+      const challengeLine = this.querySelector<HTMLElement>("[data-line=challenge]");
+      const responseLine = this.querySelector<HTMLElement>("[data-line=response]");
+
+      if (this.mode === "reuse") {
+        const first = this.step >= 1;
+        const second = this.step >= 2;
+        this.setLine(commitLine, first, this.step === 2);
+        this.setLine(challengeLine, first, this.step === 2);
+        this.setLine(responseLine, first, this.step === 2);
+        this.text("[data-commitment]", first ? `t${second ? "₁ = t₂" : ""} = ${this.commitment}` : "t = —");
+        this.text(
+          "[data-challenge]",
+          !first ? "c = —" : second ? `c₁ = ${this.challenge} · c₂ = ${this.secondChallenge}` : `c₁ = ${this.challenge}`,
+        );
+        this.text(
+          "[data-response]",
+          !first ? "s = —" : second ? `s₁ = ${this.response} · s₂ = ${this.secondResponse}` : `s₁ = ${this.response}`,
+        );
+      } else {
+        this.setLine(commitLine, this.step >= 1, this.step === 1);
+        this.setLine(challengeLine, this.step >= 2, this.step === 2);
+        this.setLine(responseLine, this.step >= 3, this.step === 3);
+        this.text("[data-commitment]", this.step >= 1 ? `t = ${this.commitment}` : "t = —");
+        this.text("[data-challenge]", this.step >= 2 ? `c = ${this.challenge}` : "c = —");
+        this.text("[data-response]", this.step >= 3 ? `s = ${this.response}` : "s = —");
+      }
+
+      const verification = this.querySelector("[data-verification]");
+      const showEquation = this.mode === "reuse" ? this.step >= 3 : this.step >= 3;
+      verification?.classList.toggle("visible", showEquation);
+
+      if (this.mode === "reuse" && this.step >= 3) {
+        const deltaS = this.mod((this.response ?? 0) - this.secondResponse, this.q);
+        const deltaC = this.mod((this.challenge ?? 0) - this.secondChallenge, this.q);
+        this.text("[data-lhs]", `x = (${deltaS}) · (${deltaC})⁻¹ mod 11`);
+        this.text("[data-relation]", "=");
+        this.text("[data-rhs]", String(this.recoveredSecret()));
+        this.text("[data-verdict]", "Witness recovered from two public transcripts");
+        verification?.classList.add("rejected");
+        verification?.classList.remove("accepted");
+      } else if (this.step >= 3 && this.challenge !== null && this.response !== null) {
+        const lhs = this.pow(this.g, this.response, this.p);
+        const rhs = this.mod(
+          this.commitment * this.pow(this.publicKey, this.challenge, this.p),
+          this.p,
+        );
+        this.text("[data-lhs]", `2${this.sup(this.response)} mod 23 = ${lhs}`);
+        this.text("[data-relation]", this.accepted ? "=" : "≠");
+        this.text("[data-rhs]", `${this.commitment} · ${this.publicKey}${this.sup(this.challenge)} mod 23 = ${rhs}`);
+        this.text("[data-verdict]", this.accepted ? "Accepted · the equation balances" : "Rejected · the response does not balance");
+        verification?.classList.toggle("accepted", this.accepted === true);
+        verification?.classList.toggle("rejected", this.accepted === false);
+      } else {
+        this.text("[data-lhs]", "gˢ mod p");
+        this.text("[data-relation]", "=?");
+        this.text("[data-rhs]", "t · yᶜ mod p");
+        this.text("[data-verdict]", "Waiting for a response");
+        verification?.classList.remove("accepted", "rejected");
+      }
+
+      let transcript = "t = — · c = — · s = —";
+      if (this.mode === "simulator" && this.step >= 1) {
+        transcript = this.pair.map((item) => `(${item.t}, ${item.c}, ${item.s})`).join(" · ");
+      } else if (this.mode === "reuse" && this.step >= 2) {
+        transcript = `(${this.commitment}, ${this.challenge}, ${this.response}) · (${this.commitment}, ${this.secondChallenge}, ${this.secondResponse})`;
+      } else if (this.step >= 3) {
+        transcript = `t = ${this.commitment} · c = ${this.challenge} · s = ${this.response}`;
+      }
+      this.text("[data-ledger-transcript]", transcript);
+    }
+
+    renderPair() {
+      const cards = this.querySelectorAll<HTMLButtonElement>("[data-guess]");
+      cards.forEach((card, index) => {
+        const transcript = this.pair[index];
+        const visible = this.mode === "simulator" && this.step >= 1;
+        const revealed = this.mode === "simulator" && this.step >= 2;
+        const values = card.querySelector("[data-pair-values]");
+        const origin = card.querySelector("[data-pair-origin]");
+        if (values) values.textContent = visible && transcript
+          ? `t = ${transcript.t} · c = ${transcript.c} · s = ${transcript.s}`
+          : "t = — · c = — · s = —";
+        if (origin) origin.textContent = revealed && transcript
+          ? transcript.origin ?? ""
+          : visible ? "Choose this as the real proof" : "Origin sealed";
+        card.disabled = !visible || revealed;
+        card.classList.toggle("revealed", revealed);
+        card.classList.toggle("real", revealed && transcript?.origin === "real prover");
+        card.classList.toggle("chosen", revealed && this.simulatorGuess === index);
+      });
+    }
+
+    renderMetrics() {
+      this.text("[data-round-count]", String(this.rounds));
+      this.text("[data-rounds-label]", String(this.rounds));
+      this.text("[data-cheat-odds]", `1 / ${this.format(Math.pow(this.q, this.rounds))}`);
+      this.text("[data-exposure]", this.mode === "reuse" && this.step >= 3 ? "Complete" : "None");
+    }
+
+    renderRounds() {
+      const container = this.querySelector("[data-rounds]");
+      if (!container) return;
+      container.replaceChildren();
+      for (let i = 0; i < this.rounds; i++) {
+        const dot = document.createElement("i");
+        if (this.outcomes[i] === true) dot.className = "pass";
+        if (this.outcomes[i] === false) dot.className = "fail";
+        container.append(dot);
+      }
+      const passed = this.outcomes.filter(Boolean).length;
+      this.text(
+        "[data-round-note]",
+        this.outcomes.length ? `${passed} accepted · ${this.outcomes.length - passed} rejected` : "No completed batch",
+      );
+    }
+
+    renderControls() {
+      const labels: Record<Mode, string[]> = {
+        honest: ["Send commitment →", "Send challenge →", "Send response →", "Fresh proof →"],
+        impostor: ["Prepare bluff →", "Draw challenge →", "Attempt response →", "Try again →"],
+        simulator: ["Generate transcript pair", "Reveal origins", "New transcript pair", "New transcript pair"],
+        reuse: ["Record proof A →", "Reuse nonce in proof B →", "Recover witness →", "New vulnerable pair"],
+      };
+      this.text("[data-next]", labels[this.mode][Math.min(this.step, 3)]);
+      const runLabel = this.mode === "honest"
+        ? `Run ${this.rounds} rounds`
+        : this.mode === "impostor"
+          ? `Attempt ${this.rounds} rounds`
+          : this.mode === "simulator"
+            ? "Reveal pair"
+            : "Run vulnerable pair";
+      this.text("[data-run]", runLabel);
+      const input = this.querySelector<HTMLInputElement>("[data-round-input]");
+      if (input) input.disabled = this.mode === "simulator" || this.mode === "reuse";
+    }
+
+    syncStatus() {
+      if (this.mode === "simulator") {
+        if (this.step === 0) this.status("Public input only", "Generate two valid transcripts; one will never consult the witness");
+        else if (this.step === 1) this.status("Origins sealed", "Choose the transcript you think came from the real prover");
+        else this.status("Origins revealed", "Both transcripts verify and have the same distribution");
+        return;
+      }
+      if (this.mode === "reuse") {
+        if (this.step === 0) this.status("One nonce prepared", "The prover must use this randomness exactly once");
+        else if (this.step === 1) this.status("Proof A recorded", "Its transcript is safe in isolation");
+        else if (this.step === 2) this.status("Commitment repeated", "The same t appeared with two different challenges");
+        else this.status("Witness exposed", `The two responses reveal x = ${this.recoveredSecret()}`);
+        return;
+      }
+      if (this.step === 0) {
+        this.status(
+          this.mode === "honest" ? "Witness ready" : "Bluff prepared",
+          this.mode === "honest" ? "The secret stays with the prover" : `The impostor secretly hopes the verifier asks c = ${this.guessedChallenge}`,
+        );
+      } else if (this.step === 1) {
+        this.status("Commitment sent", "The prover is bound before seeing the verifier's challenge");
+      } else if (this.step === 2) {
+        this.status("Fresh challenge", `The verifier sampled c = ${this.challenge}`);
+      } else {
+        this.status(
+          this.accepted ? "Proof accepted" : "Proof rejected",
+          this.accepted ? "Both sides of the verifier equation agree" : "The prepared bluff answered the wrong challenge",
+        );
+      }
+    }
+
+    recoveredSecret() {
+      const deltaS = this.mod((this.response ?? 0) - this.secondResponse, this.q);
+      const deltaC = this.mod((this.challenge ?? 0) - this.secondChallenge, this.q);
+      return this.mod(deltaS * this.inverse(deltaC, this.q), this.q);
+    }
+
+    setLine(line: HTMLElement | null, sent: boolean, active: boolean) {
+      line?.classList.toggle("sent", sent);
+      line?.classList.toggle("active", active);
+    }
+
+    pow(base: number, exponent: number, modulus: number) {
+      let result = 1;
+      let value = this.mod(base, modulus);
+      let power = exponent;
+      while (power > 0) {
+        if (power & 1) result = (result * value) % modulus;
+        value = (value * value) % modulus;
+        power >>= 1;
+      }
+      return result;
+    }
+
+    inverse(value: number, modulus: number) {
+      for (let candidate = 1; candidate < modulus; candidate++) {
+        if ((value * candidate) % modulus === 1) return candidate;
+      }
+      return 0;
+    }
+
+    mod(value: number, modulus: number) {
+      return ((value % modulus) + modulus) % modulus;
+    }
+
+    random(limit: number) {
+      if (globalThis.crypto?.getRandomValues) {
+        const value = new Uint32Array(1);
+        globalThis.crypto.getRandomValues(value);
+        return value[0] % limit;
+      }
+      return Math.floor(Math.random() * limit);
+    }
+
+    sup(value: number) {
+      const digits: Record<string, string> = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
+      return String(value).split("").map((digit) => digits[digit] ?? digit).join("");
+    }
+
+    format(value: number) {
+      return new Intl.NumberFormat("en-US").format(value);
+    }
+
+    status(title: string, message: string) {
+      this.text("[data-state]", title);
+      this.text("[data-message]", message);
+    }
+
+    text(selector: string, value: string) {
+      const element = this.querySelector(selector);
+      if (element) element.textContent = value;
+    }
+  }
+
+  if (!customElements.get("zkp-laboratory")) {
+    customElements.define("zkp-laboratory", ZeroKnowledgeLaboratory);
+  }
+</script>
+
+<style>
+  zkp-laboratory { display: block; }
+  .zkp-layout { display: grid; grid-template-columns: minmax(35rem, 1.35fr) minmax(20rem, .65fr); min-height: 39rem; }
+  .proof-stage { position: relative; min-width: 0; padding: 1.4rem; border-right: 1px solid var(--glass-border); background: linear-gradient(to right,var(--reseau) 1px,transparent 1px),linear-gradient(to bottom,var(--reseau) 1px,transparent 1px); background-size: 24px 24px; }
+  .stage-label { margin-bottom: 1rem; color: var(--ink-faint); }
+  .participants { display: grid; grid-template-columns: minmax(11rem,1fr) minmax(8rem,.7fr) minmax(11rem,1fr); align-items: center; gap: .8rem; }
+  .party { display: flex; align-items: center; gap: .8rem; min-height: 5.2rem; padding: .85rem; background: color-mix(in srgb,var(--glass) 88%,transparent); border: 1px solid var(--glass-border); border-radius: 11px; box-shadow: inset 0 1px 0 var(--glass-highlight); }
+  .party-mark { display: grid; flex: 0 0 2.7rem; width: 2.7rem; height: 2.7rem; place-items: center; color: var(--paper); background: var(--ink); border-radius: 50%; font: 500 .72rem/1 var(--font-mono); }
+  .verifier .party-mark { color: var(--interact); background: color-mix(in srgb,var(--interact) 13%,var(--paper-raised)); border: 1px solid var(--interact); }
+  .party strong,.party small { display: block; }
+  .party strong { margin-top: .28rem; font-size: .72rem; font-weight: 500; }
+  .party small { margin-top: .22rem; color: var(--ink-faint); font-size: .48rem; }
+  .relation { display: flex; align-items: center; gap: .35rem; color: var(--ink-faint); }
+  .relation span { flex: 1; height: 1px; background: var(--rule); }
+  .relation i { font: 400 .42rem/1.3 var(--font-mono); font-style: normal; text-align: center; text-transform: uppercase; }
+  .protocol-scene { max-width: 44rem; margin: 2rem auto 0; }
+  .message-line { display: grid; grid-template-columns: 1.8rem 6rem 1fr 6rem; align-items: center; gap: .7rem; min-height: 4rem; opacity: .38; transition: opacity 180ms ease, transform 220ms var(--ease-out); }
+  .message-line.sent { opacity: 1; }
+  .message-line.active { transform: translateX(5px); }
+  .message-index { color: var(--ink-faint); font-size: .48rem; }
+  .message-name { color: var(--ink-soft); font-size: .58rem; text-transform: uppercase; letter-spacing: .07em; }
+  .message-wire { display: flex; align-items: center; color: var(--ink-faint); }
+  .message-wire i { flex: 1; height: 1px; background: var(--rule); }
+  .message-wire b { font-size: .8rem; font-weight: 400; }
+  .message-line.sent .message-wire { color: var(--interact); }
+  .message-line.sent .message-wire i { background: linear-gradient(90deg,var(--interact),color-mix(in srgb,var(--interact) 18%,transparent)); }
+  .message-line.reverse .message-wire { flex-direction: row-reverse; }
+  .message-line code { justify-self: stretch; padding: .6rem .7rem; overflow: hidden; color: var(--ink-soft); background: var(--code-wash); border: 1px solid var(--rule); border-radius: 7px; font-size: .6rem; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+  .message-line.active code { color: var(--interact); border-color: var(--interact); box-shadow: 0 0 18px color-mix(in srgb,var(--interact) 13%,transparent); }
+  .verification { margin-top: 1.1rem; padding: 1rem; opacity: .48; background: color-mix(in srgb,var(--paper-sunken) 50%,transparent); border: 1px solid var(--rule); border-radius: 10px; transition: opacity 180ms ease,border-color 180ms ease; }
+  .verification.visible { opacity: 1; }
+  .verification.accepted { border-color: color-mix(in srgb,#2e9b72 62%,var(--rule)); }
+  .verification.rejected { border-color: color-mix(in srgb,#c8401a 62%,var(--rule)); }
+  .equation { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .8rem; margin-top: .6rem; }
+  .equation code { min-width: 0; padding: .7rem; overflow: hidden; color: var(--ink-soft); background: var(--glass); border: 1px solid var(--glass-border); border-radius: 7px; font-size: .6rem; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+  .equation b { color: var(--interact); font-weight: 500; }
+  .verification p { margin-top: .6rem; color: var(--ink-faint); font-size: .52rem; text-align: center; }
+  .verification.accepted p { color: #2e9b72; }
+  .verification.rejected p { color: #c8401a; }
+  .simulator-scene { display: none; max-width: 45rem; margin: 2.2rem auto 0; }
+  zkp-laboratory[data-mode="simulator"] .protocol-scene { display: none; }
+  zkp-laboratory[data-mode="simulator"] .simulator-scene { display: block; }
+  .sim-intro { max-width: 38rem; margin-bottom: 1.2rem; }
+  .sim-intro p { margin-top: .55rem; color: var(--ink-soft); font-size: .68rem; }
+  .transcript-pair { display: grid; grid-template-columns: repeat(2,1fr); gap: .8rem; }
+  .transcript-card { min-height: 11rem; padding: 1rem; color: var(--ink); background: color-mix(in srgb,var(--glass) 88%,transparent); border: 1px solid var(--glass-border); border-radius: 11px; text-align: left; transition: transform 180ms var(--ease-out),border-color 180ms ease; }
+  .transcript-card:not(:disabled) { cursor: pointer; }
+  .transcript-card:not(:disabled):hover { transform: translateY(-3px); border-color: var(--interact); }
+  .transcript-card code,.transcript-card small { display: block; }
+  .transcript-card code { margin: 1.4rem 0; color: var(--interact); font-size: .65rem; line-height: 1.7; }
+  .transcript-card small { color: var(--ink-faint); font-size: .52rem; text-transform: uppercase; letter-spacing: .06em; }
+  .transcript-card.revealed { opacity: 1; }
+  .transcript-card.real { border-color: var(--interact); }
+  .transcript-card.chosen { box-shadow: 0 0 20px color-mix(in srgb,var(--interact) 16%,transparent); }
+  .sim-check { display: flex; align-items: center; justify-content: center; gap: .7rem; margin-top: 1rem; padding: .8rem; color: var(--ink-faint); border-top: 1px solid var(--rule); font-size: .55rem; }
+  .sim-check code { color: var(--interact); }
+  .proof-readout { min-width: 0; padding: 1.4rem; background: color-mix(in srgb,var(--paper-sunken) 38%,transparent); }
+  .concept h2 { margin: .55rem 0 .7rem; font-family: var(--font-display); font-size: 2rem; font-weight: 400; line-height: .95; }
+  .concept > p:last-child { min-height: 5.4rem; color: var(--ink-soft); font-size: .65rem; }
+  .property-rail { display: grid; gap: .35rem; margin: 1rem 0; }
+  .property-rail > div { display: grid; grid-template-columns: .55rem 5.8rem 1fr; align-items: center; gap: .4rem; min-height: 2rem; padding: .3rem .45rem; color: var(--ink-faint); border: 1px solid transparent; border-radius: 6px; font-size: .52rem; }
+  .property-rail i { width: 5px; height: 5px; background: var(--rule-heavy); border-radius: 50%; }
+  .property-rail span { color: var(--ink-soft); }
+  .property-rail small { font-size: .46rem; }
+  .property-rail > div.active { background: var(--glass); border-color: var(--glass-border); }
+  .property-rail > div.active i { background: var(--interact); box-shadow: 0 0 8px var(--interact); }
+  .property-rail > div.broken i { background: #c8401a; box-shadow: 0 0 8px color-mix(in srgb,#c8401a 50%,transparent); }
+  .proof-readout .instrument-metrics { grid-template-columns: repeat(3,1fr); }
+  .proof-readout .instrument-metrics span { font-size: .78rem; }
+  .round-log { margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid var(--rule); }
+  .round-log > div:first-child { display: flex; justify-content: space-between; gap: .5rem; }
+  .round-log small { color: var(--ink-faint); font-size: .46rem; }
+  .round-dots { display: flex; gap: .35rem; margin-top: .7rem; }
+  .round-dots :global(i) { width: 100%; height: 5px; background: var(--rule); border-radius: 999px; }
+  .round-dots :global(i.pass) { background: #2e9b72; }
+  .round-dots :global(i.fail) { background: #c8401a; }
+  .ledger { margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid var(--rule); }
+  .ledger dl { margin-top: .55rem; }
+  .ledger dl div { display: grid; grid-template-columns: 4.2rem 1fr; gap: .4rem; padding: .38rem 0; border-bottom: 1px solid color-mix(in srgb,var(--rule) 58%,transparent); font-size: .5rem; }
+  .ledger dt { color: var(--ink-faint); }
+  .ledger dd { min-width: 0; overflow: hidden; color: var(--ink-soft); text-overflow: ellipsis; white-space: nowrap; }
+  .instrument-range b { color: var(--interact); font-weight: 500; }
+  .instrument-range input:disabled { opacity: .35; cursor: not-allowed; }
+  @media (prefers-reduced-motion: no-preference) {
+    .message-line.active .message-wire i { background-size: 200% 100%; animation: proof-pulse 1.2s ease-in-out infinite; }
+    @keyframes proof-pulse { 0%,100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+  }
+  @media (max-width: 58rem) {
+    .zkp-layout { grid-template-columns: 1fr; }
+    .proof-stage { border-right: 0; border-bottom: 1px solid var(--glass-border); }
+    .concept > p:last-child { min-height: 0; }
+  }
+  @media (max-width: 42rem) {
+    .proof-stage { padding: .85rem; }
+    .participants { grid-template-columns: 1fr 1fr; }
+    .relation { display: none; }
+    .party { min-width: 0; padding: .65rem; }
+    .party-mark { flex-basis: 2.1rem; width: 2.1rem; height: 2.1rem; }
+    .party small { display: none; }
+    .message-line { grid-template-columns: 1.5rem 4.8rem 1fr; gap: .35rem; }
+    .message-line code { grid-column: 2 / -1; width: 100%; }
+    .message-wire { grid-column: 3; grid-row: 1; }
+    .equation { grid-template-columns: 1fr; gap: .35rem; }
+    .transcript-pair { grid-template-columns: 1fr; }
+    .transcript-card { min-height: 8rem; }
+    .transcript-card code { margin: .8rem 0; }
+  }
+</style>

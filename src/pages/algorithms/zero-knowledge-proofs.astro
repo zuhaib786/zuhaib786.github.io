@@ -1,0 +1,18 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import ZeroKnowledgeLaboratory from "../../components/visuals/ZeroKnowledgeLaboratory.astro";
+---
+
+<AlgorithmPage
+  title="Zero-Knowledge Proofs"
+  description="Step through a Schnorr proof and explore completeness, soundness, transcript simulation, and nonce reuse."
+  number="012"
+  eyebrow="Cryptographic protocols"
+  heading="Prove the secret."
+  accent="Keep the secret."
+  lede="Move a hidden witness through commitment, challenge, and response. The verifier gains confidence without receiving the number that made the proof possible."
+  noteTitle="What zero knowledge means"
+  note="Secrecy alone is not enough. Here, honest-verifier zero knowledge appears when the verifier's view can be simulated without the witness. Completeness lets honest provers succeed, soundness makes false claims unlikely, and fresh randomness keeps separate transcripts from combining into a leak."
+>
+  <ZeroKnowledgeLaboratory />
+</AlgorithmPage>

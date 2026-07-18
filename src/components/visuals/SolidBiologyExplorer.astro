@@ -1,0 +1,334 @@
+<solid-biology-explorer>
+  <section class="biology-instrument" aria-label="Interactive solid 3D biology explorer">
+    <header class="biology-bar">
+      <div class="biology-state"><i></i><span><b>BIO / SOLID ATLAS</b><small data-model-state>Animal cell · ultrastructure</small></span></div>
+      <div class="biology-actions">
+        <button class="biology-button active" data-spin aria-pressed="true">Auto-rotate</button>
+        <button class="biology-button" data-reset>Reset view</button>
+      </div>
+    </header>
+
+    <div class="biology-dashboard">
+      <div class="biology-stage">
+        <div class="stage-meta" aria-hidden="true"><span data-stage-code>SPECIMEN 01 / EUKARYOTA</span><span data-stage-scale>≈ 20 µm</span></div>
+        <canvas data-canvas tabindex="0" aria-label="Rotatable solid three-dimensional animal cell. Drag to rotate, scroll to zoom, or use arrow keys."></canvas>
+        <div class="stage-status" data-loading hidden><span class="stage-spinner" aria-hidden="true"></span><p>Loading model<b data-loading-pct></b></p></div>
+        <div class="stage-status stage-status--empty" data-error hidden>
+          <span class="stage-status-mark" aria-hidden="true">◇</span>
+          <p class="stage-status-title" data-error-title>Model not found</p>
+          <p class="stage-status-body" data-error-body></p>
+        </div>
+        <p class="stage-hint"><span>Drag</span> to orbit · <span>scroll</span> to zoom · <span>select</span> any structure</p>
+        <div class="specimen-tray" aria-label="Choose a biological specimen">
+          <button class="active" data-model="cell">
+            <span class="specimen-art specimen-art--cell" aria-hidden="true"><i></i><i></i></span>
+            <small>01</small><b>Animal cell</b><em>Cellular</em>
+          </button>
+          <button data-model="heart">
+            <span class="specimen-art specimen-art--heart" aria-hidden="true"><i></i></span>
+            <small>02</small><b>Human heart</b><em>Organ</em>
+          </button>
+          <button data-model="anatomy">
+            <span class="specimen-art specimen-art--anatomy" aria-hidden="true"><i></i></span>
+            <small>03</small><b>Human anatomy</b><em>Organism</em>
+          </button>
+          <button data-model="brain">
+            <span class="specimen-art specimen-art--brain" aria-hidden="true"><i></i></span>
+            <small>04</small><b>Brain</b><em>Organ</em>
+          </button>
+          <button data-model="eye">
+            <span class="specimen-art specimen-art--eye" aria-hidden="true"><i></i></span>
+            <small>05</small><b>Eye</b><em>Organ</em>
+          </button>
+        </div>
+        <div class="sr-only" role="status" aria-live="polite" data-announce></div>
+      </div>
+
+      <aside class="biology-readout" aria-label="Selected structure information">
+        <div class="readout-heading">
+          <div><p class="label label--accent" data-part-system>Nuclear apparatus</p><h2 data-part-name>Nucleus</h2></div>
+          <span class="part-index" data-part-index>01 / 07</span>
+        </div>
+        <p class="part-description" data-part-description>The cell’s membrane-bound information centre, containing most of its DNA as chromatin.</p>
+        <div class="role-card"><span class="label">Functional role</span><p data-part-role>Coordinates gene expression and DNA replication while the nuclear envelope regulates traffic through nuclear pores.</p></div>
+        <dl class="part-facts">
+          <div><dt>Organisation</dt><dd data-part-kind>Double-membrane organelle</dd></div>
+          <div><dt>Model scale</dt><dd data-part-scale>≈ 5–10 µm</dd></div>
+        </dl>
+        <div class="structure-list-head"><span class="label">Selectable structures</span><span data-structure-count>07 parts</span></div>
+        <div class="structure-list" data-parts aria-label="Select a visible structure"></div>
+        <div class="observation"><span class="label">Field note</span><p data-part-note>The nuclear envelope is continuous with the rough endoplasmic reticulum—two structures that look separate here but share a membrane system.</p></div>
+      </aside>
+    </div>
+  </section>
+</solid-biology-explorer>
+
+<script>
+  import * as THREE from "three";
+  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+  import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+  import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+  import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
+  import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+
+  // Each part is one selectable structure. `match` holds lowercase tokens tested
+  // against a GLB mesh's own name (and its parent names). Name the meshes in your
+  // exported .glb after these structures and they stay clickable + annotated.
+  type Part = {
+    id:string; name:string; system:string; description:string; role:string;
+    kind:string; scale:string; note:string; color:string; match:string[];
+  };
+  // A specimen is built EITHER from one split GLB (`model`, meshes matched by name)
+  // OR assembled from per-part components (`layout`) — one clickable object per part,
+  // each independently swappable for a generated file. A procedural `build` renders
+  // until `file` exists, so every part is clickable from day one.
+  type Component = { build?:()=>THREE.Object3D; file?:string; position:[number,number,number]; size:number };
+  type Specimen = {
+    name:string; subtitle:string; code:string; scale:string; aria:string;
+    parts:Part[]; model?:string; layout?:Record<string,Component>;
+  };
+
+  const part = (id:string,name:string,system:string,description:string,role:string,kind:string,scale:string,note:string,color:string,match:string[]):Part =>
+    ({id,name,system,description,role,kind,scale,note,color,match:[id,id.replace(/-/g," "),name.toLowerCase(),...match]});
+
+  const CELL_PARTS:Part[] = [
+    part("nucleus","Nucleus","Nuclear apparatus","The cell’s membrane-bound information centre, containing most of its DNA as chromatin.","Coordinates gene expression and DNA replication while nuclear pores regulate molecular traffic.","Double-membrane organelle","≈ 5–10 µm","The nuclear envelope is continuous with the rough endoplasmic reticulum—separate-looking regions of one membrane system.","#9c78ff",["nucleolus","chromatin","envelope"]),
+    part("membrane","Plasma membrane","Cell boundary","A fluid phospholipid bilayer enclosing the cytoplasm and defining a selective boundary.","Controls molecular exchange, receives extracellular signals, and anchors the cell to its surroundings.","Phospholipid bilayer","≈ 7–10 nm thick","Lipids and many membrane proteins diffuse laterally, so this boundary behaves more like a fluid than a rigid shell.","#49d5bd",["plasma","bilayer","cell wall","cortex","outer"]),
+    part("mitochondria","Mitochondria","Energy metabolism","Double-membrane organelles whose folded inner membrane forms energy-producing cristae.","Use electron transport and chemiosmosis to generate most cellular ATP.","Semi-autonomous organelle","≈ 0.5–3 µm","Mitochondria retain a small genome and divide independently—a legacy of bacterial ancestry.","#ff8f55",["mitochondrion","mito","crista","cristae"]),
+    part("er","Endoplasmic reticulum","Endomembrane system","An interconnected network of sheets and tubules extending from the nuclear envelope.","Folds proteins, synthesises lipids, stores calcium, and supports detoxification.","Membrane network","Spans the cytoplasm","Rough and smooth ER are regions of one continuous, constantly remodelled network.","#4f9cff",["endoplasmic","reticulum","rough er","smooth er","ribosome"]),
+    part("golgi","Golgi apparatus","Endomembrane system","A polarised stack of flattened membrane cisternae between the ER and cell surface.","Modifies, sorts, and packages proteins and lipids for delivery or secretion.","Stacked cisternae","≈ 1–3 µm","Cargo moves from the cis face toward the trans face in budding and fusing membrane carriers.","#ffc64f",["golgi apparatus","golgi body","cisterna","cisternae","dictyosome"]),
+    part("lysosomes","Lysosomes","Recycling system","Acidic, enzyme-filled vesicles that receive material from endocytosis and autophagy.","Break down macromolecules and damaged components into reusable building blocks.","Acidic vesicle","≈ 0.1–1.2 µm","Proton pumps keep the lysosomal lumen near pH 4.5–5, where its enzymes work best.","#ff597b",["lysosome","vesicle","vacuole","peroxisome"]),
+    part("centrosome","Centrosome","Cytoskeleton organiser","Perpendicular centrioles surrounded by protein-rich pericentriolar material.","Organises microtubules and forms the two spindle poles during animal-cell division.","Microtubule-organising centre","≈ 1–2 µm","Each centriole contains nine microtubule triplets arranged as a cylinder.","#ef5bd2",["centriole","centrioles","mtoc","microtubule"]),
+  ];
+
+  const HEART_PARTS:Part[] = [
+    part("left-ventricle","Left ventricle","Systemic pump","The thick-walled chamber forming the apex and much of the heart’s left border.","Propels oxygenated blood through the aortic valve into systemic circulation.","Muscular chamber","Wall ≈ 8–15 mm","Its wall is much thicker than the right ventricle’s because systemic resistance is greater.","#ed4e5d",["leftventricle","lv","apex","myocardium"]),
+    part("right-ventricle","Right ventricle","Pulmonary pump","A crescent-shaped chamber wrapping across the front of the left ventricle.","Sends deoxygenated blood through the pulmonary valve toward the lungs.","Muscular chamber","Wall ≈ 3–5 mm","Both ventricles eject the same volume per beat despite working against different pressures.","#c84679",["rightventricle","rv"]),
+    part("atria","Atria","Receiving chambers","Thin-walled upper chambers that receive venous return and feed the ventricles.","The right atrium receives systemic blood; the left receives blood from the lungs.","Paired chambers","Wall ≈ 2–3 mm","Atrial contraction supplies the final portion of ventricular filling.","#df719f",["atrium","left atrium","right atrium","la","ra","auricle","appendage"]),
+    part("aorta","Aorta","Systemic outflow","The body’s largest artery, rising from the left ventricle before arching posteriorly.","Distributes high-pressure oxygenated blood to the systemic circulation.","Elastic artery","≈ 25–35 mm diameter","Elastic recoil smooths the ventricle’s pulsatile output between beats.","#ff9562",["aortic","arch","ascending aorta"]),
+    part("pulmonary","Pulmonary trunk","Pulmonary outflow","A broad vessel leaving the right ventricle and dividing toward both lungs.","Carries deoxygenated blood away from the heart for gas exchange.","Elastic artery","≈ 25–30 mm diameter","It is an artery because it carries blood away from the heart—not because of oxygen content.","#3eb9d0",["pulmonary trunk","pulmonary artery","pa","pulmonaryvein"]),
+    part("vena-cava","Venae cavae","Systemic return","The major veins entering the right atrium from above and below.","Return deoxygenated blood from systemic circulation to the right heart.","Paired great veins","≈ 20–30 mm diameter","Respiration and skeletal-muscle contraction help move low-pressure venous blood.","#4e78d7",["venacava","vena cava","superior vena","inferior vena","svc","ivc"]),
+    part("coronary","Coronary vessels","Cardiac circulation","Surface vessels branching over and then into the myocardium.","Deliver oxygen to continuously active cardiac muscle and drain it back to the right atrium.","Arterial and venous network","Main stems ≈ 2–5 mm","Most left-coronary flow occurs during diastole, when relaxed muscle stops compressing its vessels.","#ffd05c",["coronary artery","coronary vein","lad","circumflex","cx","rca"]),
+  ];
+
+  const ANATOMY_PARTS:Part[] = [
+    part("skeletal","Skeletal system","Support & protection","The framework of bones, cartilage, and ligaments that gives the body its shape.","Supports the body, protects organs, stores minerals, and produces blood cells in marrow.","Bones, cartilage, ligaments","206 bones","Red bone marrow inside the larger bones is where most of the body’s blood cells are made.","#cbd3e6",["skeleton","bone","bones","osseous"]),
+    part("muscular","Muscular system","Movement","The layered skeletal muscles draped over the bones and joints.","Generates movement, maintains posture, and produces much of the body’s heat.","Skeletal muscle tissue","≈ 600 muscles","Muscles can only pull, never push, so they work in opposing pairs to move a joint both ways.","#ed4e5d",["muscle","muscles","myo","myology"]),
+    part("cardiovascular","Cardiovascular system","Circulation","The heart together with the network of arteries, veins, and capillaries.","Transports oxygen, nutrients, hormones, and waste to and from every tissue.","Heart and blood vessels","≈ 100,000 km of vessels","Laid end to end, one person’s blood vessels would wrap around the Earth roughly twice.","#ff597b",["cardiovascular","circulatory","heart","vessel","artery","vein"]),
+    part("respiratory","Respiratory system","Gas exchange","The airways and lungs, from the nose down to the tiny alveoli.","Brings oxygen into the bloodstream and clears carbon dioxide out of it.","Airways and lungs","≈ 300 million alveoli","The alveoli’s combined surface area is roughly the size of a tennis court.","#4f9cff",["respiratory","lung","lungs","trachea","bronch","alveoli"]),
+    part("digestive","Digestive system","Nutrient processing","The tract from mouth to intestines, with the liver and pancreas alongside.","Breaks food down into absorbable nutrients and expels the remainder.","Alimentary canal and glands","≈ 9 m long","Most nutrient absorption happens in the small intestine, whose folds vastly expand its surface.","#ffc64f",["digestive","gastrointestinal","stomach","intestine","liver","bowel"]),
+    part("nervous","Nervous system","Control & signalling","The brain, spinal cord, and the nerves branching out to every tissue.","Senses the environment and coordinates fast, precise responses across the body.","Central and peripheral nerves","billions of neurons","Signals race along the fastest nerve fibres at over 100 metres per second.","#9c78ff",["nervous","nerve","neural","spinal","spinal cord"]),
+  ];
+
+  const BRAIN_PARTS:Part[] = [
+    part("frontal-lobe","Frontal lobe","Cerebral cortex","The most anterior cortical lobe, sitting behind the forehead and above the eyes.","Drives voluntary movement, planning, decision-making, and much of personality and speech.","Cerebral cortical lobe","Largest lobe","The primary motor cortex runs along its rear border, mapping the body as a distorted ‘homunculus’.","#9c78ff",["frontal","prefrontal"]),
+    part("parietal-lobe","Parietal lobe","Cerebral cortex","Sits behind the frontal lobe across the upper-rear of each hemisphere.","Integrates touch, temperature, and spatial awareness, and helps direct attention.","Cerebral cortical lobe","≈ upper-rear cortex","Its somatosensory cortex mirrors the motor map that lies just across the central sulcus.","#4f9cff",["parietal"]),
+    part("temporal-lobe","Temporal lobe","Cerebral cortex","Wraps the lower side of each hemisphere, beneath the lateral sulcus.","Processes hearing and language comprehension and, with the hippocampus, forms memories.","Cerebral cortical lobe","≈ lower-side cortex","It houses the auditory cortex and Wernicke’s area, central to understanding speech.","#ff8f55",["temporal"]),
+    part("occipital-lobe","Occipital lobe","Cerebral cortex","The rearmost lobe, tucked at the very back of the skull.","Dedicated almost entirely to receiving and interpreting vision.","Cerebral cortical lobe","≈ rear cortex","Signals from the eyes arrive here via the optic radiation before becoming images.","#49d5bd",["occipital","visual cortex"]),
+    part("cerebellum","Cerebellum","Motor coordination","The tightly folded structure beneath the rear of the cerebrum.","Coordinates movement, balance, posture, and motor learning for smooth, precise action.","Hindbrain structure","≈ 10% of brain volume","It holds more than half of the brain’s neurons despite its small size.","#ffc64f",["cerebellum","cerebellar"]),
+    part("brainstem","Brainstem","Vital control","The stalk connecting the brain to the spinal cord.","Controls automatic functions—breathing, heart rate, consciousness—and relays traffic to the body.","Midbrain, pons and medulla","≈ 7–8 cm long","Nearly every signal travelling between brain and body passes through this narrow bridge.","#ff597b",["brainstem","brain stem","medulla","pons","midbrain"]),
+  ];
+
+  const EYE_PARTS:Part[] = [
+    part("cornea","Cornea","Optical surface","The clear, dome-shaped front window of the eye.","Provides most of the eye’s focusing power by bending incoming light toward the lens.","Transparent avascular tissue","≈ 11 mm across","It has no blood vessels and draws oxygen straight from the air, so corneal grafts rarely reject.","#4fd9c0",["cornea","corneal"]),
+    part("iris","Iris","Aperture control","The coloured ring of muscle surrounding the pupil.","Adjusts pupil size to regulate how much light reaches the retina.","Muscular diaphragm","pupil ≈ 2–8 mm","Eye colour comes from how much pigment the iris carries, not from any blue pigment itself.","#4f9cff",["iris","pupil"]),
+    part("lens","Lens","Focusing","A transparent, flexible body suspended just behind the iris.","Fine-tunes focus by changing shape to project sharp images onto the retina.","Crystalline lens","≈ 10 mm","Ciliary muscles reshape it for near and far vision—accommodation that stiffens with age.","#ffc64f",["lens","crystalline","ciliary"]),
+    part("retina","Retina","Photoreception","The light-sensitive layer lining the inner rear of the eye.","Converts light into neural signals using rod and cone photoreceptors.","Neural tissue layer","≈ 0.5 mm thick","The fovea, its central pit, packs cones densely for the sharp detail you use when reading.","#ff597b",["retina","retinal","macula","fovea"]),
+    part("optic-nerve","Optic nerve","Signal output","The bundle of over a million nerve fibres leaving the back of the eye.","Carries visual signals from the retina toward the brain’s visual cortex.","Cranial nerve II","≈ 4 mm diameter","Where it exits the retina there are no photoreceptors, creating a natural blind spot.","#ffa84f",["optic nerve","optic-nerve","optic"]),
+    part("sclera","Sclera","Structural coat","The tough white outer coat enclosing most of the eyeball.","Maintains the eye’s shape and anchors the muscles that swivel it in its socket.","Fibrous outer layer","encloses the globe","The six extraocular muscles attach to it to move the eye in every direction.","#9fb0d8",["sclera","white of the eye","extraocular"]),
+  ];
+
+  // Matte, diagram-like material — deliberately NOT the glossy clearcoat that made the
+  // old models read as balloons. These are swappable placeholders per cell organelle.
+  const matte=(color:string,opts:THREE.MeshStandardMaterialParameters={})=>new THREE.MeshStandardMaterial({color,roughness:.82,metalness:0,...opts});
+  const blob=(color:string,radius:number,position:[number,number,number],squash:[number,number,number]=[1,1,1])=>{const m=new THREE.Mesh(new THREE.SphereGeometry(radius,40,28),matte(color));m.position.set(...position);m.scale.set(...squash);return m;};
+  const capsule=(color:string,r:number,len:number,position:[number,number,number],rot:[number,number,number])=>{const m=new THREE.Mesh(new THREE.CapsuleGeometry(r,len,10,20),matte(color));m.position.set(...position);m.rotation.set(...rot);return m;};
+
+  const buildMembrane=()=>{const g=new THREE.Group();const m=new THREE.Mesh(new THREE.SphereGeometry(2,64,48),new THREE.MeshPhysicalMaterial({color:"#4fd9c0",roughness:.2,transmission:.55,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,clearcoat:.4}));m.userData.noShadow=true;g.add(m);return g;};
+  const buildNucleus=()=>{const g=new THREE.Group();g.add(blob("#9c78ff",.8,[0,0,0]));const n=blob("#c4aaff",.24,[.2,.16,.5]);g.add(n);return g;};
+  const buildMito=()=>{const g=new THREE.Group();([[[0,0,0],[0,0,1.1]],[[.15,.5,-.35],[.3,0,.6]],[[-.1,-.55,.2],[0,.4,1.3]]] as [number,number,number][][]).forEach(([p,r])=>g.add(capsule("#ff8f55",.24,.66,p,r)));return g;};
+  const buildGolgi=()=>{const g=new THREE.Group();for(let i=0;i<5;i++){const t=new THREE.Mesh(new THREE.TorusGeometry(.5-i*.07,.05,10,32,Math.PI*1.15),matte("#ffc64f"));t.position.set(0,i*.13-.26,0);t.rotation.set(Math.PI/2,0,i*.05);t.scale.z=.45;g.add(t);}return g;};
+  const buildER=()=>{const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.TorusKnotGeometry(.55,.05,90,10,2,3),matte("#4f9cff")));return g;};
+  const buildLysosomes=()=>{const g=new THREE.Group();([[0,0,0],[.4,.28,.15],[.28,-.34,-.2]] as [number,number,number][]).forEach((p,i)=>g.add(blob("#ff597b",.2-i*.03,p)));return g;};
+  const buildCentrosome=()=>{const g=new THREE.Group();([[0,.86,0],[Math.PI/2,0,.5]] as [number,number,number][]).forEach((r,i)=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.5,18,1,true),matte("#ef5bd2",{side:THREE.DoubleSide}));c.position.set(i*.28,i*.12,i*.2);c.rotation.set(...r);g.add(c);});return g;};
+
+  // Per-organelle assembly for the cell. Drop a real mesh at any `file` path to replace
+  // its placeholder; `position`/`size` place + normalise that generated mesh in cell space.
+  const CELL_LAYOUT:Record<string,Component>={
+    membrane:{build:buildMembrane,position:[0,0,0],size:4},
+    nucleus:{build:buildNucleus,file:"/models/cell/nucleus.glb",position:[-.42,.1,.05],size:1.7},
+    mitochondria:{build:buildMito,file:"/models/cell/mitochondria.glb",position:[1.05,-.5,.2],size:1.5},
+    er:{build:buildER,file:"/models/cell/er.glb",position:[-1.15,-.2,.25],size:1.6},
+    golgi:{build:buildGolgi,file:"/models/cell/golgi.glb",position:[.85,.9,-.05],size:1.4},
+    lysosomes:{build:buildLysosomes,file:"/models/cell/lysosomes.glb",position:[.45,-1.15,.45],size:1},
+    centrosome:{build:buildCentrosome,file:"/models/cell/centrosome.glb",position:[-1,-.85,.6],size:.9},
+  };
+
+  const SPECIMENS:Record<string,Specimen>={
+    cell:{name:"Animal cell",subtitle:"ultrastructure",code:"SPECIMEN 01 / EUKARYOTA",scale:"≈ 20 µm",aria:"solid three-dimensional animal cell",layout:CELL_LAYOUT,parts:CELL_PARTS},
+    heart:{name:"Human heart",subtitle:"gross anatomy",code:"SPECIMEN 02 / CARDIOVASCULAR",scale:"≈ 12 cm",aria:"solid three-dimensional human heart",model:"/models/heart.glb",parts:HEART_PARTS},
+    anatomy:{name:"Human anatomy",subtitle:"systems overview",code:"SPECIMEN 03 / WHOLE BODY",scale:"≈ 1.7 m",aria:"solid three-dimensional human body",model:"/models/anatomy.glb",parts:ANATOMY_PARTS},
+    brain:{name:"Brain",subtitle:"gross anatomy",code:"SPECIMEN 04 / NERVOUS SYSTEM",scale:"≈ 15 cm",aria:"solid three-dimensional human brain",model:"/models/brain.glb",parts:BRAIN_PARTS},
+    eye:{name:"Eye",subtitle:"ocular anatomy",code:"SPECIMEN 05 / SENSORY",scale:"≈ 24 mm",aria:"solid three-dimensional human eye",model:"/models/eye.glb",parts:EYE_PARTS},
+  };
+
+  // One shared loader for the whole component. Draco + Meshopt decoders are wired
+  // up because most image-to-3D exports (Hunyuan3D, Tripo, fal.ai) ship compressed.
+  const dracoLoader=new DRACOLoader().setDecoderPath("/draco/");
+  const gltfLoader=new GLTFLoader().setDRACOLoader(dracoLoader).setMeshoptDecoder(MeshoptDecoder);
+
+  const TARGET_SIZE=3.4;                       // longest model dimension, in scene units
+  const CAMERA_DIR=new THREE.Vector3(0.55,0.32,1).normalize();
+
+  class SolidBiologyExplorer extends HTMLElement{
+    canvas!:HTMLCanvasElement;renderer!:THREE.WebGLRenderer;scene!:THREE.Scene;camera!:THREE.PerspectiveCamera;controls!:OrbitControls;
+    model="cell";specimen=SPECIMENS.cell;modelGroup?:THREE.Group;selected="nucleus";hover="";auto=true;
+    raycaster=new THREE.Raycaster();pointer=new THREE.Vector2();pointerDown?:{x:number;y:number};resize?:ResizeObserver;aborter=new AbortController();
+    ground!:THREE.Mesh;frame=0;loadToken=0;homeCamera=new THREE.Vector3(0,0,8);homeTarget=new THREE.Vector3();
+    connectedCallback(){
+      this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;
+      this.auto=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+      this.renderer=new THREE.WebGLRenderer({canvas:this.canvas,antialias:true,alpha:true,powerPreference:"high-performance"});
+      this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+      this.scene=new THREE.Scene();this.camera=new THREE.PerspectiveCamera(34,1,.1,100);this.controls=new OrbitControls(this.camera,this.canvas);this.controls.enableDamping=true;this.controls.dampingFactor=.065;this.controls.autoRotateSpeed=.7;
+      // Image-based lighting so PBR meshes (roughness/metalness) read correctly
+      // instead of rendering as black metal under direct lights alone.
+      const pmrem=new THREE.PMREMGenerator(this.renderer);this.scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
+      this.lights();this.ground=new THREE.Mesh(new THREE.CircleGeometry(5,64),new THREE.ShadowMaterial({color:0x070a18,opacity:.26}));this.ground.rotation.x=-Math.PI/2;this.ground.position.y=-2.05;this.ground.receiveShadow=true;this.scene.add(this.ground);
+      this.bind();this.load("cell");this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.layout();this.animate();
+    }
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.controls?.dispose();this.disposeModel();this.ground?.geometry.dispose();(this.ground?.material as THREE.Material)?.dispose();this.renderer?.dispose();}
+    lights(){
+      this.scene.add(new THREE.HemisphereLight(0xeef4ff,0x26304b,.9));
+      const key=new THREE.DirectionalLight(0xfff2df,2.6);key.position.set(-4,7,7);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.near=.5;key.shadow.camera.far=24;key.shadow.camera.left=-6;key.shadow.camera.right=6;key.shadow.camera.top=6;key.shadow.camera.bottom=-6;key.shadow.bias=-.0005;this.scene.add(key);
+      const rim=new THREE.DirectionalLight(0x6fa8ff,1.4);rim.position.set(5,2,-5);this.scene.add(rim);
+      const fill=new THREE.PointLight(0xd293ff,.9,14);fill.position.set(-4,-1,3);this.scene.add(fill);
+    }
+    bind(){const signal=this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-model]").forEach(button=>button.addEventListener("click",()=>this.load(button.dataset.model||"cell"),{signal}));
+      this.querySelector("[data-spin]")?.addEventListener("click",()=>{this.auto=!this.auto;this.syncSpin();},{signal});
+      this.querySelector("[data-reset]")?.addEventListener("click",()=>this.resetView(),{signal});
+      this.controls.addEventListener("start",()=>{this.auto=false;this.syncSpin();});
+      this.canvas.addEventListener("pointerdown",event=>{this.pointerDown={x:event.clientX,y:event.clientY};},{signal});
+      this.canvas.addEventListener("pointermove",event=>{if(this.pointerDown&&Math.hypot(event.clientX-this.pointerDown.x,event.clientY-this.pointerDown.y)>4){this.setHover("");return;}this.setHover(this.pick(event));},{signal});
+      this.canvas.addEventListener("pointerleave",()=>this.setHover(""),{signal});
+      this.canvas.addEventListener("pointerup",event=>{if(this.pointerDown&&Math.hypot(event.clientX-this.pointerDown.x,event.clientY-this.pointerDown.y)<4){const id=this.pick(event);if(id)this.select(id,true);}this.pointerDown=undefined;},{signal});
+      this.canvas.addEventListener("keydown",event=>{if(event.key==="Enter"&&this.hover){event.preventDefault();this.select(this.hover,true);}},{signal});
+    }
+    load(name:string){
+      this.model=name;this.specimen=SPECIMENS[name]||SPECIMENS.cell;this.selected=this.specimen.parts[0].id;this.hover="";
+      this.querySelectorAll<HTMLButtonElement>("[data-model]").forEach(button=>{const active=button.dataset.model===name;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
+      this.text("[data-model-state]",`${this.specimen.name} · ${this.specimen.subtitle}`);this.text("[data-stage-code]",this.specimen.code);this.text("[data-stage-scale]",this.specimen.scale);this.canvas.setAttribute("aria-label",`Rotatable ${this.specimen.aria}. Drag to rotate, scroll to zoom, or use arrow keys.`);
+      this.buildPartButtons();this.select(this.selected,false);this.assemble();
+    }
+    async assemble(){
+      const token=++this.loadToken;this.disposeModel();this.showError(false);this.showLoading(true,0);
+      const specimen=this.specimen;const group=new THREE.Group();
+      try{
+        if(specimen.layout){
+          // Per-part: real mesh at `file` if present, else the procedural placeholder.
+          const entries=Object.entries(specimen.layout);
+          const built=await Promise.all(entries.map(([id,comp])=>this.buildComponent(id,comp)));
+          if(token!==this.loadToken){built.forEach(o=>o&&this.disposeObject(o));this.disposeObject(group);return;}
+          built.forEach(o=>o&&group.add(o));
+        }else if(specimen.model){
+          // Single split GLB: meshes matched to parts by name.
+          const gltf=await gltfLoader.loadAsync(specimen.model);
+          if(token!==this.loadToken){this.disposeObject(gltf.scene);return;}
+          const box=new THREE.Box3().setFromObject(gltf.scene);const center=box.getCenter(new THREE.Vector3());const s=box.getSize(new THREE.Vector3());
+          const scale=TARGET_SIZE/(Math.max(s.x,s.y,s.z)||1);gltf.scene.scale.setScalar(scale);gltf.scene.position.copy(center).multiplyScalar(-scale);
+          this.tagParts(gltf.scene);group.add(gltf.scene);
+        }
+      }catch(err){if(token===this.loadToken)this.onAssembleError();return;}
+      if(!group.children.length){this.disposeObject(group);this.onAssembleError();return;}
+      this.modelGroup=group;this.scene.add(group);this.frameGroup(group);this.showLoading(false);this.updateMaterials();
+    }
+    // Resolve one part to an Object3D: try its generated file, fall back to the placeholder.
+    async buildComponent(id:string,comp:Component):Promise<THREE.Object3D|null>{
+      const color=this.specimen.parts.find(p=>p.id===id)?.color||"#ffffff";
+      if(comp.file){
+        try{
+          const gltf=await gltfLoader.loadAsync(comp.file);const root=gltf.scene;
+          const box=new THREE.Box3().setFromObject(root);const center=box.getCenter(new THREE.Vector3());const s=box.getSize(new THREE.Vector3());
+          root.scale.setScalar(comp.size/(Math.max(s.x,s.y,s.z)||1));root.position.copy(center).multiplyScalar(-root.scale.x).add(new THREE.Vector3(...comp.position));
+          this.tagObject(root,id,color);return root;
+        }catch{/* no file yet — use the placeholder below */}
+      }
+      if(!comp.build)return null;
+      const object=comp.build();this.tagObject(object,id,color);return object;
+    }
+    frameGroup(group:THREE.Object3D){
+      const box=new THREE.Box3().setFromObject(group);const sphere=box.getBoundingSphere(new THREE.Sphere());
+      this.ground.position.y=box.min.y-0.02;this.ground.visible=true;
+      const fov=this.camera.fov*Math.PI/180;const dist=(sphere.radius/Math.sin(fov/2))*1.25;
+      this.homeCamera.copy(CAMERA_DIR).multiplyScalar(dist).add(sphere.center);this.homeTarget.copy(sphere.center);
+      this.controls.minDistance=dist*0.4;this.controls.maxDistance=dist*2.4;
+      this.camera.position.copy(this.homeCamera);this.controls.target.copy(this.homeTarget);this.controls.update();
+    }
+    onAssembleError(){
+      this.showLoading(false);const url=this.specimen.model||"";const file=url.split("/").pop()||`${this.model}.glb`;
+      this.text("[data-error-title]",`${file} not found`);
+      this.text("[data-error-body]",`Export your model as public${url||`/models/${this.model}.glb`} and name its meshes ${this.specimen.parts.map(p=>p.name).slice(0,4).join(", ")}… so each structure stays selectable.`);
+      this.showError(true);this.ground.visible=false;
+    }
+    // Map every mesh to a part by testing its (and its ancestors') names against the
+    // part match tokens. Unmatched meshes still render, they just aren't clickable.
+    tagParts(root:THREE.Object3D){
+      let matched=0;const names:string[]=[];
+      root.traverse(child=>{
+        if(!(child instanceof THREE.Mesh))return;
+        child.castShadow=true;child.receiveShadow=true;names.push(child.name);
+        let label="";for(let node:THREE.Object3D|null=child;node&&!label;node=node.parent)label+=" "+node.name.toLowerCase();
+        const found=this.specimen.parts.find(p=>p.match.some(token=>token&&label.includes(token)));
+        child.userData.partId=found?found.id:"";child.userData.partColor=found?found.color:"#ffffff";if(found)matched++;
+        this.prepMaterial(child);
+      });
+      if(!matched)console.warn(`[biology] No meshes in "${this.specimen.model}" matched a labelled structure. Rename meshes to make them selectable. Found: ${names.filter(Boolean).join(", ")||"(unnamed meshes)"}`);
+    }
+    // Tag every mesh in one assembled component with a known part id (per-part layout path).
+    tagObject(object:THREE.Object3D,id:string,color:string){
+      object.traverse(child=>{
+        if(!(child instanceof THREE.Mesh))return;
+        const shadow=!child.userData.noShadow;child.castShadow=shadow;child.receiveShadow=shadow;
+        child.userData.partId=id;child.userData.partColor=color;this.prepMaterial(child);
+      });
+    }
+    prepMaterial(mesh:THREE.Mesh){const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];materials.forEach(material=>{if(material&&"emissive" in material){material.userData.baseEmissive=(material as THREE.MeshStandardMaterial).emissive.clone();material.userData.baseEmissiveIntensity=(material as THREE.MeshStandardMaterial).emissiveIntensity;}});}
+    disposeModel(){if(this.modelGroup){this.scene?.remove(this.modelGroup);this.disposeObject(this.modelGroup);this.modelGroup=undefined;}}
+    disposeObject(object:THREE.Object3D){object.traverse(child=>{if(child instanceof THREE.Mesh){child.geometry.dispose();const materials=Array.isArray(child.material)?child.material:[child.material];materials.forEach(material=>material?.dispose());}});}
+    buildPartButtons(){const list=this.querySelector<HTMLElement>("[data-parts]");if(!list)return;list.replaceChildren();this.specimen.parts.forEach((item,index)=>{const button=document.createElement("button");button.type="button";button.dataset.part=item.id;button.innerHTML=`<i style="--part:${item.color}"></i><span><b>${String(index+1).padStart(2,"0")}</b>${item.name}</span><em>↗</em>`;button.addEventListener("click",()=>this.select(item.id,true),{signal:this.aborter.signal});list.append(button);});this.text("[data-structure-count]",`${String(this.specimen.parts.length).padStart(2,"0")} parts`);}
+    select(id:string,announce:boolean){const index=this.specimen.parts.findIndex(item=>item.id===id);if(index<0)return;const item=this.specimen.parts[index];this.selected=id;this.text("[data-part-system]",item.system);this.text("[data-part-name]",item.name);this.text("[data-part-description]",item.description);this.text("[data-part-role]",item.role);this.text("[data-part-kind]",item.kind);this.text("[data-part-scale]",item.scale);this.text("[data-part-note]",item.note);this.text("[data-part-index]",`${String(index+1).padStart(2,"0")} / ${String(this.specimen.parts.length).padStart(2,"0")}`);(this.querySelector(".biology-readout") as HTMLElement)?.style.setProperty("--selected-part",item.color);this.querySelectorAll<HTMLButtonElement>("[data-part]").forEach(button=>{const active=button.dataset.part===id;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});if(announce)this.text("[data-announce]",`${item.name} selected. ${item.description}`);this.updateMaterials();}
+    setHover(id:string){if(id===this.hover)return;this.hover=id;this.canvas.style.cursor=id?"pointer":"grab";this.updateMaterials();}
+    updateMaterials(){this.modelGroup?.traverse(child=>{
+      if(!(child instanceof THREE.Mesh))return;const id=child.userData.partId as string;const active=!!id&&id===this.selected;const over=!!id&&id===this.hover;
+      const materials=Array.isArray(child.material)?child.material:[child.material];
+      materials.forEach(material=>{if(!material||!("emissive" in material))return;const standard=material as THREE.MeshStandardMaterial;
+        if(active||over){standard.emissive.set(child.userData.partColor as string);standard.emissiveIntensity=over?.5:.34;}
+        else{standard.emissive.copy(material.userData.baseEmissive??new THREE.Color(0x000000));standard.emissiveIntensity=material.userData.baseEmissiveIntensity??0;}
+      });
+    });}
+    pick(event:PointerEvent){if(!this.modelGroup)return"";const rect=this.canvas.getBoundingClientRect();this.pointer.set((event.clientX-rect.left)/rect.width*2-1,-((event.clientY-rect.top)/rect.height*2-1));this.raycaster.setFromCamera(this.pointer,this.camera);const hits=this.raycaster.intersectObject(this.modelGroup,true);const ids=hits.map(hit=>hit.object.userData.partId as string).filter(Boolean);return ids.find(id=>id!=="membrane")||ids[0]||"";}
+    resetView(){this.camera.position.copy(this.homeCamera);this.controls.target.copy(this.homeTarget);this.controls.update();this.auto=false;this.syncSpin();}
+    syncSpin(){this.controls.autoRotate=this.auto;const button=this.querySelector<HTMLButtonElement>("[data-spin]");button?.classList.toggle("active",this.auto);button?.setAttribute("aria-pressed",String(this.auto));}
+    showLoading(on:boolean,fraction=0){const node=this.querySelector<HTMLElement>("[data-loading]");if(!node)return;node.hidden=!on;this.text("[data-loading-pct]",on&&fraction?` · ${Math.round(fraction*100)}%`:"");}
+    showError(on:boolean){const node=this.querySelector<HTMLElement>("[data-error]");if(node)node.hidden=!on;}
+    layout(){if(!this.renderer)return;const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;this.renderer.setSize(rect.width,rect.height,false);this.camera.aspect=rect.width/rect.height;this.camera.updateProjectionMatrix();}
+    animate=()=>{this.controls.autoRotate=this.auto;this.controls.update();this.renderer.render(this.scene,this.camera);this.frame=requestAnimationFrame(this.animate);};
+    text(selector:string,value:string){const node=this.querySelector(selector);if(node)node.textContent=value;}
+  }
+  if(!customElements.get("solid-biology-explorer"))customElements.define("solid-biology-explorer",SolidBiologyExplorer);
+
+</script>
+
+<style>
+  solid-biology-explorer{display:block;--bio-green:#55d6be}
+  .biology-instrument{overflow:hidden;background:color-mix(in srgb,var(--glass) 82%,transparent);border:1px solid var(--glass-border);border-radius:16px;box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow)}
+  .biology-bar{display:flex;min-height:3.8rem;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem .8rem .65rem 1rem;background:var(--glass);border-bottom:1px solid var(--glass-border)}
+  .biology-state,.biology-actions{display:flex;align-items:center}.biology-state{gap:.65rem;color:var(--ink-faint)}.biology-state>i{width:8px;height:8px;background:var(--bio-green);border-radius:50%;box-shadow:0 0 14px var(--bio-green)}.biology-state>span{display:grid;line-height:1.45}.biology-state b{color:var(--ink);font-size:.58rem;letter-spacing:.09em}.biology-state small{font-size:.5rem}.biology-actions{gap:.45rem}.biology-button{min-height:2rem;padding:.35rem .65rem;color:var(--ink-soft);background:transparent;border:1px solid var(--rule);border-radius:6px;font:.58rem var(--font-mono);cursor:pointer}.biology-button:hover,.biology-button.active{color:var(--interact);border-color:var(--interact)}
+  .biology-dashboard{display:grid;grid-template-columns:minmax(33rem,1.48fr) minmax(19rem,.52fr);min-height:43rem}.biology-stage{position:relative;min-width:0;min-height:43rem;overflow:hidden;border-right:1px solid var(--glass-border);background:radial-gradient(circle at 45% 34%,rgba(208,215,242,.2),transparent 42%),linear-gradient(160deg,color-mix(in srgb,var(--paper-sunken) 52%,#9da8c8),color-mix(in srgb,var(--paper-sunken) 92%,#151c34))}.biology-stage::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 65%,color-mix(in srgb,var(--paper-sunken) 66%,transparent));pointer-events:none}.biology-stage canvas{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;touch-action:none;cursor:grab}.biology-stage canvas:active{cursor:grabbing}.stage-meta{position:absolute;top:1rem;right:1rem;left:1rem;z-index:3;display:flex;justify-content:space-between;gap:1rem;color:var(--ink-faint);font-size:.5rem;letter-spacing:.1em;pointer-events:none}.stage-hint{position:absolute;top:2.55rem;left:1rem;z-index:3;color:var(--ink-faint);font-size:.48rem;pointer-events:none}.stage-hint span{color:var(--bio-green)}
+  .stage-status{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;padding:2rem;color:var(--ink-soft);text-align:center;pointer-events:none}.stage-status[hidden]{display:none}.stage-status p{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.04em}.stage-status b{color:var(--bio-green);font-weight:400}.stage-spinner{width:1.9rem;height:1.9rem;border:2px solid color-mix(in srgb,var(--bio-green) 22%,transparent);border-top-color:var(--bio-green);border-radius:50%;animation:bio-spin .9s linear infinite}@media(prefers-reduced-motion:reduce){.stage-spinner{animation-duration:2.4s}}@keyframes bio-spin{to{transform:rotate(360deg)}}.stage-status--empty{gap:.55rem}.stage-status-mark{font-size:1.8rem;color:var(--bio-green);opacity:.7}.stage-status-title{color:var(--ink);font-size:.72rem;letter-spacing:.05em}.stage-status-body{max-width:26rem;color:var(--ink-faint);font-size:.56rem;line-height:1.7}
+  .specimen-tray{position:absolute;right:1rem;bottom:1rem;left:1rem;z-index:4;display:grid;grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr));gap:.45rem}.specimen-tray button{position:relative;display:grid;min-width:0;grid-template-columns:3.1rem 1fr;grid-template-rows:auto auto auto;column-gap:.6rem;padding:.48rem .6rem;color:var(--ink-soft);background:color-mix(in srgb,var(--paper-sunken) 80%,transparent);border:1px solid var(--glass-border);border-radius:8px;font-family:var(--font-mono);text-align:left;cursor:pointer;backdrop-filter:blur(12px);transition:transform 180ms var(--ease-out),border-color 160ms ease}.specimen-tray button:hover{transform:translateY(-2px)}.specimen-tray button.active{color:var(--ink);border-color:var(--bio-green);box-shadow:inset 0 0 18px color-mix(in srgb,var(--bio-green) 8%,transparent)}.specimen-tray small{color:var(--bio-green);font-size:.42rem}.specimen-tray b{overflow:hidden;font-size:.58rem;font-weight:500;text-overflow:ellipsis;white-space:nowrap}.specimen-tray em{color:var(--ink-faint);font-size:.43rem;font-style:normal}.specimen-art{position:relative;grid-row:1/4;width:3.1rem;height:2.6rem;overflow:hidden;background:linear-gradient(150deg,color-mix(in srgb,var(--accent-2) 18%,transparent),transparent);border:1px solid var(--glass-border);border-radius:5px}.specimen-art i{position:absolute;display:block}.specimen-art--cell i:first-child{inset:.35rem;border:1px solid #55d6be;border-radius:50%}.specimen-art--cell i:last-child{width:.75rem;height:.75rem;top:.85rem;left:1.05rem;background:#9c78ff;border-radius:50%;box-shadow:.72rem -.28rem 0 -.17rem #ff8f55}.specimen-art--heart i{width:1.2rem;height:1.65rem;top:.45rem;left:.92rem;background:linear-gradient(145deg,#ed4e5d,#a52e5e);border-radius:55% 55% 48% 48%;transform:rotate(-11deg)}.specimen-art--heart i::before{content:"";position:absolute;width:.35rem;height:.9rem;top:-.4rem;left:.58rem;background:#ff9562;border-radius:5px;transform:rotate(12deg)}.specimen-art--anatomy i{width:.52rem;height:.52rem;top:.4rem;left:1.29rem;background:#cbd3e6;border-radius:50%}.specimen-art--anatomy i::before{content:"";position:absolute;width:.9rem;height:1.35rem;top:.58rem;left:-.19rem;background:linear-gradient(160deg,#ed4e5d,#a52e5e);border-radius:42% 42% 32% 32%}.specimen-art--anatomy i::after{content:"";position:absolute;width:.9rem;height:2px;top:.86rem;left:-.19rem;background:#cbd3e6;opacity:.55}.specimen-art--brain i{width:1.65rem;height:1.4rem;top:.6rem;left:.72rem;background:linear-gradient(150deg,#c9a6ff,#8a63e0);border-radius:52% 52% 46% 54%/62% 62% 40% 40%}.specimen-art--brain i::before{content:"";position:absolute;inset:.2rem;border-radius:inherit;border-left:1px solid rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.28)}.specimen-art--brain i::after{content:"";position:absolute;width:1px;height:1.1rem;top:.15rem;left:50%;background:rgba(20,10,40,.35)}.specimen-art--eye i{width:1.75rem;height:1.75rem;top:.42rem;left:.68rem;border-radius:50%;background:radial-gradient(circle at 50% 50%,#0b1020 20%,#4f9cff 21%,#4f9cff 38%,#eef3ff 39%);box-shadow:inset 0 0 6px rgba(11,16,32,.4)}
+  .biology-readout{--selected-part:#9c78ff;display:flex;min-width:0;flex-direction:column;padding:1.35rem;background:color-mix(in srgb,var(--paper-sunken) 30%,transparent);border-top:2px solid var(--selected-part);transition:border-color 180ms ease}.readout-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}.biology-readout h2{margin:.42rem 0 .7rem;font-family:var(--font-display);font-size:clamp(2rem,3.6vw,2.8rem);font-weight:400;line-height:.92}.part-index{flex:0 0 auto;color:var(--selected-part);font-size:.55rem;letter-spacing:.1em}.part-description{min-height:5.1rem;color:var(--ink-soft);font-size:.66rem}.role-card{margin:1rem 0;padding:.85rem;background:linear-gradient(120deg,color-mix(in srgb,var(--selected-part) 11%,transparent),var(--glass));border:1px solid color-mix(in srgb,var(--selected-part) 34%,var(--glass-border));border-radius:8px}.role-card .label{color:var(--selected-part);font-size:.48rem}.role-card p{margin-top:.4rem;color:var(--ink-soft);font-size:.58rem;line-height:1.6}.part-facts{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}.part-facts div{min-width:0;padding:.65rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:7px}.part-facts dt{color:var(--ink-faint);font-size:.45rem;letter-spacing:.08em;text-transform:uppercase}.part-facts dd{margin-top:.18rem;overflow:hidden;color:var(--ink);font-size:.55rem;text-overflow:ellipsis;white-space:nowrap}.structure-list-head{display:flex;justify-content:space-between;gap:1rem;margin:1.1rem 0 .5rem;padding-top:.9rem;border-top:1px solid var(--rule)}.structure-list-head .label,.structure-list-head>span{font-size:.48rem}.structure-list-head>span{color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase}.structure-list{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}.structure-list :global(button){display:flex;min-width:0;align-items:center;gap:.45rem;padding:.48rem .5rem;color:var(--ink-soft);background:transparent;border:1px solid var(--glass-border);border-radius:6px;font:.5rem var(--font-mono);text-align:left;cursor:pointer}.structure-list :global(button:hover),.structure-list :global(button.active){color:var(--ink);background:var(--glass);border-color:color-mix(in srgb,var(--selected-part) 60%,var(--glass-border))}.structure-list :global(button i){width:7px;height:7px;flex:0 0 auto;background:var(--part);border-radius:50%;box-shadow:0 0 7px color-mix(in srgb,var(--part) 65%,transparent)}.structure-list :global(button span){display:flex;min-width:0;align-items:center;gap:.35rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.structure-list :global(button b){color:var(--ink-faint);font-size:.42rem;font-weight:400}.structure-list :global(button em){margin-left:auto;color:var(--selected-part);font-style:normal;opacity:0}.structure-list :global(button.active em){opacity:1}.observation{margin-top:auto;padding-top:1rem;border-top:1px solid var(--rule)}.observation .label{color:var(--selected-part);font-size:.48rem}.observation p{margin-top:.35rem;color:var(--ink-faint);font-size:.52rem;line-height:1.55}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media(max-width:58rem){.biology-dashboard{grid-template-columns:1fr}.biology-stage{min-height:40rem;border-right:0;border-bottom:1px solid var(--glass-border)}.biology-readout{min-height:36rem}.part-description{min-height:auto}}
+  @media(max-width:44rem){.biology-bar{align-items:flex-start}.biology-state small{display:none}.biology-stage{min-height:34rem}.specimen-tray{gap:.25rem}.specimen-tray button{display:flex;align-items:center;justify-content:center;padding:.45rem}.specimen-tray .specimen-art,.specimen-tray small,.specimen-tray em{display:none}.specimen-tray b{font-size:.5rem}.structure-list{grid-template-columns:1fr}.part-facts{grid-template-columns:1fr}.biology-readout{min-height:auto}}
+</style>
