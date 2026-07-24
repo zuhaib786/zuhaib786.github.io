@@ -56,6 +56,15 @@ const experiments = [
       "Orbits, fields, waves, Hamiltonian chaos, quantum packets, and phase transitions — with invariants and numerical error exposed.",
     kind: "physics",
   },
+  {
+    number: "007",
+    href: "/biology",
+    title: "Biology",
+    kicker: "Nine specimens · Procedural 3D · Cells · Organs · Processes",
+    description:
+      "Cells, organs, and phenomena generated in the browser — folded cristae, a creased cortex, a beating heart, and a cell that genuinely divides in two.",
+    kind: "biology",
+  },
 ];
 ---
 
@@ -123,6 +132,20 @@ const experiments = [
                   <circle class="mass mass--primary" cx="110" cy="70" r="9" />
                   <circle class="mass mass--orbiter" cx="192" cy="70" r="4" />
                   <path class="wave" d="M18,112 C34,92 48,132 64,112 S94,92 110,112 S140,132 156,112 S186,92 202,112" />
+                </svg>
+              </div>
+            ) : experiment.kind === "biology" ? (
+              <div class="mini-cell">
+                <svg viewBox="0 0 200 130" aria-hidden="true">
+                  <circle class="cortex" cx="100" cy="65" r="52" />
+                  <circle class="nucleus" cx="82" cy="58" r="18" />
+                  <circle class="nucleolus" cx="87" cy="54" r="5" />
+                  <path class="mito" d="M124,86 q11,-9 22,-2" />
+                  <path class="mito" d="M126,90 q11,-9 22,-2" />
+                  <path class="golgi" d="M120,38 q14,-5 26,1" />
+                  <path class="golgi" d="M122,43 q13,-5 24,1" />
+                  <path class="golgi" d="M124,48 q12,-5 22,1" />
+                  <circle class="vesicle" cx="100" cy="65" r="3.2" />
                 </svg>
               </div>
             ) : (
@@ -445,6 +468,15 @@ const experiments = [
   .mini-physics .mass--orbiter { offset-path:path("M 28 70 A 82 34 0 1 0 192 70 A 82 34 0 1 0 28 70");animation:revolve 7s linear infinite; }
   .mini-physics .wave { fill:none;stroke:var(--accent-2);stroke-width:1.5;stroke-linecap:round; }
 
+  .mini-cell { position:relative;z-index:1;width:min(76%,17rem); }
+  .mini-cell svg { display:block;width:100%;overflow:visible; }
+  .mini-cell .cortex { fill:none;stroke:var(--rule-strong);stroke-width:1.2;stroke-dasharray:3 4; }
+  .mini-cell .nucleus { fill:none;stroke:var(--rule-strong);stroke-width:1.4; }
+  .mini-cell .nucleolus { fill:var(--rule-strong);opacity:.5; }
+  .mini-cell .mito,.mini-cell .golgi { fill:none;stroke:var(--accent-2);stroke-width:1.4;stroke-linecap:round; }
+  .mini-cell .golgi { stroke:var(--rule-strong); }
+  .mini-cell .vesicle { fill:var(--interact);filter:drop-shadow(0 0 6px var(--interact));offset-path:path("M 82 58 C 100 40 128 40 134 43 C 140 62 138 78 134 86");animation:revolve 5s ease-in-out infinite; }
+
   @keyframes revolve {
     to { offset-distance: 100%; }
   }
@@ -454,6 +486,7 @@ const experiments = [
     .mini-bars span,
     .mini-sky circle,
     .mini-measure .centroid,
+    .mini-cell .vesicle,
     .mini-physics .mass--orbiter { animation: none; }
   }
 

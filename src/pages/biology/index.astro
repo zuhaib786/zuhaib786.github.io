@@ -1,0 +1,20 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SolidBiologyExplorer from "../../components/visuals/SolidBiologyExplorer.astro";
+---
+
+<ExperimentPage
+  title="Biology Atlas"
+  description="Explore rotatable three-dimensional biological models with clickable structures and detailed functional annotations."
+  number="B01"
+  eyebrow="Structure & function"
+  heading="Life is built"
+  accent="in layers."
+  lede="Nine specimens generated from scratch in the browser — cells, organs, and processes you can scrub through. Select any structure to connect its form with the work it performs."
+  noteTitle="How to read the atlas"
+  note="Nothing here is a downloaded mesh. Every surface is generated at load time from noise fields, lofted cross-sections and metaball fields, which is why the cristae fold, the cortex creases, and a dividing cell can genuinely become two. These are explanatory morphology models: spatial relationships and relative form are prioritised over clinical measurement. Drag to rotate, scroll to zoom, click any structure, and use Isolate to fade everything else away."
+  backHref="/visuals"
+  backLabel="Visual laboratory"
+>
+  <SolidBiologyExplorer />
+</ExperimentPage>

@@ -15,6 +15,11 @@
     "astro": "^5.8.0",
     "katex": "^0.16.21",
     "rehype-katex": "^7.0.1",
-    "remark-math": "^6.0.0"
+    "remark-math": "^6.0.0",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.1",
+    "typescript": "^5.9.3"
   }
 }
