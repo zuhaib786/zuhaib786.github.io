@@ -1,429 +1,432 @@
-/* ------------------------------------------------------------------ */
-/*  Design tokens — the plate                                          */
-/*                                                                     */
-/*  The site is an astronomical glass plate. Content is written on the */
-/*  emulsion; a reseau (the coordinate grid observatories etched into  */
-/*  the glass itself) rules the surface; the deep field sits behind.   */
-/*                                                                     */
-/*  Dark mode is the sky as observed. Light mode is the same plate as  */
-/*  a negative on a light table — stars go dark on a pale ground, and  */
-/*  the accent turns to the warm ink astronomers annotated margins in. */
-/* ------------------------------------------------------------------ */
-
 :root {
-  /* the negative: a plate on a light table. Cool, never cream. */
-  --paper: #e9edf5;
-  --paper-raised: #f3f6fb;
-  --paper-sunken: #dde3ef;
-  --ink: #131824;
-  --ink-soft: #4d5670;
-  --ink-faint: #808aa4;
+  --ink: #102b3a;
+  --ink-soft: #425d69;
+  --ink-faint: #71828a;
+  --paper: #f6f1e7;
+  --paper-raised: #fffdf7;
+  --paper-sunken: #eee6d7;
+  --panel: #fffdf7;
+  --rule: #d8cebd;
+  --rule-strong: #b8aa94;
+  --rule-heavy: #102b3a;
+  --accent: #d95b45;
+  --accent-2: #d2a52d;
+  --accent-soft: #f4d7cf;
+  --interact: #b83f31;
+  --code-wash: #f1eadc;
 
-  /* rules + accents. --accent is annotation ink: what gets written
-     *on* the plate, never part of the exposure itself. */
-  --rule: #c0c8da;
-  --rule-strong: #131824;
-  /* the heavy title-block rule. Near-black on the negative reads as
-     printed ink; the same value in dark mode would be a glaring bar, so
-     it dims there rather than inverting. */
-  --rule-heavy: rgba(19, 24, 36, 0.85);
-  --accent: #c8401a;
-  --accent-2: #4b3fd6;
-  --accent-soft: #d6dcea;
-
-  /* the reseau — grid etched into the glass */
-  --reseau: rgba(19, 24, 36, 0.05);
-  --reseau-major: rgba(19, 24, 36, 0.09);
-  --fiducial: rgba(19, 24, 36, 0.32);
-
-  /* Code sits in a wash, not a slab: just enough tint to settle the reseau
-     behind the text, so the block reads as a recess in the plate rather than
-     a different-coloured page laid on top of it. */
-  --code-wash: rgba(255, 255, 255, 0.66);
-
-  /* plate glass — opaque enough that the field never fights the text */
-  --panel: rgba(243, 246, 252, 0.74);
-  --glass: rgba(255, 255, 255, 0.42);
-  --glass-strong: rgba(255, 255, 255, 0.68);
-  --glass-border: rgba(19, 24, 36, 0.14);
-  --glass-highlight: rgba(255, 255, 255, 0.75);
-  --sheen: rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 24px rgba(19, 24, 36, 0.09);
-
-  /* interactive hue: annotation ink in light, neon in dark */
-  --interact: #c8401a;
-  --hover-glow: 0 0 0 rgba(0, 0, 0, 0);
+  /* Compatibility tokens used by the interactive laboratories. */
+  --glass: rgba(255, 253, 247, 0.72);
+  --glass-strong: rgba(246, 241, 231, 0.95);
+  --glass-border: #d8cebd;
+  --glass-highlight: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 12px 34px rgba(54, 45, 30, 0.1);
+  --paper-2: var(--paper-sunken);
+  --sheen: rgba(255, 255, 255, 0.45);
+  --reseau: rgba(16, 43, 58, 0.035);
+  --reseau-major: rgba(16, 43, 58, 0.065);
+  --fiducial: rgba(16, 43, 58, 0.24);
+  --hover-glow: none;
   --underline-glow: none;
+  --sky-from: var(--paper);
+  --sky-to: var(--paper-sunken);
+  --orb-1: transparent;
+  --orb-2: transparent;
+  --orb-3: transparent;
 
-  /* the field itself — stars read dark against the negative */
-  --star: #1a2138;
-  --sky-from: #eef1f7;
-  --sky-to: #e2e7f2;
-
-  /* nebulae drifting behind the plate */
-  --orb-1: rgba(75, 63, 214, 0.12);
-  --orb-2: rgba(147, 91, 255, 0.1);
-  --orb-3: rgba(15, 127, 139, 0.1);
-
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo,
-    Consolas, monospace;
-  /* the engraved plate title — used only for names and article titles */
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    "Times New Roman", serif;
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
 
-  --gutter: 1.5rem;
-
+  --gutter: clamp(1rem, 3.5vw, 3rem);
+  --folio-pad: clamp(1.25rem, 5vw, 4.5rem);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light;
 }
 
-/* alternate typeface — Monaspace Xenon, a slab-serif monospace */
-html[data-font="xenon"] {
-  --font-mono: "Monaspace Xenon", "IBM Plex Mono", ui-monospace,
-    SFMono-Regular, Menlo, Consolas, monospace;
-}
-
-/* dark mode — the deep field as observed, depth from light not shade */
 html[data-theme="dark"] {
-  --paper: #070a14;
-  --paper-raised: #10152a;
-  --paper-sunken: #05070f;
-  --ink: #e8ecf7;
-  --ink-soft: #99a3c0;
-  --ink-faint: #5f6884;
-
-  --rule: #2a3252;
-  --rule-strong: #e8ecf7;
-  --rule-heavy: rgba(176, 198, 255, 0.4);
-  --accent: #8a9cff;
-  --accent-2: #a06bff;
-  --accent-soft: #1d2445;
-
-  --reseau: rgba(150, 180, 255, 0.07);
-  --reseau-major: rgba(150, 180, 255, 0.13);
-  --fiducial: rgba(170, 200, 255, 0.42);
-
-  --code-wash: rgba(0, 0, 0, 0.34);
-
-  --panel: rgba(9, 13, 30, 0.62);
-  --glass: rgba(255, 255, 255, 0.05);
-  --glass-strong: rgba(255, 255, 255, 0.09);
-  --glass-border: rgba(160, 190, 255, 0.16);
-  --glass-highlight: rgba(190, 215, 255, 0.14);
-  --sheen: rgba(120, 210, 255, 0.09);
-  --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-
-  /* neon */
-  --interact: #6fd6ff;
-  --hover-glow: 0 0 26px rgba(111, 214, 255, 0.28);
-  --underline-glow: 0 0 10px rgba(111, 214, 255, 0.8);
-
-  --star: #dce6ff;
-  --sky-from: #070a14;
-  --sky-to: #0d1226;
-
-  --orb-1: rgba(80, 100, 255, 0.16);
-  --orb-2: rgba(150, 90, 255, 0.15);
-  --orb-3: rgba(80, 200, 255, 0.11);
-
+  --ink: #f4efe4;
+  --ink-soft: #c6d2d3;
+  --ink-faint: #8da0a6;
+  --paper: #0b202b;
+  --paper-raised: #153542;
+  --paper-sunken: #102b3a;
+  --panel: #12303c;
+  --rule: #31505a;
+  --rule-strong: #54717a;
+  --rule-heavy: #f4efe4;
+  --accent: #f07a62;
+  --accent-2: #f4c95d;
+  --accent-soft: #5a342f;
+  --interact: #f4c95d;
+  --code-wash: #0c2632;
+  --glass: rgba(21, 53, 66, 0.74);
+  --glass-strong: rgba(11, 32, 43, 0.94);
+  --glass-border: #31505a;
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+  --reseau: rgba(244, 239, 228, 0.035);
+  --reseau-major: rgba(244, 239, 228, 0.065);
+  --fiducial: rgba(244, 239, 228, 0.24);
   color-scheme: dark;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Base                                                               */
-/* ------------------------------------------------------------------ */
-
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 html {
-  background: linear-gradient(170deg, var(--sky-from), var(--sky-to) 70%);
-  background-attachment: fixed;
   scroll-behavior: smooth;
-  /* keep anchor targets clear of the sticky header */
   scroll-padding-top: 5rem;
+  background: var(--paper);
 }
 
 body {
-  font-family: var(--font-mono);
-  font-size: 0.9375rem;
-  line-height: 1.75;
+  min-width: 20rem;
+  background:
+    radial-gradient(circle at 15% 12%, color-mix(in srgb, var(--accent-2) 8%, transparent), transparent 24rem),
+    var(--paper);
   color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* ------------------------------------------------------------------ */
-/*  The field — nebulae, then the star canvas painted over them        */
-/* ------------------------------------------------------------------ */
-
-.orbs {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(70px);
-}
-
-.orb-1 {
-  width: 44rem;
-  height: 44rem;
-  top: -16rem;
-  left: -12rem;
-  background: radial-gradient(circle at 35% 35%, var(--orb-1), transparent 70%);
-}
-
-.orb-2 {
-  width: 38rem;
-  height: 38rem;
-  top: 18%;
-  right: -14rem;
-  background: radial-gradient(circle at 60% 40%, var(--orb-2), transparent 70%);
-}
-
-.orb-3 {
-  width: 32rem;
-  height: 32rem;
-  bottom: -12rem;
-  left: 28%;
-  background: radial-gradient(circle at 50% 50%, var(--orb-3), transparent 70%);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .orb-1 {
-    animation: drift-1 34s ease-in-out infinite alternate;
-  }
-  .orb-2 {
-    animation: drift-2 28s ease-in-out infinite alternate;
-  }
-  .orb-3 {
-    animation: drift-3 40s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes drift-1 {
-  to {
-    transform: translate(7rem, 5rem) scale(1.1);
-  }
-}
-
-@keyframes drift-2 {
-  to {
-    transform: translate(-6rem, 7rem) scale(1.15);
-  }
-}
-
-@keyframes drift-3 {
-  to {
-    transform: translate(5rem, -6rem) scale(1.06);
-  }
-}
-
-/* the star field — canvas, in slow sidereal rotation */
-.sky {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 ::selection {
-  background: var(--accent);
-  color: var(--paper);
+  background: var(--accent-soft);
+  color: var(--ink);
 }
 
 a {
   color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--ink-faint);
-  text-underline-offset: 3px;
-  transition: color 120ms ease, text-decoration-color 120ms ease;
+  text-decoration-color: var(--rule-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color 140ms ease, text-decoration-color 140ms ease;
 }
 
 a:hover {
   color: var(--interact);
-  text-decoration-color: var(--interact);
+  text-decoration-color: currentColor;
 }
 
-img {
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img,
+svg,
+canvas {
+  display: block;
   max-width: 100%;
-  height: auto;
 }
 
-/* a visible, consistent focus ring everywhere */
 :focus-visible {
-  outline: 2px solid var(--interact);
-  outline-offset: 3px;
-  border-radius: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Typographic utilities                                              */
-/* ------------------------------------------------------------------ */
+.page {
+  width: min(76rem, 100%);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.site-main {
+  position: relative;
+  width: min(72rem, calc(100% - 2rem));
+  margin: clamp(1.25rem, 3vw, 2.75rem) auto 0;
+  padding: 0 var(--folio-pad) clamp(2.5rem, 6vw, 5rem);
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  box-shadow: 0 22px 55px rgba(54, 45, 30, 0.09);
+}
+
+.site-main::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--reseau) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--reseau) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.45;
+  content: "";
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent 24rem);
+}
+
+.site-main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Compatibility with pages still carrying the previous shell class. */
+.plate-glass {
+  width: min(72rem, calc(100% - 2rem));
+}
 
 .label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
 .label--accent {
   color: var(--accent);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Long-form article body (markdown output)                           */
-/* ------------------------------------------------------------------ */
+/* Printed-folio details shared by article and collection pages. */
+.folio-running {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+}
 
+.folio-running > :nth-child(2) {
+  color: var(--ink);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.folio-running > :last-child {
+  justify-self: end;
+}
+
+.folio-head {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(2rem, 5vw, 3.5rem);
+  text-align: center;
+}
+
+.folio-kicker {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  font-variant-caps: all-small-caps;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.folio-head h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.folio-ornament {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.8rem;
+  width: min(18rem, 70%);
+  margin: 1.25rem auto;
+  color: var(--accent-2);
+}
+
+.folio-ornament span {
+  height: 1px;
+  background: var(--rule);
+}
+
+.folio-argument {
+  max-width: 42rem;
+  margin-inline: auto;
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: clamp(1.02rem, 1.7vw, 1.16rem);
+  line-height: 1.65;
+}
+
+/* Long-form content adopts the note pages' narrow printed measure. */
 .prose {
-  max-width: none;
+  max-width: 46rem;
+  margin-inline: auto;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.2vw, 1.08rem);
+  line-height: 1.75;
+  counter-reset: section;
 }
 
 .prose > * + * {
-  margin-top: 1.25em;
+  margin-top: 1.15em;
 }
 
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
+  color: var(--ink);
+  font-family: var(--font-serif);
   font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.02em;
-}
-
-.prose h2 {
-  font-size: 1.125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 2.75em;
-  padding-top: 1.25em;
-  border-top: 1px solid var(--rule);
-}
-
-.prose h3 {
-  font-size: 1rem;
-  margin-top: 2.25em;
-}
-
-.prose h4 {
-  font-size: 0.9375rem;
-  margin-top: 2em;
-  color: var(--ink-soft);
-}
-
-/* numbered section headings, technical-manual style */
-.prose {
-  counter-reset: section;
+  line-height: 1.25;
+  text-wrap: balance;
 }
 
 .prose h2 {
   counter-increment: section;
-  counter-reset: subsection;
+  margin-top: 2.8em;
+  padding-top: 1.3em;
+  border-top: 1px solid var(--rule);
+  font-size: 1.38rem;
+  letter-spacing: 0.01em;
+  text-align: center;
 }
 
 .prose h2::before {
-  content: counter(section, decimal-leading-zero) " ";
-  color: var(--accent);
   margin-right: 0.5em;
+  color: var(--accent);
+  content: "§ " counter(section, upper-roman) " ·";
+  font-weight: 500;
+  letter-spacing: 0.06em;
 }
 
 .prose h3 {
-  counter-increment: subsection;
+  margin-top: 2.1em;
+  font-size: 1.12rem;
 }
 
-.prose h3::before {
-  content: counter(section) "." counter(subsection) " ";
-  color: var(--accent);
-  margin-right: 0.5em;
+.prose h4 {
+  margin-top: 1.8em;
+  color: var(--ink-soft);
+  font-size: 1rem;
 }
 
 .prose ul,
 .prose ol {
-  padding-left: 1.5em;
+  padding-left: 1.4em;
 }
 
 .prose li + li {
-  margin-top: 0.4em;
-}
-
-.prose ul li::marker {
-  content: "— ";
-  color: var(--ink-faint);
+  margin-top: 0.35em;
 }
 
 .prose blockquote {
-  border-left: 2px solid var(--accent);
-  padding: 0.5em 0 0.5em 1.25em;
+  margin-inline: 0;
+  padding: 0.85rem 1.1rem;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--paper-sunken) 70%, transparent);
   color: var(--ink-soft);
-  background: var(--paper-sunken);
 }
 
 .prose hr {
+  width: 7rem;
+  margin: 2.8rem auto;
   border: 0;
-  border-top: 1px dashed var(--rule);
-  margin: 2.5em 0;
+  border-top: 1px solid var(--rule-strong);
 }
 
-.prose strong {
-  font-weight: 600;
+.prose a {
+  color: var(--interact);
+}
+
+.prose code {
+  padding: 0.08em 0.3em;
+  border: 1px solid var(--rule);
+  background: var(--code-wash);
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+}
+
+.prose pre {
+  max-width: 100%;
+  padding: 1.15rem;
+  overflow-x: auto;
+  border: 1px solid var(--rule-strong);
+  background: var(--code-wash) !important;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.prose pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+}
+
+html[data-theme="dark"] .prose pre,
+html[data-theme="dark"] .prose pre span {
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
 }
 
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
 .prose th,
 .prose td {
+  padding: 0.55rem 0.7rem;
   border: 1px solid var(--rule);
-  padding: 0.5em 0.75em;
   text-align: left;
 }
 
 .prose th {
   background: var(--paper-sunken);
-  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
-/* Figures float unframed: the diagrams ship transparent, so they read
-   straight onto the plate's own reseau rather than sitting in a box on it. */
 .prose img {
-  display: block;
-  margin: 0 auto;
-  max-width: 100%;
   height: auto;
+  margin-inline: auto;
 }
 
 .prose figure {
-  margin: 2.25rem 0;
+  margin: 2.2rem 0;
 }
 
 .prose figcaption {
-  margin-top: 0.75rem;
-  font-size: 0.8125rem;
-  line-height: 1.65;
+  margin-top: 0.65rem;
   color: var(--ink-soft);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
 }
 
-/* plates ship a light and a dark rendering; show the one matching the theme */
+.prose .katex-display,
+.prose .plate-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .prose .plate-dark {
   display: none;
 }
@@ -436,148 +439,51 @@ html[data-theme="dark"] .prose .plate-dark {
   display: block;
 }
 
-/* wide plates: let the figure scroll rather than the page */
-.prose .plate-scroll {
-  overflow-x: auto;
-}
-
-/* inline code — same wash as the blocks, so they read as one material */
-.prose code {
-  font-size: 0.875em;
-  background: var(--code-wash);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 0.1em 0.35em;
-}
-
-/* code blocks (shiki) */
-.prose pre {
-  border: 1px solid var(--rule-heavy);
-  border-radius: 0;
-  padding: 1.25rem;
-  overflow-x: auto;
-  font-size: 0.8125rem;
-  line-height: 1.7;
-  /* `!important` beats the opaque background shiki inlines per theme. */
-  background: var(--code-wash) !important;
-}
-
-.prose pre code {
-  background: none;
-  border: 0;
-  padding: 0;
-  font-size: inherit;
-}
-
-/* shiki dual-theme: switch token colours when dark mode is active */
-html[data-theme="dark"] .prose pre,
-html[data-theme="dark"] .prose pre span {
-  color: var(--shiki-dark) !important;
-  font-style: var(--shiki-dark-font-style) !important;
-  font-weight: var(--shiki-dark-font-weight) !important;
-}
-
-html[data-theme="dark"] .prose pre code {
-  background: none;
-  border: 0;
-}
-
-/* KaTeX display math */
-.prose .katex-display {
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.5em 0;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Shared page chrome                                                 */
-/* ------------------------------------------------------------------ */
-
-.page {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 0 var(--gutter);
-}
-
-/* The plate: one sheet of glass over the field, with the reseau etched
-   into it and fiducial crosses burned at the corners. Everything on the
-   site is written on this surface. */
-.plate-glass {
-  position: relative;
-  width: min(72rem, calc(100% - 1.5rem));
-  max-width: none;
-  margin: 1rem auto 0;
-  padding: 0 var(--gutter) 2.5rem;
-  background-color: var(--panel);
-  /* The reseau — fine rulings every 12px, heavier every 5th. Tiled via
-     background-size rather than repeating-linear-gradient: an article
-     plate runs tens of thousands of pixels tall, and a repeating gradient
-     accumulates enough subpixel error over that span to visibly streak. */
-  background-image:
-    linear-gradient(to right, var(--reseau-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--reseau-major) 1px, transparent 1px),
-    linear-gradient(to right, var(--reseau) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--reseau) 1px, transparent 1px);
-  background-size: 60px 60px, 60px 60px, 12px 12px, 12px 12px;
-  background-position: 0 0;
-  /* Clear glass, not frost: a plate holds the star image, so the field has
-     to read *through* the surface. A blur here erases point stars entirely
-     and would leave phones — where the plate fills the screen — with no
-     field at all. Saturation alone keeps the glass feel. */
-  -webkit-backdrop-filter: saturate(160%) brightness(1.04);
-  backdrop-filter: saturate(160%) brightness(1.04);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  /* The plate has edges: glows bleeding past them pushed the document
-     59px wide on narrow screens and scrolled the whole page sideways. */
-  overflow: hidden;
-  /* depth from light, not shade: bright top edge + faint inner wash */
-  box-shadow:
-    inset 0 1px 0 var(--glass-highlight),
-    inset 0 0 60px rgba(255, 255, 255, 0.03);
-}
-
-/* fiducial crosses — the registration marks a measuring engine aligns to */
-.plate-glass::before {
-  content: "";
-  position: absolute;
-  inset: 0.75rem;
-  pointer-events: none;
-  background-color: var(--fiducial);
-  --cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11'%3E%3Cpath d='M5.5 0v11M0 5.5h11' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
-  -webkit-mask-image: var(--cross), var(--cross), var(--cross), var(--cross);
-  mask-image: var(--cross), var(--cross), var(--cross), var(--cross);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: top left, top right, bottom left, bottom right;
-  mask-position: top left, top right, bottom left, bottom right;
-  -webkit-mask-size: 11px 11px;
-  mask-size: 11px 11px;
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .plate-glass {
-    background-color: var(--paper-raised);
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Motion — reveal-on-scroll (opt in with data-reveal)                */
-/* ------------------------------------------------------------------ */
-
-/* Only hide content when JS is confirmed running (html.js), so the
-   site stays fully readable without JavaScript. */
 @media (prefers-reduced-motion: no-preference) {
   html.js [data-reveal] {
     opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity 650ms var(--ease-out),
-      transform 650ms var(--ease-out);
+    transform: translateY(12px);
+    transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-out);
   }
 
   html.js [data-reveal].is-visible {
     opacity: 1;
     transform: none;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --folio-pad: 1.1rem;
+  }
+
+  .site-main {
+    width: calc(100% - 1rem);
+    margin-top: 0.5rem;
+  }
+
+  .folio-running {
+    grid-template-columns: 1fr auto;
+  }
+
+  .folio-running > :nth-child(2) {
+    display: none;
+  }
+
+  .prose {
+    font-size: 1rem;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .site-main {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
   }
 }

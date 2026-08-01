@@ -10,285 +10,207 @@ const nav = [
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const visualPrefixes = [
-  "/earthquakes", "/algorithms", "/systems", "/distributed", "/databases",
-  "/runtime", "/networking", "/ml", "/gpu", "/reliability", "/mathematics", "/physics",
+  "/earthquakes",
+  "/algorithms",
+  "/systems",
+  "/distributed",
+  "/databases",
+  "/runtime",
+  "/networking",
+  "/ml",
+  "/gpu",
+  "/reliability",
+  "/mathematics",
+  "/physics",
 ];
 const isActive = (href: string) =>
   path.startsWith(href) ||
-  (href === "/visuals" && visualPrefixes.some((prefix) => path.startsWith(prefix)));
+  (href === "/visuals" &&
+    visualPrefixes.some((prefix) => path.startsWith(prefix)));
 ---
 
-<header>
-  <div class="page bar">
-    <a href="/" class="wordmark" aria-label="Zuhaib Ul Zamann — home">
-      <span class="mark" aria-hidden="true">Z<sup>2</sup></span>
-      <span class="name">Zuhaib Ul Zamann</span>
-    </a>
-    <nav>
-      {
-        nav.map((item) => (
-          <a
-            href={item.href}
-            class:list={["nav-link", { active: isActive(item.href) }]}
-          >
-            {item.label}
-          </a>
-        ))
-      }
-      <button
-        id="font-toggle"
-        class="theme-toggle font-toggle"
-        aria-label="Toggle slab-serif font"
-        title="Toggle font (IBM Plex Mono / Monaspace Xenon)"
-      >
-        <span aria-hidden="true">Aa</span>
-      </button>
-      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <svg
-          class="icon icon-moon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+<header class="site-header">
+  <a href="/" class="wordmark" aria-label="Zuhaib Ul Zamann — home">
+    <span class="mark" aria-hidden="true">Z<sup>2</sup></span>
+    <span class="name">Zuhaib Ul Zamann</span>
+  </a>
+
+  <nav aria-label="Primary navigation">
+    {
+      nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={["nav-link", { active: isActive(item.href) }]}
+          aria-current={isActive(item.href) ? "page" : undefined}
         >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-        <svg
-          class="icon icon-sun"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-        </svg>
-      </button>
-    </nav>
-  </div>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <button
+    id="theme-toggle"
+    class="theme-toggle"
+    type="button"
+    aria-label="Toggle color theme"
+    aria-pressed="false"
+  >
+    <span aria-hidden="true">◐</span>
+  </button>
 </header>
 
 <script>
-  // delegated so it keeps working after view-transition swaps
-  document.addEventListener("click", (e) => {
-    const target = e.target as Element;
-    if (target.closest?.("#theme-toggle")) {
-      const next =
-        document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      try {
-        localStorage.setItem("theme", next);
-      } catch {}
-    } else if (target.closest?.("#font-toggle")) {
-      const next =
-        document.documentElement.dataset.font === "xenon" ? "plex" : "xenon";
-      document.documentElement.dataset.font = next;
-      try {
-        localStorage.setItem("font", next);
-      } catch {}
-    }
+  document.addEventListener("click", (event) => {
+    const target = event.target as Element;
+    if (!target.closest?.("#theme-toggle")) return;
+
+    const next =
+      document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem("theme", next);
+    } catch {}
   });
 </script>
 
 <style>
-  header {
+  .site-header {
     position: sticky;
     top: 0;
     z-index: 50;
-    border-bottom: 1px solid var(--rule-strong);
-    background: var(--glass-strong);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    backdrop-filter: blur(12px) saturate(140%);
-    transition: box-shadow 250ms ease;
-  }
-
-  /* solid fallback where backdrop-filter is unsupported */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    header {
-      background: var(--paper-raised);
-    }
-  }
-
-  header[data-scrolled] {
-    box-shadow: var(--glass-shadow);
-  }
-
-  .bar {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    min-height: 4.25rem;
+    padding: 0 clamp(1rem, 4vw, 4rem);
+    border-bottom: 1px solid color-mix(in srgb, var(--rule), transparent 20%);
+    background: color-mix(in srgb, var(--paper), transparent 5%);
+    backdrop-filter: blur(16px);
   }
 
   .wordmark {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: max-content;
+    color: var(--ink);
     text-decoration: none;
   }
 
-  /* Z-sub-u squared — Zuhaib and Zamann are the Z², ul is the subscript */
   .mark {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--accent-2);
     font-family: var(--font-display);
+    font-size: 1.1rem;
     font-style: italic;
-    font-weight: 400;
-    font-size: 1.5rem;
     line-height: 1;
-    background: linear-gradient(120deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    transition: transform 180ms var(--ease-out);
   }
 
-  .mark sub,
   .mark sup {
-    font-size: 0.6em;
+    margin-left: 0.03em;
+    font-size: 0.52em;
     font-style: normal;
-    line-height: 0;
-  }
-
-  .mark sub {
-    vertical-align: -0.35em;
-  }
-
-  .mark sup {
     vertical-align: 0.55em;
-    margin-left: 0.05em;
   }
 
   .wordmark:hover .mark {
-    filter: brightness(1.15) saturate(1.2)
-      drop-shadow(0 0 8px color-mix(in srgb, var(--interact) 55%, transparent));
+    transform: rotate(-6deg);
   }
 
   .name {
+    font-family: var(--font-serif);
+    font-size: 1rem;
     font-weight: 600;
-    font-size: 0.8125rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    white-space: nowrap;
   }
 
   nav {
     display: flex;
     align-items: center;
-    /* must wrap: five links plus both toggles are wider than a phone, and
-       an unwrapped row would force the whole page to scroll sideways */
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.75rem 1.5rem;
-  }
-
-  .theme-toggle {
-    display: inline-flex;
-    align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid var(--rule);
-    border-radius: 50%;
-    background: transparent;
-    color: var(--ink-soft);
-    cursor: pointer;
-    transition:
-      color 150ms ease,
-      border-color 150ms ease,
-      transform 220ms var(--ease-out);
-  }
-
-  .theme-toggle:hover {
-    color: var(--interact);
-    border-color: var(--interact);
-    box-shadow: var(--underline-glow);
-    transform: rotate(15deg);
-  }
-
-  .icon {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .font-toggle {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0;
-  }
-
-  /* lit up while the alternate face is active */
-  :global(html[data-font="xenon"]) .font-toggle {
-    color: var(--interact);
-    border-color: var(--interact);
-  }
-
-  .icon-sun {
-    display: none;
-  }
-
-  :global(html[data-theme="dark"]) .icon-sun {
-    display: block;
-  }
-
-  :global(html[data-theme="dark"]) .icon-moon {
-    display: none;
+    gap: clamp(0.8rem, 2vw, 1.75rem);
   }
 
   .nav-link {
     position: relative;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none;
     color: var(--ink-soft);
-    padding-bottom: 2px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
   }
 
-  .nav-link::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--interact);
-    box-shadow: var(--underline-glow);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 220ms var(--ease-out);
-  }
-
-  .nav-link:hover {
-    color: var(--interact);
-  }
-
-  .nav-link:hover::after,
-  .nav-link.active::after {
-    transform: scaleX(1);
-  }
-
+  .nav-link:hover,
   .nav-link.active {
-    color: var(--interact);
+    color: var(--accent);
   }
 
-  @media (max-width: 540px) {
-    .name {
-      display: none;
+  .nav-link.active::after {
+    position: absolute;
+    right: 0;
+    bottom: -0.55rem;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    content: "";
+  }
+
+  .theme-toggle {
+    justify-self: end;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (max-width: 860px) {
+    .site-header {
+      grid-template-columns: 1fr auto;
+      gap: 0.65rem;
+      padding-block: 0.65rem;
     }
 
     nav {
-      gap: 0.625rem 0.875rem;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-content: flex-start;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
     }
 
     .nav-link {
-      font-size: 0.6875rem;
-      letter-spacing: 0.08em;
+      flex: 0 0 auto;
+    }
+
+    .nav-link.active::after {
+      bottom: -0.25rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .name {
+      font-size: 0.9rem;
     }
   }
 </style>

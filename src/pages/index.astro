@@ -26,81 +26,92 @@ const seriesPostPath = (id: string) => {
 
 const sections = [
   {
-    number: "01",
+    number: "I",
     title: "Writing",
     href: "/blog",
-    blurb: "Long-form technical articles on systems, performance and ML.",
+    blurb: "Long-form work on systems, performance, and ML infrastructure.",
   },
   {
-    number: "02",
+    number: "II",
     title: "Series",
     href: "/series",
-    blurb: "Multi-part learning series, like working through Zig from scratch.",
+    blurb: "Structured, multi-part technical learning projects.",
   },
   {
-    number: "03",
+    number: "III",
     title: "Notes",
     href: "/notes",
-    blurb: "Working notes and chapter summaries from books I'm studying.",
+    blurb: "Compact reference notes from active study.",
   },
   {
-    number: "04",
+    number: "IV",
     title: "Visuals",
     href: "/visuals",
-    blurb: "Interactive explanations, simulations and data experiments.",
+    blurb: "Interactive explanations, simulations, and experiments.",
   },
   {
-    number: "05",
+    number: "V",
     title: "Projects",
     href: "/projects",
-    blurb: "Selected personal and academic projects.",
+    blurb: "Selected engineering and academic work.",
   },
   {
-    number: "06",
+    number: "VI",
     title: "Résumé",
     href: "/resume",
-    blurb: "Education, experience and technical skills.",
+    blurb: "Experience, education, and technical background.",
   },
 ];
 ---
 
 <Base title="Zuhaib Ul Zamann — Software Engineer">
   <section class="hero">
-    <p class="label label--accent">
-      ML Engineering · Distributed Systems · Agentic AI
-    </p>
-    <h1>Zuhaib <span class="family">Ul Zamann</span></h1>
-    <p class="role label">Software Engineer II, AI/ML · Uber</p>
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-copy">
+      <p class="eyebrow">ML Engineering · Distributed Systems · Agentic AI</p>
+      <h1>Zuhaib <em>Ul Zamann</em></h1>
+      <p class="role">Software Engineer II, AI/ML · Uber</p>
+    </div>
     <p class="intro">
       I build agentic AI systems and the infrastructure that keeps them
-      reliable and cheap to run. I recently joined Uber as a Software Engineer
-      II on AI/ML. Previously at Sprinklr I shipped production copilots for
-      marketing and social suites, built cost telemetry across 1,000+
-      microservices that saved $100K+/month, and designed resiliency systems
-      that lifted platform uptime from 95% to 99.999%.
+      reliable and economical to run. At Uber, I work on AI/ML engineering.
+      Previously at Sprinklr, I shipped production copilots, built cost
+      telemetry across 1,000+ microservices, and designed platform resiliency
+      systems.
     </p>
   </section>
 
   <section class="contents" data-reveal>
-    <h2 class="label">Contents</h2>
-    <div class="grid">
+    <header class="section-head">
+      <p>Contents</p>
+      <h2>Browse the work</h2>
+    </header>
+    <ol class="contents-list">
       {
-        sections.map((s, i) => (
-          <a href={s.href} class="card" style={`--i: ${i}`}>
-            <span class="card-number">{s.number}</span>
-            <span class="card-title">{s.title}</span>
-            <span class="card-blurb">{s.blurb}</span>
-          </a>
+        sections.map((section) => (
+          <li>
+            <a href={section.href}>
+              <span class="section-number">{section.number}</span>
+              <span>
+                <strong>{section.title}</strong>
+                <small>{section.blurb}</small>
+              </span>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
         ))
       }
-    </div>
+    </ol>
   </section>
 
   <section class="recent" data-reveal>
-    <div class="recent-head">
-      <h2 class="label">Recent Writing</h2>
-      <a href="/blog" class="label all">All articles →</a>
-    </div>
+    <header class="section-head section-head--row">
+      <div>
+        <p>Latest entries</p>
+        <h2>Recent writing</h2>
+      </div>
+      <a href="/blog">All articles →</a>
+    </header>
     {
       recent.map((post) => (
         <EntryRow
@@ -117,12 +128,13 @@ const sections = [
   {
     recentSeries.length > 0 && (
       <section class="recent" data-reveal>
-        <div class="recent-head">
-          <h2 class="label">Recent Series</h2>
-          <a href="/series" class="label all">
-            All series →
-          </a>
-        </div>
+        <header class="section-head section-head--row">
+          <div>
+            <p>In sequence</p>
+            <h2>Recent series</h2>
+          </div>
+          <a href="/series">All series →</a>
+        </header>
         {recentSeries.map((post) => (
           <EntryRow
             href={seriesPostPath(post.id)}
@@ -141,220 +153,197 @@ const sections = [
 <style>
   .hero {
     position: relative;
-    padding: 4.5rem 0 3.5rem;
-    border-bottom: 2px solid var(--rule-heavy);
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.65fr);
+    gap: clamp(2.5rem, 7vw, 7rem);
+    align-items: end;
+    min-height: 34rem;
+    margin-inline: calc(-1 * var(--folio-pad));
+    padding: clamp(4rem, 10vw, 7rem) var(--folio-pad);
+    overflow: hidden;
+    background: #102b3a;
+    color: #fffdf7;
   }
 
-  /* soft two-hue glow behind the name — ambient, theme-aware */
-  .hero::before {
-    content: "";
+  .hero-grid {
     position: absolute;
-    top: 1rem;
-    left: -8rem;
-    width: 34rem;
-    height: 18rem;
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--accent) 11%, transparent),
-      transparent
-    );
-    filter: blur(32px);
-    pointer-events: none;
+    z-index: -2;
+    inset: 0;
+    opacity: 0.08;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.7) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.7) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to right, black, transparent 82%);
   }
 
   .hero::after {
-    content: "";
     position: absolute;
-    top: 0;
-    right: -6rem;
-    width: 28rem;
-    height: 16rem;
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--accent-2) 9%, transparent),
-      transparent
-    );
-    filter: blur(36px);
-    pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .hero > * {
-      opacity: 0;
-      animation: rise 700ms var(--ease-out) forwards;
-    }
-
-    .hero > *:nth-child(1) { animation-delay: 60ms; }
-    .hero > *:nth-child(2) { animation-delay: 160ms; }
-    .hero > *:nth-child(3) { animation-delay: 260ms; }
-    .hero > *:nth-child(4) { animation-delay: 360ms; }
-  }
-
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  /* the engraved plate title — the one place the display face appears
-     at size, set against the mono everything else is measured in */
-  h1 {
+    right: -4rem;
+    bottom: -7rem;
+    z-index: -1;
+    color: rgba(244, 201, 93, 0.08);
     font-family: var(--font-display);
-    font-size: clamp(2.25rem, 10vw, 6rem);
-    font-weight: 400;
-    line-height: 0.94;
-    letter-spacing: -0.015em;
-    margin: 1.5rem 0 1.25rem;
-    text-wrap: balance;
-  }
-
-  .family {
+    font-size: 26rem;
     font-style: italic;
-    color: var(--ink-soft);
+    line-height: 1;
+    content: "Z²";
   }
 
+  .eyebrow,
   .role {
-    margin-bottom: 2rem;
+    color: #f07a62;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 48rem;
+    margin: 1.2rem 0 1.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.6rem, 9vw, 7.6rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.82;
+  }
+
+  h1 em {
+    color: #f4c95d;
+    font-weight: 400;
   }
 
   .intro {
-    max-width: 38rem;
-    color: var(--ink-soft);
-  }
-
-  .contents {
-    padding: 2.5rem 0;
-  }
-
-  .contents > .label {
-    margin-bottom: 1.5rem;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.875rem;
-  }
-
-  @media (max-width: 48rem) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .card {
     position: relative;
-    overflow: hidden;
-    background: var(--glass);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    backdrop-filter: blur(14px) saturate(140%);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    box-shadow: inset 0 1px 0 var(--glass-highlight);
-    padding: 1.5rem;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    transition:
-      background 150ms ease,
-      border-color 150ms ease,
-      transform 220ms var(--ease-out),
-      box-shadow 220ms var(--ease-out);
+    max-width: 34rem;
+    color: rgba(255, 253, 247, 0.72);
+    font-family: var(--font-serif);
+    font-size: clamp(1rem, 1.5vw, 1.12rem);
+    line-height: 1.65;
   }
 
-  /* glass sheen that sweeps across on hover */
-  .card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 40%,
-      var(--sheen) 50%,
-      transparent 60%
-    );
-    transform: translateX(-130%);
-    pointer-events: none;
+  .contents,
+  .recent {
+    padding-top: clamp(3rem, 7vw, 5.5rem);
   }
 
-  .card:hover {
-    background: var(--glass-strong);
-    border-color: color-mix(in srgb, var(--interact) 50%, var(--glass-border));
-    transform: translateY(-3px);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      var(--hover-glow);
-    z-index: 1;
+  .section-head {
+    margin-bottom: 1.8rem;
+    text-align: center;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .card:hover::after {
-      transition: transform 650ms ease;
-      transform: translateX(130%);
-    }
-  }
-
-  /* staggered card entrance once the section reveals */
-  @media (prefers-reduced-motion: no-preference) {
-    :global(html.js) .contents[data-reveal] .card {
-      opacity: 0;
-    }
-
-    /* `backwards` fill so the finished animation stops overriding
-       transform — otherwise the hover lift would never fire */
-    :global(html.js) .contents[data-reveal].is-visible .card {
-      opacity: 1;
-      animation: rise 550ms var(--ease-out) backwards;
-      animation-delay: calc(var(--i) * 70ms + 150ms);
-    }
-  }
-
-  .card-number {
-    font-size: 0.6875rem;
+  .section-head p {
+    color: var(--accent);
+    font-family: var(--font-serif);
+    font-size: 0.76rem;
+    font-variant-caps: all-small-caps;
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.2em;
+  }
+
+  .section-head h2 {
+    margin-top: 0.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .section-head--row {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--ink);
+    text-align: left;
+  }
+
+  .section-head--row a {
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .contents-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+    list-style: none;
+  }
+
+  .contents-list li {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .contents-list li:nth-child(odd) {
+    border-right: 1px solid var(--rule);
+  }
+
+  .contents-list a {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr auto;
+    gap: 0.85rem;
+    align-items: baseline;
+    min-height: 8rem;
+    padding: 1.4rem;
+    text-decoration: none;
+  }
+
+  .section-number {
+    color: var(--accent);
+    font-family: var(--font-serif);
+    font-size: 0.82rem;
+  }
+
+  .contents-list strong {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+  }
+
+  .contents-list small {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--ink-soft);
+    font-family: var(--font-serif);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .arrow {
+    color: var(--rule-strong);
+  }
+
+  .contents-list a:hover {
+    background: color-mix(in srgb, var(--paper-sunken) 52%, transparent);
+  }
+
+  .contents-list a:hover strong,
+  .contents-list a:hover .arrow {
     color: var(--accent);
   }
 
-  .card-title {
-    font-weight: 700;
-    font-size: 1.0625rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
+  @media (max-width: 760px) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      gap: 2rem;
+    }
 
-  .card:hover .card-title {
-    color: var(--interact);
-  }
+    .hero::after {
+      font-size: 16rem;
+    }
 
-  .card-blurb {
-    font-size: 0.8125rem;
-    color: var(--ink-soft);
-  }
+    .contents-list {
+      grid-template-columns: 1fr;
+    }
 
-  .recent {
-    padding: 1.5rem 0 0;
-  }
-
-  .recent-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    border-bottom: 2px solid var(--rule-heavy);
-    padding-bottom: 0.75rem;
-  }
-
-  .all {
-    text-decoration: none;
-  }
-
-  .all:hover {
-    color: var(--interact);
+    .contents-list li:nth-child(odd) {
+      border-right: 0;
+    }
   }
 </style>

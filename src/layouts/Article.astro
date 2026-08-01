@@ -13,8 +13,16 @@ interface Props {
   backLabel: string;
 }
 
-const { kind, number, title, description, date, tags = [], backHref, backLabel } =
-  Astro.props;
+const {
+  kind,
+  number,
+  title,
+  description,
+  date,
+  tags = [],
+  backHref,
+  backLabel,
+} = Astro.props;
 
 const formatted = date.toLocaleDateString("en-GB", {
   day: "2-digit",
@@ -25,26 +33,27 @@ const formatted = date.toLocaleDateString("en-GB", {
 ---
 
 <Base title={`${title} — Zuhaib Ul Zamann`} description={description}>
-  <article>
-    <header class="masthead">
-      <a href={backHref} class="back label">← {backLabel}</a>
-      <div class="plate">
-        <div class="plate-meta">
-          <span class="label label--accent">{kind} № {number}</span>
-          <span class="label">{formatted}</span>
-        </div>
-        <h1>{title}</h1>
-        {description && <p class="standfirst">{description}</p>}
-        {
-          tags.length > 0 && (
-            <ul class="tags">
-              {tags.map((t) => (
-                <li>{t}</li>
-              ))}
-            </ul>
-          )
-        }
+  <article class="article-folio">
+    <nav class="folio-running" aria-label="Breadcrumb">
+      <span>{kind} {number}</span>
+      <a href="/">Zuhaib Ul Zamann</a>
+      <a href={backHref}>{backLabel}</a>
+    </nav>
+
+    <header class="folio-head">
+      <p class="folio-kicker">{kind} № {number} · {formatted}</p>
+      <h1>{title}</h1>
+      <div class="folio-ornament" aria-hidden="true">
+        <span></span>✦<span></span>
       </div>
+      {description && <p class="folio-argument">{description}</p>}
+      {
+        tags.length > 0 && (
+          <ul class="tags" aria-label="Topics">
+            {tags.map((tag) => <li>{tag}</li>)}
+          </ul>
+        )
+      }
     </header>
 
     <div class="prose">
@@ -54,64 +63,30 @@ const formatted = date.toLocaleDateString("en-GB", {
 </Base>
 
 <style>
-  article {
-    padding-top: 1.75rem;
+  .article-folio {
+    padding-top: 1.25rem;
   }
 
-  .back {
+  .folio-running a {
     text-decoration: none;
-    display: inline-block;
-    margin-bottom: 1.5rem;
-  }
-
-  .back:hover {
-    color: var(--accent);
-  }
-
-  .plate {
-    border-top: 2px solid var(--rule-heavy);
-    border-bottom: 1px solid var(--rule);
-    padding: 1.25rem 0 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .plate-meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 400;
-    line-height: 1.08;
-    letter-spacing: -0.01em;
-    text-wrap: balance;
-  }
-
-  .standfirst {
-    margin-top: 1rem;
-    color: var(--ink-soft);
-    font-style: italic;
   }
 
   .tags {
-    list-style: none;
     display: flex;
-    gap: 0.5rem;
     flex-wrap: wrap;
-    margin-top: 1.25rem;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1.35rem;
+    list-style: none;
   }
 
   .tags li {
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    padding: 0.16rem 0.48rem;
     border: 1px solid var(--rule);
-    padding: 0.1rem 0.5rem;
     color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 </style>

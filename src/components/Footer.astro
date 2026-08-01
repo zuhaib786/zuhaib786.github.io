@@ -2,7 +2,7 @@
 const links = [
   { label: "GitHub", href: "https://github.com/zuhaib786/" },
   { label: "GitLab", href: "https://gitlab.com/zuhaibulzaman.786/" },
-  { label: "Twitter", href: "https://x.com/ZuhaibUlZaman1/" },
+  { label: "X", href: "https://x.com/ZuhaibUlZaman1/" },
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/zuhaib-ul-zamann-0520a5190/",
@@ -13,56 +13,91 @@ const links = [
 const year = new Date().getFullYear();
 ---
 
-<footer>
-  <div class="page inner">
-    <div class="links">
-      {links.map((l) => <a href={l.href}>{l.label}</a>)}
-    </div>
-    <p class="colophon">
-      © {year} Zuhaib Ul Zamann · Set in Instrument Serif &amp; IBM Plex Mono ·
-      Built with Astro
+<footer class="site-footer">
+  <div class="footer-identity">
+    <span class="footer-mark" aria-hidden="true">Z<sup>2</sup></span>
+    <p>
+      <strong>Zuhaib Ul Zamann</strong><br />
+      Systems, machine learning, and mathematical software.
     </p>
   </div>
+
+  <nav aria-label="Social links">
+    {links.map((link) => <a href={link.href}>{link.label}</a>)}
+  </nav>
+
+  <p class="copyright">© {year} · Built with Astro</p>
 </footer>
 
 <style>
-  footer {
-    margin-top: 1.5rem;
-    background: transparent;
-  }
-
-  .inner {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .links {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .links a {
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none;
+  .site-footer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem 3rem;
+    align-items: end;
+    width: min(72rem, calc(100% - 2rem));
+    margin: 1.5rem auto 0;
+    padding: 1.75rem var(--gutter) 2.5rem;
+    border-top: 1px solid var(--rule-strong);
     color: var(--ink-soft);
   }
 
-  .links a:hover {
-    color: var(--interact);
+  .footer-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
   }
 
-  .colophon {
-    font-size: 0.6875rem;
-    color: var(--ink-faint);
-    letter-spacing: 0.04em;
+  .footer-mark {
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-style: italic;
+  }
+
+  .footer-mark sup {
+    font-size: 0.5em;
+    font-style: normal;
+  }
+
+  .footer-identity p {
+    font-family: var(--font-serif);
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+
+  .footer-identity strong {
+    color: var(--ink);
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem 1rem;
+  }
+
+  nav a {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .copyright {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 680px) {
+    .site-footer {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    nav {
+      justify-content: flex-start;
+    }
   }
 </style>
