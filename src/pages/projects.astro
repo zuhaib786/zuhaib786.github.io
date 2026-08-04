@@ -1,47 +1,77 @@
 ---
 import Base from "../layouts/Base.astro";
 
-const projects = [
+type Project = {
+  number: string;
+  title: string;
+  tags: string[];
+  summary: string;
+  points: string[];
+  repo?: string;
+  plate?: string;
+  alt?: string;
+};
+
+const projects: Project[] = [
   {
     number: "01",
     title: "Triangulation of Solid Surfaces",
-    tags: ["C++", "Data Structures", "Computational Geometry"],
+    tags: ["Java", "Data Structures", "Computational Geometry"],
+    repo: "https://github.com/zuhaib786/Triangulation-Of-Solid-Surfaces",
+    plate: "triangulation",
+    alt: "Loose triangles on the left are interned through a trie and glued into a closed solid on the right, overlaid with the dual graph that the queries walk across.",
+    summary:
+      "A solid arrives as an unordered pile of triangles — nine numbers each, no adjacency, no ordering, no promise the surface is even closed. This recovers the structure those coordinates imply, then answers questions about it.",
     points: [
-      "Designed a system that stores the triangulation data of a solid curve and supports rich queries about the solid.",
-      "Modelled triangulations and their features using a graph data structure.",
-      "Supported queries such as solid type, centroid, diameter, and nearest-neighbour triangles.",
-      "Built on Union-Find, Red-Black Trees, and Tries for efficient computation.",
+      "Two faces are neighbours only because two of their coordinate triples happen to be equal, so connectivity has to be rebuilt from scratch: a trie interns each vertex in time independent of how many points already exist, and a red-black tree indexes edges keyed by geometry rather than insertion order, which makes every answer depend on the shape instead of on the order the file happened to list.",
+      "Answers surface classification (closed, bounded, or non-manifold), boundary and seam edges, connected pieces, vertex and edge neighbourhoods, centroid, surface area, geodesic distance across faces, and enclosed volume.",
+      "Volume derives a consistent winding by breadth-first search before integrating, so a mesh whose faces are wound inconsistently still measures correctly — the input's vertex order is never trusted.",
+      "Every collection is part of the deliverable: array list, red-black tree, trie, union-find, hash set and queue, with no java.util anywhere and the build failing on a single such import. 327 assertions run against solids whose answers are known by construction.",
     ],
   },
   {
     number: "02",
     title: "Meme Classification (Multimodal)",
-    tags: ["PyTorch", "CNN", "Transformers", "NLP"],
+    tags: ["PyTorch", "Transformers", "CLIP", "Multimodal"],
+    repo: "https://github.com/zuhaib786/Meme-Classification",
+    plate: "meme-classification",
+    alt: "A caption passes through a RoBERTa tower and the image through a CLIP vision tower; a per-dimension gate mixes the two vectors before an MLP head predicts one of three classes.",
+    summary:
+      "Sorting image memes into none, hilarious or troll — a judgement that sometimes lives entirely in the caption and sometimes entirely in the picture. Scored by mean F1 across the three classes.",
     points: [
-      "Designed models classifying memes as funny from both the image and its caption.",
-      "Built a multimodal model using a pre-trained CNN for image encoding and a pre-trained transformer for text embedding.",
-      "Implemented sentiment classifiers using TextBlob, BERT, and fastText, and compared the results.",
+      "Pairs a social-media-pretrained RoBERTa over the OCR caption with a CLIP ViT-B/32 vision tower, joined by a gated multimodal unit whose per-dimension gate lets each meme lean on whichever modality actually carries its signal, rather than fixing one weighting for all of them.",
+      "Scores everything out-of-fold over five stratified folds, because with 1,991 training memes a single held-out split swings macro-F1 by more than the differences being measured.",
+      "Carries tf-idf, sentiment-feature and frozen-CLIP-probe baselines beside the fine-tuned model, so the gain from fine-tuning on a dataset this small is a measured number and not an assumption.",
+      "Skips horizontal flips, the reflex image augmentation: mirroring a meme makes its rendered text unreadable to an encoder that partly relies on reading it.",
     ],
   },
   {
     number: "03",
     title: "Ship Detection from Aerial Images",
     tags: ["U-Net", "YOLOv3", "Image Segmentation"],
+    plate: "ship-detection",
+    alt: "An aerial tile passes through a U-Net encoder-decoder with skip connections to a ship versus not-ship mask, which is then run-length encoded.",
+    summary:
+      "Finding ships in satellite imagery, where the targets are a handful of pixels against a great deal of empty ocean.",
     points: [
-      "Implemented a run-length encoder and decoder for ship-location masks.",
-      "Implemented and trained a U-Net architecture segmenting images into ship and non-ship regions.",
-      "Trained YOLOv3 (darknet) on a custom dataset of 1,000 images on a Google Colab GPU.",
+      "Trained a U-Net to segment each tile into ship and non-ship pixels, relying on the skip connections to carry back the fine detail that the encoder's downsampling throws away — which is most of the signal when a target is a few pixels across.",
+      "Implemented the run-length encoder and decoder the competition uses to store masks, in both directions.",
+      "Trained YOLOv3 on darknet over a custom 1,000-image set on a Colab GPU, as a detection counterpart to the segmentation model.",
     ],
   },
   {
     number: "04",
     title: "Discontinuity Identification in PDE Solutions",
     tags: ["Graph Neural Networks", "M.Tech Thesis", "Best Thesis Award"],
+    plate: "pde-discontinuity",
+    alt: "A PDE solution with a shock, the two cells straddling the jump marked as troubled, and the same cells drawn as a graph where attention flows into one node from its neighbours.",
+    summary:
+      "High-order PDE solvers need to know which cells contain a shock so they can limit only there. The usual indicators are hand-tuned thresholds that need retuning per problem; this learns the decision instead.",
     points: [
-      "Proposed a graph-based node classification model to detect discontinuities in PDE solutions.",
-      "Generated synthetic datasets using exact advection-equation solutions.",
-      "Implemented a Graph Attention Network (GAT) achieving state-of-the-art performance.",
-      "Awarded Best Thesis at IIT Delhi for this research.",
+      "Framed shock detection as node classification over the computational mesh, so the detector transfers across problems rather than being recalibrated for each one.",
+      "Built a Graph Attention Network that lets every cell weigh its own neighbours when deciding whether a discontinuity runs through it, which is the natural formulation when the mesh is already a graph.",
+      "Generated synthetic training data from exact advection-equation solutions, the case where the true position of every discontinuity is known rather than estimated.",
+      "Awarded Best Thesis at IIT Delhi.",
     ],
   },
 ];
@@ -70,12 +100,47 @@ const projects = [
                   <li>{t}</li>
                 ))}
               </ul>
+              {p.repo && (
+                <a
+                  class="repo"
+                  href={p.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Source <span aria-hidden="true">↗</span>
+                </a>
+              )}
             </div>
-            <ul class="points">
-              {p.points.map((pt) => (
-                <li>{pt}</li>
-              ))}
-            </ul>
+            <div class="project-body">
+              <p class="summary">{p.summary}</p>
+              <ul class="points">
+                {p.points.map((pt) => (
+                  <li>{pt}</li>
+                ))}
+              </ul>
+            </div>
+            {p.plate && (
+              <figure class="project-plate">
+                <img
+                  class="plate-light"
+                  src={`/images/projects/${p.plate}.svg`}
+                  alt={p.alt}
+                  width="880"
+                  height="250"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <img
+                  class="plate-dark"
+                  src={`/images/projects/${p.plate}-dark.svg`}
+                  alt={p.alt}
+                  width="880"
+                  height="250"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            )}
           </article>
         ))
       }
@@ -149,6 +214,65 @@ const projects = [
     border: 1px solid var(--rule);
     padding: 0.1rem 0.4rem;
     color: var(--ink-soft);
+  }
+
+  .repo {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .repo:hover,
+  .repo:focus-visible {
+    border-bottom-color: var(--accent);
+  }
+
+  .summary {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  .project-plate {
+    grid-column: 1 / -1;
+    margin: 1.5rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    /* The diagram keeps its own scrollbar so the page body never scrolls
+       sideways on a narrow screen. */
+    overflow-x: auto;
+  }
+
+  .project-plate img {
+    width: 100%;
+    /* Below this the diagram's labels stop being legible, so it scrolls
+       instead of shrinking further. */
+    min-width: 34rem;
+    height: auto;
+  }
+
+  /* `display` is set only here, never in the sizing rule above — a descendant
+     selector there would out-specify these and force both plates visible. */
+  .project-plate .plate-light {
+    display: block;
+  }
+
+  .project-plate .plate-dark {
+    display: none;
+  }
+
+  html[data-theme="dark"] .project-plate .plate-light {
+    display: none;
+  }
+
+  html[data-theme="dark"] .project-plate .plate-dark {
+    display: block;
   }
 
   .points {

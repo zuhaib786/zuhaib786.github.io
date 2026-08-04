@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" width="880" height="250" role="img" aria-label="A caption goes through a RoBERTa tower and the image through a CLIP vision tower; a per-dimension gate mixes the two vectors before an MLP head predicts one of three classes.">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t    { fill: #e8ecf7; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+  .l    { fill: #e8ecf7; font-size: 11px; font-weight: 600; }
+  .s    { fill: #99a3c0; font-size: 10px; }
+  .f    { fill: #5f6884; font-size: 9px; letter-spacing: .07em; }
+  .a    { fill: #8a9cff; font-size: 10px; font-weight: 600; }
+  .a2   { fill: #6fd6ff; font-size: 10px; font-weight: 600; }
+  .ax   { stroke: #e8ecf7; fill: none; stroke-width: 1.2; }
+  .ln   { stroke: #3a4468; fill: none; stroke-width: 1; }
+  .hair { stroke: #2b3450; fill: none; stroke-width: .8; }
+  .acc  { stroke: #8a9cff; fill: none; stroke-width: 1.5; }
+  .acc2 { stroke: #6fd6ff; fill: none; stroke-width: 1.2; }
+  .dot  { fill: #e8ecf7; }
+  .dotS { fill: #99a3c0; }
+  .dotA { fill: #8a9cff; }
+  .panel { fill: #0a0e1e; fill-opacity: .30; stroke: #3a4468; stroke-width: .8; }
+  .wash { fill: #e8ecf7; fill-opacity: .06; }
+  .washH { fill: #e8ecf7; fill-opacity: .22; }
+  .face { fill: #e8ecf7; fill-opacity: .06; stroke: #3a4468; stroke-width: 1; }
+  .fillA { fill: #8a9cff; fill-opacity: .16; stroke: #8a9cff; stroke-width: 1.2; }
+  .fill2 { fill: #6fd6ff; fill-opacity: .14; stroke: #6fd6ff; stroke-width: 1; }
+  .hd   { fill: #99a3c0; }
+  .hdA  { fill: #8a9cff; }
+</style>
+
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/></marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/></marker>
+</defs>
+
+<text x="14" y="18" class="t">MULTIMODAL MEME CLASSIFICATION</text>
+<text x="866" y="18" class="a" text-anchor="end">macro-F1 · 3 classes</text>
+<text x="14" y="52" class="f">CAPTION (OCR)</text>
+<rect x="14" y="60" width="150" height="46" rx="3" class="panel"/>
+<rect x="26" y="71" width="110" height="6" rx="3" class="wash"/>
+<rect x="26" y="85" width="74" height="6" rx="3" class="wash"/>
+<path d="M172 83 H208" class="ln" marker-end="url(#h)"/>
+<rect x="214" y="58" width="104" height="50" rx="3" class="panel"/>
+<text x="266" y="79" class="l" text-anchor="middle">RoBERTa</text>
+<text x="266" y="95" class="s" text-anchor="middle">social-media</text>
+<text x="14" y="150" class="f">IMAGE</text>
+<rect x="14" y="158" width="150" height="46" rx="3" class="panel"/>
+<path d="M30 194 L58 170 L80 194 Z" class="wash"/>
+<path d="M74 194 L96 176 L118 194 Z" class="wash"/>
+<circle cx="132" cy="174" r="7" class="wash"/>
+<path d="M172 181 H208" class="ln" marker-end="url(#h)"/>
+<rect x="214" y="156" width="104" height="50" rx="3" class="panel"/>
+<text x="266" y="177" class="l" text-anchor="middle">CLIP ViT</text>
+<text x="266" y="193" class="s" text-anchor="middle">B/32 vision</text>
+<path d="M326 83 C368 83 368 118 404 122" class="acc"/>
+<path d="M326 181 C368 181 368 146 404 142" class="acc"/>
+<text x="352" y="70" class="s" text-anchor="middle">t</text>
+<text x="352" y="200" class="s" text-anchor="middle">v</text>
+<circle cx="440" cy="132" r="34" class="fillA"/>
+<text x="440" y="128" class="a" text-anchor="middle" style="font-size:15px">z</text>
+<text x="440" y="144" class="s" text-anchor="middle">gate</text>
+<text x="440" y="196" class="a" text-anchor="middle">z·t + (1−z)·v</text>
+<text x="440" y="212" class="s" text-anchor="middle">per-dimension mix</text>
+<path d="M480 132 H524" class="acc" marker-end="url(#hA)"/>
+<rect x="530" y="106" width="86" height="52" rx="3" class="panel"/>
+<text x="573" y="130" class="l" text-anchor="middle">MLP</text>
+<text x="573" y="146" class="s" text-anchor="middle">head</text>
+<path d="M624 132 H660" class="ln" marker-end="url(#h)"/>
+<text x="672" y="52" class="f">P(CLASS)</text>
+<rect x="672" y="72" width="46" height="17" rx="2" class="wash"/>
+<text x="726" y="84" class="s">none</text>
+<rect x="672" y="106" width="74" height="17" rx="2" class="wash"/>
+<text x="754" y="118" class="s">hilarious</text>
+<rect x="672" y="140" width="150" height="17" rx="2" class="fillA"/>
+<text x="830" y="152" class="a">troll</text>
+<text x="672" y="196" class="s">argmax over 3 classes</text>
+<text x="672" y="212" class="s">5-fold out-of-fold scoring</text>
+</svg>

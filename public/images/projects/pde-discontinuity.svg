@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" width="880" height="250" role="img" aria-label="A PDE solution with a shock: the two cells straddling the jump are marked troubled, and the same cells as a graph where a GAT classifies each node from its neighbours.">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t    { fill: #131824; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+  .l    { fill: #131824; font-size: 11px; font-weight: 600; }
+  .s    { fill: #4d5670; font-size: 10px; }
+  .f    { fill: #808aa4; font-size: 9px; letter-spacing: .07em; }
+  .a    { fill: #c8401a; font-size: 10px; font-weight: 600; }
+  .a2   { fill: #4b3fd6; font-size: 10px; font-weight: 600; }
+  .ax   { stroke: #131824; fill: none; stroke-width: 1.2; }
+  .ln   { stroke: #a9b3c9; fill: none; stroke-width: 1; }
+  .hair { stroke: #c4ccdc; fill: none; stroke-width: .8; }
+  .acc  { stroke: #c8401a; fill: none; stroke-width: 1.5; }
+  .acc2 { stroke: #4b3fd6; fill: none; stroke-width: 1.2; }
+  .dot  { fill: #131824; }
+  .dotS { fill: #4d5670; }
+  .dotA { fill: #c8401a; }
+  .panel { fill: #ffffff; fill-opacity: .30; stroke: #a9b3c9; stroke-width: .8; }
+  .wash { fill: #131824; fill-opacity: .05; }
+  .washH { fill: #131824; fill-opacity: .22; }
+  .face { fill: #131824; fill-opacity: .05; stroke: #a9b3c9; stroke-width: 1; }
+  .fillA { fill: #c8401a; fill-opacity: .16; stroke: #c8401a; stroke-width: 1.2; }
+  .fill2 { fill: #4b3fd6; fill-opacity: .14; stroke: #4b3fd6; stroke-width: 1; }
+  .hd   { fill: #4d5670; }
+  .hdA  { fill: #c8401a; }
+</style>
+
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/></marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/></marker>
+</defs>
+
+<text x="14" y="18" class="t">DISCONTINUITY IDENTIFICATION IN PDE SOLUTIONS</text>
+<text x="866" y="18" class="a" text-anchor="end">M.Tech thesis · best thesis</text>
+<text x="14" y="44" class="f">SOLUTION WITH A SHOCK</text>
+<rect x="20" y="58" width="330" height="140" rx="3" class="panel"/>
+<path d="M27.5 156.0 L42.5 148.9 L57.5 142.5 L72.5 137.6 L87.5 134.5 L102.5 133.6 L117.5 135.1 L132.5 138.7 L147.5 144.1 L162.5 150.7 L177.5 157.9 L192.5 164.9 L207.5 97.1 L222.5 96.7 L237.5 94.8 L252.5 91.5 L267.5 87.4 L282.5 83.2 L297.5 79.3 L312.5 76.4 L327.5 74.9 L342.5 75.1" class="ln"/>
+<path d="M192.5 164.9 L207.5 97.1" class="acc"/>
+<circle cx="27.5" cy="156.0" r="2" class="dotS"/>
+<circle cx="42.5" cy="148.9" r="2" class="dotS"/>
+<circle cx="57.5" cy="142.5" r="2" class="dotS"/>
+<circle cx="72.5" cy="137.6" r="2" class="dotS"/>
+<circle cx="87.5" cy="134.5" r="2" class="dotS"/>
+<circle cx="102.5" cy="133.6" r="2" class="dotS"/>
+<circle cx="117.5" cy="135.1" r="2" class="dotS"/>
+<circle cx="132.5" cy="138.7" r="2" class="dotS"/>
+<circle cx="147.5" cy="144.1" r="2" class="dotS"/>
+<circle cx="162.5" cy="150.7" r="2" class="dotS"/>
+<circle cx="177.5" cy="157.9" r="2" class="dotS"/>
+<circle cx="192.5" cy="164.9" r="3.2" class="dotA"/>
+<circle cx="207.5" cy="97.1" r="3.2" class="dotA"/>
+<circle cx="222.5" cy="96.7" r="2" class="dotS"/>
+<circle cx="237.5" cy="94.8" r="2" class="dotS"/>
+<circle cx="252.5" cy="91.5" r="2" class="dotS"/>
+<circle cx="267.5" cy="87.4" r="2" class="dotS"/>
+<circle cx="282.5" cy="83.2" r="2" class="dotS"/>
+<circle cx="297.5" cy="79.3" r="2" class="dotS"/>
+<circle cx="312.5" cy="76.4" r="2" class="dotS"/>
+<circle cx="327.5" cy="74.9" r="2" class="dotS"/>
+<circle cx="342.5" cy="75.1" r="2" class="dotS"/>
+<path d="M200.0 64 V192" class="acc" stroke-dasharray="4 4"/>
+<text x="208.0" y="78" class="a">troubled cells</text>
+<text x="185" y="224" class="s" text-anchor="middle">smooth almost everywhere — the jump is 2 cells wide</text>
+<path d="M366 128 H414" class="acc" marker-end="url(#hA)"/>
+<text x="390" y="118" class="a" text-anchor="middle">as a graph</text>
+<text x="432" y="44" class="f">GRAPH ATTENTION NETWORK — NODE CLASSIFICATION</text>
+<rect x="432" y="58" width="434" height="140" rx="3" class="panel"/>
+<path d="M462.0 93.0 L508.0 93.9" class="hair"/>
+<path d="M462.0 93.0 L485.0 131.2" class="hair"/>
+<path d="M508.0 93.9 L554.0 94.4" class="hair"/>
+<path d="M508.0 93.9 L485.0 131.2" class="hair"/>
+<path d="M508.0 93.9 L531.0 133.2" class="hair"/>
+<path d="M554.0 94.4 L600.0 95.5" class="hair"/>
+<path d="M554.0 94.4 L531.0 133.2" class="hair"/>
+<path d="M554.0 94.4 L577.0 126.9" class="hair"/>
+<path d="M600.0 95.5 L646.0 93.9" class="hair"/>
+<path d="M600.0 95.5 L577.0 126.9" class="hair"/>
+<path d="M600.0 95.5 L623.0 129.8" class="hair"/>
+<path d="M646.0 93.9 L692.0 95.4" class="hair"/>
+<path d="M646.0 93.9 L623.0 129.8" class="hair"/>
+<path d="M646.0 93.9 L669.0 128.0" class="hair"/>
+<path d="M692.0 95.4 L738.0 88.2" class="hair"/>
+<path d="M692.0 95.4 L669.0 128.0" class="hair"/>
+<path d="M692.0 95.4 L715.0 130.4" class="hair"/>
+<path d="M738.0 88.2 L784.0 91.7" class="hair"/>
+<path d="M738.0 88.2 L715.0 130.4" class="hair"/>
+<path d="M738.0 88.2 L761.0 130.6" class="hair"/>
+<path d="M784.0 91.7 L830.0 95.5" class="hair"/>
+<path d="M784.0 91.7 L761.0 130.6" class="hair"/>
+<path d="M784.0 91.7 L807.0 126.1" class="hair"/>
+<path d="M830.0 95.5 L807.0 126.1" class="hair"/>
+<path d="M830.0 95.5 L853.0 127.7" class="hair"/>
+<path d="M485.0 131.2 L531.0 133.2" class="hair"/>
+<path d="M485.0 131.2 L462.0 166.2" class="hair"/>
+<path d="M485.0 131.2 L508.0 171.3" class="hair"/>
+<path d="M531.0 133.2 L577.0 126.9" class="hair"/>
+<path d="M531.0 133.2 L508.0 171.3" class="hair"/>
+<path d="M531.0 133.2 L554.0 170.1" class="hair"/>
+<path d="M577.0 126.9 L623.0 129.8" class="hair"/>
+<path d="M577.0 126.9 L554.0 170.1" class="hair"/>
+<path d="M577.0 126.9 L600.0 165.3" class="hair"/>
+<path d="M623.0 129.8 L669.0 128.0" class="hair"/>
+<path d="M623.0 129.8 L600.0 165.3" class="hair"/>
+<path d="M623.0 129.8 L646.0 170.4" class="hair"/>
+<path d="M669.0 128.0 L715.0 130.4" class="hair"/>
+<path d="M669.0 128.0 L646.0 170.4" class="hair"/>
+<path d="M669.0 128.0 L692.0 165.1" class="hair"/>
+<path d="M715.0 130.4 L761.0 130.6" class="hair"/>
+<path d="M715.0 130.4 L692.0 165.1" class="hair"/>
+<path d="M715.0 130.4 L738.0 168.9" class="hair"/>
+<path d="M761.0 130.6 L807.0 126.1" class="hair"/>
+<path d="M761.0 130.6 L738.0 168.9" class="hair"/>
+<path d="M761.0 130.6 L784.0 165.0" class="hair"/>
+<path d="M807.0 126.1 L853.0 127.7" class="hair"/>
+<path d="M807.0 126.1 L784.0 165.0" class="hair"/>
+<path d="M807.0 126.1 L830.0 164.0" class="hair"/>
+<path d="M853.0 127.7 L830.0 164.0" class="hair"/>
+<path d="M462.0 166.2 L508.0 171.3" class="hair"/>
+<path d="M508.0 171.3 L554.0 170.1" class="hair"/>
+<path d="M554.0 170.1 L600.0 165.3" class="hair"/>
+<path d="M600.0 165.3 L646.0 170.4" class="hair"/>
+<path d="M646.0 170.4 L692.0 165.1" class="hair"/>
+<path d="M692.0 165.1 L738.0 168.9" class="hair"/>
+<path d="M738.0 168.9 L784.0 165.0" class="hair"/>
+<path d="M784.0 165.0 L830.0 164.0" class="hair"/>
+<circle cx="462.0" cy="93.0" r="3" class="dotS"/>
+<circle cx="508.0" cy="93.9" r="3" class="dotS"/>
+<circle cx="554.0" cy="94.4" r="3" class="dotS"/>
+<circle cx="600.0" cy="95.5" r="3" class="dotS"/>
+<circle cx="646.0" cy="93.9" r="4.4" class="dotA"/>
+<circle cx="692.0" cy="95.4" r="3" class="dotS"/>
+<circle cx="738.0" cy="88.2" r="3" class="dotS"/>
+<circle cx="784.0" cy="91.7" r="3" class="dotS"/>
+<circle cx="830.0" cy="95.5" r="3" class="dotS"/>
+<circle cx="485.0" cy="131.2" r="3" class="dotS"/>
+<circle cx="531.0" cy="133.2" r="3" class="dotS"/>
+<circle cx="577.0" cy="126.9" r="3" class="dotS"/>
+<circle cx="623.0" cy="129.8" r="3" class="dotS"/>
+<circle cx="669.0" cy="128.0" r="4.4" class="dotA"/>
+<circle cx="715.0" cy="130.4" r="3" class="dotS"/>
+<circle cx="761.0" cy="130.6" r="3" class="dotS"/>
+<circle cx="807.0" cy="126.1" r="3" class="dotS"/>
+<circle cx="853.0" cy="127.7" r="3" class="dotS"/>
+<circle cx="462.0" cy="166.2" r="3" class="dotS"/>
+<circle cx="508.0" cy="171.3" r="3" class="dotS"/>
+<circle cx="554.0" cy="170.1" r="3" class="dotS"/>
+<circle cx="600.0" cy="165.3" r="3" class="dotS"/>
+<circle cx="646.0" cy="170.4" r="4.4" class="dotA"/>
+<circle cx="692.0" cy="165.1" r="3" class="dotS"/>
+<circle cx="738.0" cy="168.9" r="3" class="dotS"/>
+<circle cx="784.0" cy="165.0" r="3" class="dotS"/>
+<circle cx="830.0" cy="164.0" r="3" class="dotS"/>
+<path d="M646.0 93.9 L669.0 128.0" class="acc2"/>
+<path d="M692.0 95.4 L669.0 128.0" class="acc2"/>
+<path d="M623.0 129.8 L669.0 128.0" class="acc2"/>
+<path d="M715.0 130.4 L669.0 128.0" class="acc2"/>
+<path d="M646.0 170.4 L669.0 128.0" class="acc2"/>
+<path d="M692.0 165.1 L669.0 128.0" class="acc2"/>
+<circle cx="669.0" cy="128.0" r="10" fill="none" class="acc"/>
+<text x="669.0" y="112.0" class="a2" text-anchor="middle">attention</text>
+<text x="649" y="224" class="s" text-anchor="middle">each node sees its neighbours — no hand-tuned threshold</text>
+</svg>

@@ -9,5 +9,8 @@ node_modules/
 .env
 .env.production
 
+# datasets (dataminingmtl782.zip is 280MB, past GitHub's file limit)
+*.zip
+
 # os
 .DS_Store

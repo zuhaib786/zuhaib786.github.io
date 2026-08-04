@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" width="880" height="250" role="img" aria-label="An aerial tile passes through a U-Net encoder-decoder with skip connections to a ship/not-ship mask, which is then run-length encoded.">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t    { fill: #131824; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+  .l    { fill: #131824; font-size: 11px; font-weight: 600; }
+  .s    { fill: #4d5670; font-size: 10px; }
+  .f    { fill: #808aa4; font-size: 9px; letter-spacing: .07em; }
+  .a    { fill: #c8401a; font-size: 10px; font-weight: 600; }
+  .a2   { fill: #4b3fd6; font-size: 10px; font-weight: 600; }
+  .ax   { stroke: #131824; fill: none; stroke-width: 1.2; }
+  .ln   { stroke: #a9b3c9; fill: none; stroke-width: 1; }
+  .hair { stroke: #c4ccdc; fill: none; stroke-width: .8; }
+  .acc  { stroke: #c8401a; fill: none; stroke-width: 1.5; }
+  .acc2 { stroke: #4b3fd6; fill: none; stroke-width: 1.2; }
+  .dot  { fill: #131824; }
+  .dotS { fill: #4d5670; }
+  .dotA { fill: #c8401a; }
+  .panel { fill: #ffffff; fill-opacity: .30; stroke: #a9b3c9; stroke-width: .8; }
+  .wash { fill: #131824; fill-opacity: .05; }
+  .washH { fill: #131824; fill-opacity: .22; }
+  .face { fill: #131824; fill-opacity: .05; stroke: #a9b3c9; stroke-width: 1; }
+  .fillA { fill: #c8401a; fill-opacity: .16; stroke: #c8401a; stroke-width: 1.2; }
+  .fill2 { fill: #4b3fd6; fill-opacity: .14; stroke: #4b3fd6; stroke-width: 1; }
+  .hd   { fill: #4d5670; }
+  .hdA  { fill: #c8401a; }
+</style>
+
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/></marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/></marker>
+</defs>
+
+<text x="14" y="18" class="t">SHIP DETECTION FROM AERIAL IMAGERY</text>
+<text x="866" y="18" class="a" text-anchor="end">segmentation + detection</text>
+<text x="14" y="44" class="f">AERIAL TILE</text>
+<rect x="14" y="54" width="152" height="152" rx="3" class="panel"/>
+<path d="M20 62 H160" class="hair"/>
+<path d="M20 79 H160" class="hair"/>
+<path d="M20 96 H160" class="hair"/>
+<path d="M20 113 H160" class="hair"/>
+<path d="M20 130 H160" class="hair"/>
+<path d="M20 147 H160" class="hair"/>
+<path d="M20 164 H160" class="hair"/>
+<path d="M20 181 H160" class="hair"/>
+<path d="M20 198 H160" class="hair"/>
+<g transform="translate(52 92) rotate(-26)"><rect x="-13.0" y="-4.0" width="26" height="8" rx="3" class="washH"/><path d="M-29.0 0 H-13.0" class="hair"/></g>
+<g transform="translate(108 132) rotate(14)"><rect x="-15.0" y="-4.5" width="30" height="9" rx="3" class="washH"/><path d="M-31.0 0 H-15.0" class="hair"/></g>
+<g transform="translate(66 168) rotate(48)"><rect x="-11.0" y="-3.5" width="22" height="7" rx="3" class="washH"/><path d="M-27.0 0 H-11.0" class="hair"/></g>
+<text x="90" y="224" class="s" text-anchor="middle">768 × 768</text>
+<path d="M176 130 H212" class="ln" marker-end="url(#h)"/>
+<text x="228" y="44" class="f">U-NET</text>
+<rect x="232" y="62" width="30" height="96" rx="2" class="panel"/>
+<rect x="272" y="78" width="26" height="64" rx="2" class="panel"/>
+<rect x="312" y="94" width="22" height="34" rx="2" class="panel"/>
+<rect x="350" y="106" width="20" height="22" rx="2" class="fillA"/>
+<rect x="384" y="94" width="22" height="34" rx="2" class="panel"/>
+<rect x="418" y="78" width="26" height="64" rx="2" class="panel"/>
+<rect x="454" y="62" width="30" height="96" rx="2" class="panel"/>
+<path d="M262 110 V68 H454 V110" class="acc2" stroke-dasharray="3 3"/>
+<path d="M298 110 V84 H418 V110" class="acc2" stroke-dasharray="3 3"/>
+<path d="M334 110 V100 H384 V110" class="acc2" stroke-dasharray="3 3"/>
+<text x="358" y="150" class="a" text-anchor="middle">bottleneck</text>
+<text x="358" y="176" class="a2" text-anchor="middle">skip connections</text>
+<text x="358" y="192" class="s" text-anchor="middle">carry the fine detail</text>
+<text x="358" y="224" class="s" text-anchor="middle">encoder — decoder, per-pixel output</text>
+<path d="M494 130 H530" class="ln" marker-end="url(#h)"/>
+<text x="546" y="44" class="f">MASK</text>
+<rect x="546" y="54" width="152" height="152" rx="3" class="panel"/>
+<g transform="translate(584 92) rotate(-26)"><rect x="-13.0" y="-4.0" width="26" height="8" rx="3" class="fillA"/></g>
+<g transform="translate(640 132) rotate(14)"><rect x="-15.0" y="-4.5" width="30" height="9" rx="3" class="fillA"/></g>
+<g transform="translate(598 168) rotate(48)"><rect x="-11.0" y="-3.5" width="22" height="7" rx="3" class="fillA"/></g>
+<text x="622" y="224" class="s" text-anchor="middle">ship / not-ship</text>
+<path d="M708 130 H738" class="ln" marker-end="url(#h)"/>
+<text x="750" y="44" class="f">RUN-LENGTH</text>
+<rect x="750" y="54" width="116" height="152" rx="3" class="panel"/>
+<text x="808" y="86" class="s" text-anchor="middle">2381 5</text>
+<text x="808" y="108" class="s" text-anchor="middle">3129 9</text>
+<text x="808" y="130" class="s" text-anchor="middle">3897 11</text>
+<text x="808" y="152" class="s" text-anchor="middle">4665 8</text>
+<text x="808" y="174" class="s" text-anchor="middle">5433 4</text>
+<text x="808" y="224" class="s" text-anchor="middle">encode / decode</text>
+</svg>

@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" width="880" height="250" role="img" aria-label="Loose triangles on the left are interned and glued into a closed solid on the right, overlaid with the dual graph the queries walk.">
+<style>
+  text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t    { fill: #131824; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+  .l    { fill: #131824; font-size: 11px; font-weight: 600; }
+  .s    { fill: #4d5670; font-size: 10px; }
+  .f    { fill: #808aa4; font-size: 9px; letter-spacing: .07em; }
+  .a    { fill: #c8401a; font-size: 10px; font-weight: 600; }
+  .a2   { fill: #4b3fd6; font-size: 10px; font-weight: 600; }
+  .ax   { stroke: #131824; fill: none; stroke-width: 1.2; }
+  .ln   { stroke: #a9b3c9; fill: none; stroke-width: 1; }
+  .hair { stroke: #c4ccdc; fill: none; stroke-width: .8; }
+  .acc  { stroke: #c8401a; fill: none; stroke-width: 1.5; }
+  .acc2 { stroke: #4b3fd6; fill: none; stroke-width: 1.2; }
+  .dot  { fill: #131824; }
+  .dotS { fill: #4d5670; }
+  .dotA { fill: #c8401a; }
+  .panel { fill: #ffffff; fill-opacity: .30; stroke: #a9b3c9; stroke-width: .8; }
+  .wash { fill: #131824; fill-opacity: .05; }
+  .washH { fill: #131824; fill-opacity: .22; }
+  .face { fill: #131824; fill-opacity: .05; stroke: #a9b3c9; stroke-width: 1; }
+  .fillA { fill: #c8401a; fill-opacity: .16; stroke: #c8401a; stroke-width: 1.2; }
+  .fill2 { fill: #4b3fd6; fill-opacity: .14; stroke: #4b3fd6; stroke-width: 1; }
+  .hd   { fill: #4d5670; }
+  .hdA  { fill: #c8401a; }
+</style>
+
+<defs>
+  <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hd"/></marker>
+  <marker id="hA" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+    <path d="M0 0.5 L6 3 L0 5.5 z" class="hdA"/></marker>
+</defs>
+
+<text x="14" y="18" class="t">TRIANGULATION OF SOLID SURFACES</text>
+<text x="14" y="42" class="f">INPUT — 9 NUMBERS PER LINE</text>
+<rect x="14" y="52" width="196" height="150" rx="3" class="panel"/>
+<path d="M51.3 115.0 L42.8 84.8 L73.7 93.3 Z" class="face"/>
+<circle cx="51.3" cy="115.0" r="1.9" class="dotS"/>
+<circle cx="42.8" cy="84.8" r="1.9" class="dotS"/>
+<circle cx="73.7" cy="93.3" r="1.9" class="dotS"/>
+<path d="M165.3 82.6 L147.5 107.2 L134.2 79.7 Z" class="face"/>
+<circle cx="165.3" cy="82.6" r="1.9" class="dotS"/>
+<circle cx="147.5" cy="107.2" r="1.9" class="dotS"/>
+<circle cx="134.2" cy="79.7" r="1.9" class="dotS"/>
+<path d="M89.6 125.3 L88.1 154.8 L115.9 144.0 Z" class="face"/>
+<circle cx="89.6" cy="125.3" r="1.9" class="dotS"/>
+<circle cx="88.1" cy="154.8" r="1.9" class="dotS"/>
+<circle cx="115.9" cy="144.0" r="1.9" class="dotS"/>
+<path d="M31.1 168.0 L52.6 187.7 L57.6 156.4 Z" class="face"/>
+<circle cx="31.1" cy="168.0" r="1.9" class="dotS"/>
+<circle cx="52.6" cy="187.7" r="1.9" class="dotS"/>
+<circle cx="57.6" cy="156.4" r="1.9" class="dotS"/>
+<path d="M151.9 144.4 L169.5 129.9 L183.1 155.7 Z" class="face"/>
+<circle cx="151.9" cy="144.4" r="1.9" class="dotS"/>
+<circle cx="169.5" cy="129.9" r="1.9" class="dotS"/>
+<circle cx="183.1" cy="155.7" r="1.9" class="dotS"/>
+<text x="112" y="222" class="s" text-anchor="middle">no adjacency, no order</text>
+<path d="M228 128 H286" class="acc" marker-end="url(#hA)"/>
+<text x="257" y="118" class="a" text-anchor="middle">intern</text>
+<text x="257" y="150" class="s" text-anchor="middle">trie</text>
+<path d="M404 128 H452" class="acc" marker-end="url(#hA)"/>
+<text x="428" y="118" class="a" text-anchor="middle">glue</text>
+<text x="428" y="150" class="s" text-anchor="middle">RB-tree</text>
+<text x="300" y="42" class="f">SHARED VERTICES</text>
+<rect x="300" y="52" width="90" height="150" rx="3" class="panel"/>
+<rect x="314" y="73" width="62" height="18" rx="2" class="wash"/>
+<text x="345" y="87" class="s" text-anchor="middle">x|y|z</text>
+<rect x="314" y="101" width="62" height="18" rx="2" class="wash"/>
+<text x="345" y="115" class="s" text-anchor="middle">x|y|z</text>
+<rect x="314" y="129" width="62" height="18" rx="2" class="wash"/>
+<text x="345" y="143" class="s" text-anchor="middle">x|y|z</text>
+<path d="M345 152 V172" class="ln" marker-end="url(#h)"/>
+<text x="345" y="188" class="a" text-anchor="middle">id</text>
+<text x="466" y="42" class="f">RECOVERED SOLID + DUAL GRAPH</text>
+<path d="M681.3 115.3 L677.3 54.8" class="ln"/>
+<path d="M681.3 115.3 L725.9 130.4" class="ln"/>
+<path d="M681.3 115.3 L681.3 197.9" class="ln"/>
+<path d="M681.3 115.3 L602.7 75.6" class="ln"/>
+<path d="M681.3 115.3 L605.2 164.1" class="ln"/>
+<path d="M677.3 54.8 L725.9 130.4" class="ln"/>
+<path d="M677.3 54.8 L598.7 66.1" class="hair"/>
+<path d="M677.3 54.8 L674.8 99.9" class="hair"/>
+<path d="M677.3 54.8 L602.7 75.6" class="ln"/>
+<path d="M725.9 130.4 L677.3 188.4" class="hair"/>
+<path d="M725.9 130.4 L674.8 99.9" class="hair"/>
+<path d="M725.9 130.4 L681.3 197.9" class="ln"/>
+<path d="M598.7 66.1 L674.8 99.9" class="hair"/>
+<path d="M598.7 66.1 L602.7 75.6" class="ln"/>
+<path d="M598.7 66.1 L598.7 148.7" class="hair"/>
+<path d="M598.7 66.1 L554.1 133.6" class="hair"/>
+<path d="M677.3 188.4 L674.8 99.9" class="hair"/>
+<path d="M677.3 188.4 L681.3 197.9" class="ln"/>
+<path d="M677.3 188.4 L598.7 148.7" class="hair"/>
+<path d="M677.3 188.4 L602.7 209.2" class="hair"/>
+<path d="M674.8 99.9 L598.7 148.7" class="hair"/>
+<path d="M681.3 197.9 L605.2 164.1" class="ln"/>
+<path d="M681.3 197.9 L602.7 209.2" class="ln"/>
+<path d="M602.7 75.6 L605.2 164.1" class="ln"/>
+<path d="M602.7 75.6 L554.1 133.6" class="ln"/>
+<path d="M605.2 164.1 L602.7 209.2" class="ln"/>
+<path d="M605.2 164.1 L554.1 133.6" class="ln"/>
+<path d="M598.7 148.7 L602.7 209.2" class="hair"/>
+<path d="M598.7 148.7 L554.1 133.6" class="hair"/>
+<path d="M602.7 209.2 L554.1 133.6" class="ln"/>
+<path d="M694.8 100.2 L653.8 81.9" class="acc2"/>
+<path d="M694.8 100.2 L696.2 147.9" class="acc2"/>
+<path d="M653.8 81.9 L629.7 118.3" class="acc2"/>
+<path d="M653.8 81.9 L626.2 65.5" class="acc2"/>
+<path d="M696.2 147.9 L655.9 159.1" class="acc2"/>
+<path d="M655.9 159.1 L629.7 118.3" class="acc2"/>
+<path d="M655.9 159.1 L629.7 190.4" class="acc2"/>
+<path d="M629.7 118.3 L587.3 124.4" class="acc2"/>
+<path d="M626.2 65.5 L585.2 91.8" class="acc2"/>
+<path d="M585.2 91.8 L587.3 124.4" class="acc2"/>
+<path d="M629.7 190.4 L587.3 169.0" class="acc2"/>
+<path d="M587.3 124.4 L587.3 169.0" class="acc2"/>
+<circle cx="694.8" cy="100.2" r="2.6" class="dotA"/>
+<circle cx="653.8" cy="81.9" r="2.6" class="dotA"/>
+<circle cx="696.2" cy="147.9" r="2.6" class="dotA"/>
+<circle cx="655.9" cy="159.1" r="2.6" class="dotA"/>
+<circle cx="629.7" cy="118.3" r="2.6" class="dotA"/>
+<circle cx="626.2" cy="65.5" r="2.6" class="dotA"/>
+<circle cx="585.2" cy="91.8" r="2.6" class="dotA"/>
+<circle cx="629.7" cy="190.4" r="2.6" class="dotA"/>
+<circle cx="587.3" cy="124.4" r="2.6" class="dotA"/>
+<circle cx="587.3" cy="169.0" r="2.6" class="dotA"/>
+<text x="640" y="238" class="s" text-anchor="middle">faces glued along shared edges — one walkable graph</text>
+<text x="866" y="18" class="a" text-anchor="end">Java · no java.util</text>
+</svg>
