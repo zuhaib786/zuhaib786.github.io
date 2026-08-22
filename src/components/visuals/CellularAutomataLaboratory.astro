@@ -1,0 +1,82 @@
+<cellular-automata-laboratory>
+  <section class="math-instrument" aria-label="Interactive cellular automata laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Cells updating under local rules</span></div><div class="math-actions"><div class="math-tabs" aria-label="Automaton"><button class="active" data-mode="life">Game of Life</button><button data-mode="rule30">Rule 30</button><button data-mode="rule90">Rule 90</button><button data-mode="rule110">Rule 110</button></div><button class="math-button" data-play>Pause</button><button class="math-button" data-step>Step</button><button class="math-button" data-clear>Clear</button><button class="math-button" data-random>Randomise</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>drag to paint · toroidal world</span><canvas data-canvas aria-label="Cellular automaton grid"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Emergent computation</p><h2 data-title>Local rules, global behaviour</h2><p data-description>Every cell looks only at its immediate neighbours, yet gliders, oscillators, and universal computation appear. Paint cells and watch global structure emerge from strictly local updates.</p><div class="math-formula" data-formula>sᵢ(t+1) = f(sᵢ₋₁, sᵢ, sᵢ₊₁)</div>
+        <div class="math-metrics"><div><strong data-metric-1>0</strong><small data-metric-1-label>Generation</small></div><div><strong data-metric-2>0%</strong><small data-metric-2-label>Density</small></div><div><strong data-metric-3>B3/S23</strong><small data-metric-3-label>Rule</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span data-speed-label>Update speed</span><b data-speed-value>8 gen/s</b></label><input data-speed type="range" min="1" max="40" step="1" value="8" /></div><div class="math-control" data-life-only><label><span>Random fill</span><b data-fill-value>28%</b></label><input data-fill type="range" min="5" max="60" step="1" value="28" /></div><div class="math-control" hidden data-rule-control><label><span>Rule number (0–255)</span><b data-rule-value>30</b></label><input data-rule type="range" min="0" max="255" step="1" value="30" /></div></div>
+        <div class="math-legend"><span><i></i>alive / on</span><span><i></i>dead / off</span><span><i></i>painted cell</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Life is B3/S23: born by three, survives by two or three.</li><li data-reading-2>Rule 30 produces chaos from a single seed.</li><li data-reading-3>Rule 110 is Turing complete — computation without a CPU.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</cellular-automata-laboratory>
+
+<script>
+  type Mode="life"|"rule30"|"rule90"|"rule110";
+  const INFO:Record<Mode,[string,string,string,string,number|null]>={
+    life:["Local rules, global behaviour","Conway's Game of Life needs only birth and survival counts, yet it supports gliders, guns, and universal computation. Paint cells to build your own machinery.","s′(z)=B3/S23 over the 8-neighbourhood","drag to paint · toroidal world",null],
+    rule30:["One seed, irreducible complexity","Wolfram's rule 30 weaves a chaotic triangular web from a lone cell. Its middle column has strong empirical randomness and once helped generate pseudorandom numbers in Mathematica.","new cell = L ⊕ (C ∨ R)","click the top row to place the seed",30],
+    rule90:["Addition without carries","Rule 90 XORs its two neighbours, so each cell is the parity of Pascal's triangle above it. The result is the Sierpiński gasket emerging from discrete time.","new cell = L ⊕ R","click the top row to place the seed",90],
+    rule110:["Computation at the edge of death","Rule 110 balances stable walls with travelling gliders that collide informationally. Interactions between structures can simulate any Turing machine.","new cell = mixed classes 0–3","click the top row to place the seed",110],
+  };
+  class CellularAutomataLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;mode:Mode="life";cols=110;rows=70;grid!:Uint8Array;next!:Uint8Array;history:number[][]=[];density:number[]=[];gen=0;speed=8;fill=.28;rule=30;acc=0;last=0;frame=0;playing=true;painting=false;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.grid=new Uint8Array(this.cols*this.rows);this.next=new Uint8Array(this.cols*this.rows);this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.configure();this.randomise();this.layout();this.frame=requestAnimationFrame(t=>this.tick(t));}
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach(b=>b.addEventListener("click",()=>{this.mode=b.dataset.mode as Mode;this.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("active",x===b));this.configure();},{signal}));
+      this.querySelector("[data-play]")?.addEventListener("click",()=>{this.playing=!this.playing;const b=this.querySelector<HTMLButtonElement>("[data-play]");if(b)b.textContent=this.playing?"Pause":"Play";},{signal});
+      this.querySelector("[data-step]")?.addEventListener("click",()=>{this.advance();this.draw();},{signal});
+      this.querySelector("[data-clear]")?.addEventListener("click",()=>{this.grid.fill(0);this.history=[new Array(this.cols).fill(0)];this.density=[];this.gen=0;this.draw();},{signal});
+      this.querySelector("[data-random]")?.addEventListener("click",()=>{this.randomise();this.draw();},{signal});
+      const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));this.draw();},{signal});
+      range("[data-speed]",v=>{this.speed=v;this.text("[data-speed-value]",v+" gen/s");});
+      range("[data-fill]",v=>{this.fill=v/100;this.text("[data-fill-value]",v+"%");});
+      range("[data-rule]",v=>{this.rule=v;this.text("[data-rule-value]",String(v));this.text("[data-metric-3]","Wolfram "+v);this.resetElementary();});
+      this.canvas.addEventListener("pointerdown",e=>{this.painting=true;this.paint(e);},{signal});
+      this.canvas.addEventListener("pointermove",e=>{if(this.painting)this.paint(e);},{signal});
+      addEventListener("pointerup",()=>this.painting=false,{signal});}
+    configure(){const info=INFO[this.mode];this.text("[data-title]",info[0]);this.text("[data-description]",info[1]);this.text("[data-formula]",info[2]);this.text("[data-stage-label]",info[3]);
+      const ruleCtl=this.querySelector("[data-rule-control]") as HTMLElement,fillCtl=this.querySelector("[data-life-only]") as HTMLElement;
+      if(ruleCtl)ruleCtl.hidden=info[4]===null;if(fillCtl)fillCtl.hidden=info[4]!==null;
+      if(info[4]!==null){this.rule=info[4];this.setValue("[data-rule]",info[4]);this.text("[data-rule-value]",String(info[4]));}
+      this.history=[];this.density=[];this.gen=0;
+      if(this.mode==="life"){this.text("[data-metric-3]","B3/S23");this.text("[data-reading-1]","Life is B3/S23: born by three, survives by two or three.");this.text("[data-reading-2]","Still lifes and oscillators store information.");this.text("[data-reading-3]","Gliders carry signals across the lattice.");this.randomise();}
+      else{this.text("[data-metric-3]","Wolfram "+this.rule);this.resetElementary();
+        if(this.mode==="rule30"){this.text("[data-reading-1]","Left neighbour dominates: chaos from order.");this.text("[data-reading-2]","The centre column behaves randomly in many statistical tests.");this.text("[data-reading-3]","Prediction appears to cost as much as running the rule.");}
+        else if(this.mode==="rule90"){this.text("[data-reading-1]","Row n is n-th Pascal row mod 2.");this.text("[data-reading-2]","The limiting gasket has dimension log₂3 ≈ 1.585.");this.text("[data-reading-3]","Linear algebra over GF(2) explains everything.");}
+        else{this.text("[data-reading-1]","Class 4: localised structures on a quiet background.");this.text("[data-reading-2]","Collisions implement logic gates.");this.text("[data-reading-3]","Cook proved universality in 2004.");}}
+      this.draw();}
+    resetElementary(){this.history=[this.seedRow()];this.gen=0;}
+    seedRow(){const row=new Array(this.cols).fill(0);if(this.mode==="rule90")row[Math.floor(this.cols/2)]=1;else row[Math.floor(this.cols*(.25+Math.random()*.5))]=1;return row;}
+    randomise(){this.gen=0;this.density=[];if(this.mode==="life"){for(let i=0;i<this.grid.length;i++)this.grid[i]=Math.random()<this.fill?1:0;this.history=[];}else{this.history=[Array.from({length:this.cols},()=>Math.random()<this.fill?1:0)];}}
+    advance(){if(this.mode==="life"){const{cols,rows,grid,next}=this;for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){let n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)];}const alive=grid[y*cols+x];next[y*cols+x]=alive?(n===2||n===3?1:0):(n===3?1:0);}this.grid.set(next);this.gen++;this.density.push(this.population());if(this.density.length>160)this.density.shift();}
+      else{const row=this.history[this.history.length-1],nr=new Array(this.cols);for(let x=0;x<this.cols;x++){const l=row[(x-1+this.cols)%this.cols],c=row[x],r=row[(x+1)%this.cols],idx=(l<<2)|(c<<1)|r;nr[x]=(this.rule>>idx)&1;}this.history.push(nr);this.gen++;if(this.history.length>this.rows)this.history.shift();}}
+    population(){let n=0;for(let i=0;i<this.grid.length;i++)n+=this.grid[i];return n;}
+    paint(e:PointerEvent){const rect=this.canvas.getBoundingClientRect(),X=e.clientX-rect.left,Y=e.clientY-rect.top,cw=this.width/this.cols,ch=this.height/this.rows,x=Math.floor(X/cw),y=Math.floor(Y/ch);
+      if(x<0||x>=this.cols||y<0||y>=this.rows)return;
+      if(this.mode==="life"){this.grid[y*this.cols+x]=1;}else{const top=this.history[0];top.fill(0);top[x]=1;this.history.length=1;this.gen=0;}
+      this.draw();}
+    tick(t:number){const elapsed=Math.min(100,t-(this.last||t));this.last=t;if(this.playing){this.acc+=elapsed/1000*this.speed;let guard=0;while(this.acc>=1&&guard++<12){this.advance();this.acc-=1;}this.draw();}this.frame=requestAnimationFrame(n=>this.tick(n));}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const cw=w/this.cols,ch=h/this.rows,on=this.css("--math-a"),off=this.css("--paper-sunken"),grid=this.css("--reseau");
+      c.strokeStyle=grid;c.lineWidth=.5;c.beginPath();for(let x=1;x<this.cols;x+=Math.ceil(this.cols/60)){c.moveTo(x*cw,0);c.lineTo(x*cw,h);}for(let y=1;y<this.rows;y+=Math.ceil(this.rows/40)){c.moveTo(0,y*ch);c.lineTo(w,y*ch);}c.stroke();
+      c.fillStyle=on;
+      if(this.mode==="life"){for(let y=0;y<this.rows;y++)for(let x=0;x<this.cols;x++)if(this.grid[y*this.cols+x])c.fillRect(x*cw,y*ch,Math.max(1,cw-.6),Math.max(1,ch-.6));}
+      else{this.history.forEach((row,ry)=>{for(let x=0;x<this.cols;x++)if(row[x])c.fillRect(x*cw,ry*ch,Math.max(1,cw-.6),Math.max(1,ch-.6));});}
+      const chartH=h*.14,chartY=h-chartH-10,pad=w*.04;c.strokeStyle=this.css("--rule");c.strokeRect(pad,chartY,w-pad*2,chartH);
+      const series=this.mode==="life"?this.density:this.history.map(r=>r.reduce((a,b)=>a+b,0)/this.cols);
+      if(series.length>1){const max=Math.max(...series,.001);c.strokeStyle=this.css("--math-b");c.lineWidth=1.3;c.beginPath();series.forEach((v,n)=>{const px=pad+n/(series.length-1)*(w-pad*2),py=chartY+chartH-(v/max)*chartH*.94;n?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();}
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(this.mode==="life"?"population history":"mean activity",pad+6,chartY+11);
+      this.text("[data-metric-1]",String(this.gen));this.text("[data-metric-2]",((this.mode==="life"?this.population()/this.grid.length:(series[series.length-1]??0))*100).toFixed(1)+"%");}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+    setValue(q:string,v:number){const e=this.querySelector<HTMLInputElement>(q);if(e)e.value=String(v)}
+  }
+  if(!customElements.get("cellular-automata-laboratory"))customElements.define("cellular-automata-laboratory",CellularAutomataLaboratory);
+</script>
+
+<style>
+  cellular-automata-laboratory{display:block}.math-stage canvas{cursor:crosshair}
+</style>

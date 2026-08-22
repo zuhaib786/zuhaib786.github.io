@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import CipherLaboratory from "../../components/visuals/CipherLaboratory.astro";
+---
+<ExperimentPage title="Classical ciphers" description="Interactive Caesar, Vigenère, and XOR ciphers with frequency analysis and brute-force cryptanalysis." number="C01" eyebrow="Cryptanalysis" heading="Substitution is not" accent="secrecy." lede="Shift letters, layer key words, XOR with a repeating stream — then watch the ciphertext betray every scheme through the shape of its own letter frequencies." noteTitle="Statistics lens" note="Every deterministic substitution preserves the statistics of the language beneath it. Modern cryptography begins where classical ends: keys long as messages, fresh each time, never reused." backHref="/cryptography" backLabel="Cryptography laboratory">
+  <CipherLaboratory />
+</ExperimentPage>

@@ -1,0 +1,75 @@
+<consistent-hashing-laboratory>
+  <section class="math-instrument" aria-label="Interactive consistent hashing laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Keys mapped onto the ring</span></div><div class="math-actions"><button class="math-button" data-add>+ Add node</button><button class="math-button" data-remove>− Remove node</button><button class="math-button" data-scatter>Scatter keys</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>ring space · clockwise ownership · colour = owner</span><canvas data-canvas aria-label="Consistent hashing ring"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Distributed caching</p><h2 data-title>Move keys, not everything</h2><p data-description>Modulo placement scatters almost every key when a server joins. Consistent hashing places servers and keys on one circle and hands each key to the next owner clockwise — so only the affected arc migrates.</p><div class="math-formula">owner(k) = first sᵢ ≥ h(k) clockwise</div>
+        <div class="math-metrics"><div><strong data-metric-1>3</strong><small data-metric-1-label>Nodes</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Moved · consistent</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Moved · mod N</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Keys in cluster</span><b data-keys-value>120</b></label><input data-keys type="range" min="20" max="300" step="10" value="120" /></div><div class="math-control"><label><span>Virtual nodes / server</span><b data-vnodes-value>40</b></label><input data-vnodes type="range" min="1" max="200" step="1" value="40" /></div></div>
+        <div class="math-legend"><span><i></i>key</span><span><i></i>ownership arc</span><span><i></i>server point</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Modulo h(k) mod N reshuffles ≈ N−1/N of all keys.</li><li data-reading-2>The ring moves only ≈ 1/N of keys per membership change.</li><li data-reading-3>Virtual nodes smooth out uneven hash arcs.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</consistent-hashing-laboratory>
+
+<script>
+  const PALETTE=["#6fd6ff","#ff8b59","#59c99b","#c98bff","#ffd15c","#ff657a","#8ef0d2","#f2a2ff","#a9c6ff","#ffc27a","#7de08a","#ff9db8"];
+  const POOL=Array.from({length:12},(_,i)=>String.fromCharCode(65+i));
+  const fnv=(s:string)=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h;};
+  class ConsistentHashingLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;nodes:string[]=["A","B","C"];keys:{id:number;pos:number}[]=[];ring:{pos:number;node:string}[]=[];vnodes=40;keyCount=120;keySeed=0;movedCH:number|null=null;movedMod:number|null=null;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.scatter();this.rebuild();this.layout();}
+    disconnectedCallback(){this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      this.querySelector("[data-add]")?.addEventListener("click",()=>{const next=POOL.find(n=>!this.nodes.includes(n));if(!next)return;this.change(()=>this.nodes.push(next));},{signal});
+      this.querySelector("[data-remove]")?.addEventListener("click",()=>{if(this.nodes.length<=1)return;this.change(()=>{this.nodes.splice(Math.floor(Math.random()*this.nodes.length),1);});},{signal});
+      this.querySelector("[data-scatter]")?.addEventListener("click",()=>{this.scatter();this.movedCH=null;this.movedMod=null;this.updateMetrics();this.draw();},{signal});
+      const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));this.draw();},{signal});
+      range("[data-keys]",v=>{this.keyCount=v;this.text("[data-keys-value]",String(v));while(this.keys.length<v)this.keys.push({id:this.keys.length,pos:this.hashPos(`${this.keySeed}:k${this.keys.length}`)});this.keys.length=v;});
+      range("[data-vnodes]",v=>{this.vnodes=v;this.text("[data-vnodes-value]",String(v));this.rebuild();});}
+    hashPos(s:string){return fnv(s)/4294967296;}
+    scatter(){this.keySeed=Math.floor(Math.random()*0xffffffff);this.keys=Array.from({length:this.keyCount},(_,id)=>({id,pos:this.hashPos(`${this.keySeed}:k${id}`)}));}
+    ownersBefore=new Map<number,string>();
+    change(mutate:()=>void){const beforeCH=new Map<number,string>(),beforeMod=new Map<number,string>();for(const k of this.keys){beforeCH.set(k.id,this.ownerCH(k.pos));beforeMod.set(k.id,this.ownerMod(k.id));}
+      mutate();this.rebuild();
+      let ch=0,mod=0;for(const k of this.keys){if(beforeCH.get(k.id)!==this.ownerCH(k.pos))ch++;if(beforeMod.get(k.id)!==this.ownerMod(k.id))mod++;}
+      this.movedCH=ch;this.movedMod=mod;this.updateMetrics();this.draw();}
+    rebuild(){this.ring=[];for(const n of this.nodes)for(let v=0;v<this.vnodes;v++)this.ring.push({pos:this.hashPos(`node-${n}-v${v}`),node:n});this.ring.sort((a,b)=>a.pos-b.pos);this.updateMetrics();}
+    ownerCH(pos:number){let lo=0,hi=this.ring.length-1;if(!this.ring.length)return"?";if(pos>this.ring[hi].pos)return this.ring[0].node;while(lo<hi){const mid=(lo+hi)>>1;if(this.ring[mid].pos<pos)lo=mid+1;else hi=mid;}return this.ring[lo].node;}
+    ownerMod(id:number){return this.nodes[fnv(`${this.keySeed}:k${id}`)%this.nodes.length];}
+    color(node:string){return PALETTE[POOL.indexOf(node)%PALETTE.length];}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const cx=w*.30,cy=h*.52,R=Math.min(w*.235,h*.365);
+      c.strokeStyle=this.css("--rule");c.lineWidth=1;c.beginPath();c.arc(cx,cy,R,0,Math.PI*2);c.stroke();
+      for(let i=0;i<this.ring.length;i++){const a=this.ring[i],b=this.ring[(i+1)%this.ring.length],start=a.pos*Math.PI*2-Math.PI/2,end=(i+1===this.ring.length?b.pos+1:b.pos)*Math.PI*2-Math.PI/2;
+        c.strokeStyle=this.color(b.node);c.globalAlpha=.16;c.lineWidth=R*.16;c.beginPath();c.arc(cx,cy,R,start,end);c.stroke();}
+      c.globalAlpha=1;
+      for(const k of this.keys){const a=k.pos*Math.PI*2-Math.PI/2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;c.fillStyle=this.color(this.ownerCH(k.pos));c.beginPath();c.arc(x,y,2.4,0,Math.PI*2);c.fill();}
+      const seen=new Set<string>();
+      for(const p of this.ring){const a=p.pos*Math.PI*2-Math.PI/2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;c.fillStyle=this.color(p.node);c.beginPath();c.arc(x,y,2,0,Math.PI*2);c.fill();
+        if(!seen.has(p.node)){seen.add(p.node);const lx=cx+Math.cos(a)*(R+22),ly=cy+Math.sin(a)*(R+22);c.fillStyle=this.color(p.node);c.beginPath();c.arc(lx,ly,5,0,Math.PI*2);c.fill();c.fillStyle=this.css("--ink-soft");c.font="600 9px IBM Plex Mono";c.textAlign="center";c.fillText("cache-"+p.node,lx,ly-9);c.textAlign="left";}}
+      const px=w*.60,pw=w*.34;let py=h*.14;
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("KEYS RELOCATED BY LAST MEMBERSHIP CHANGE",px,py-8);
+      const rows:[string,number|null,string][]=[["mod N",this.movedMod,this.css("--math-b")],["consistent",this.movedCH,this.css("--math-a")]];
+      for(const[label,val,color]of rows){c.fillStyle=this.css("--ink-soft");c.font="9px IBM Plex Mono";c.fillText(label,px,py+14);
+        c.strokeStyle=this.css("--rule");c.strokeRect(px+90,py+4,pw-90,12);
+        if(val!==null&&this.keys.length){const frac=val/this.keys.length;c.fillStyle=color;c.fillRect(px+90,py+4,(pw-90)*Math.min(1,frac),12);
+          c.fillStyle=this.css("--ink");c.font="600 10px IBM Plex Mono";c.fillText(`${val} (${(frac*100).toFixed(0)}%)`,px+96,py+13);}
+        else{c.fillStyle=this.css("--ink-faint");c.font="9px IBM Plex Mono";c.fillText("add or remove a node",px+96,py+13);}
+        py+=34;}
+      py+=6;c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";
+      const ideal=Math.round(this.keys.length/Math.max(1,this.nodes.length));
+      c.fillText(`ideal share per node ≈ ${ideal} keys`,px,py);
+      this.text("[data-state]",`${this.nodes.length} nodes · ${this.vnodes} virtual points each · ${this.keys.length} keys`);}
+    updateMetrics(){this.text("[data-metric-1]",String(this.nodes.length));this.text("[data-metric-2]",this.movedCH===null?"—":String(this.movedCH));this.text("[data-metric-3]",this.movedMod===null?"—":String(this.movedMod));}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+    setValue(q:string,v:number){const e=this.querySelector<HTMLInputElement>(q);if(e)e.value=String(v)}
+  }
+  if(!customElements.get("consistent-hashing-laboratory"))customElements.define("consistent-hashing-laboratory",ConsistentHashingLaboratory);
+</script>
+
+<style>
+  consistent-hashing-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

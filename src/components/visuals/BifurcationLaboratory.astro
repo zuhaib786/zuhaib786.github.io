@@ -1,0 +1,76 @@
+<bifurcation-laboratory>
+  <section class="math-instrument" aria-label="Interactive bifurcation diagram laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Iterating xₙ₊₁ = r·xₙ(1−xₙ)</span></div><div class="math-actions"><button class="math-button" data-play>Pause</button><button class="math-button" data-reset>Reset view</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>orbit diagram · click to choose r · cobweb below</span><canvas data-canvas aria-label="Bifurcation diagram with cobweb inspection"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Logistic map</p><h2 data-title>Order doubles into chaos</h2><p data-description>Raising the growth parameter r first stabilises a fixed point, then splits it into a cycle of two, four, eight — until no period remains. The orbit diagram records every destination; the cobweb shows one journey.</p><div class="math-formula">xₙ₊₁ = r·xₙ(1−xₙ)</div>
+        <div class="math-metrics"><div><strong data-metric-1>3.720</strong><small data-metric-1-label>Parameter r</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Orbit period</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Lyapunov exponent</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Window start r₀</span><b data-rmin-value>2.400</b></label><input data-rmin type="range" min="2" max="3.9" step="0.001" value="2.4" /></div><div class="math-control"><label><span>Window end r₁</span><b data-rmax-value>4.000</b></label><input data-rmax type="range" min="2.5" max="4" step="0.001" value="4" /></div><div class="math-control"><label><span>Seed x₀</span><b data-x0-value>0.400</b></label><input data-x0 type="range" min="0.01" max="0.99" step="0.005" value="0.4" /></div><div class="math-control"><label><span>Cobweb speed</span><b data-speed-value>3 it/frame</b></label><input data-speed type="range" min="1" max="12" step="1" value="3" /></div></div>
+        <div class="math-legend"><span><i></i>visited states</span><span><i></i>selected r</span><span><i></i>cobweb path</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>The fixed point x★ = 1 − 1/r rules while r &lt; 3.</li><li data-reading-2>Doublings accumulate near r ≈ 3.56995.</li><li data-reading-3>Positive Lyapunov exponent marks sensitive dependence.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</bifurcation-laboratory>
+
+<script>
+  class BifurcationLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;rMin=2.4;rMax=4;x0=.4;r=3.72;speed=3;playing=true;last=0;frame=0;clock=0;orbit:number[]=[];period="—";lyap=0;cacheKey="";buffer?:HTMLCanvasElement;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>{this.cacheKey="";this.layout();});this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>{this.cacheKey="";this.draw();});this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.analyse();this.layout();this.frame=requestAnimationFrame(t=>this.tick(t));}
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));},{signal});
+      range("[data-rmin]",v=>{this.rMin=Math.min(v,this.rMax-.05);this.r=Math.max(this.r,this.rMin);this.setValue("[data-rmin]",this.rMin);this.text("[data-rmin-value]",this.rMin.toFixed(3));this.cacheKey="";this.analyse();this.draw();});
+      range("[data-rmax]",v=>{this.rMax=Math.max(v,this.rMin+.05);this.r=Math.min(this.r,this.rMax);this.setValue("[data-rmax]",this.rMax);this.text("[data-rmax-value]",this.rMax.toFixed(3));this.cacheKey="";this.analyse();this.draw();});
+      range("[data-x0]",v=>{this.x0=v;this.text("[data-x0-value]",v.toFixed(3));this.analyse();this.clock=0;this.draw();});
+      range("[data-speed]",v=>{this.speed=v;this.text("[data-speed-value]",v+" it/frame");});
+      this.querySelector("[data-play]")?.addEventListener("click",()=>{this.playing=!this.playing;const b=this.querySelector<HTMLButtonElement>("[data-play]");if(b)b.textContent=this.playing?"Pause":"Play";this.text("[data-state]",this.playing?"Iterating xₙ₊₁ = r·xₙ(1−xₙ)":"Paused mid-orbit");},{signal});
+      this.querySelector("[data-reset]")?.addEventListener("click",()=>{this.rMin=2.4;this.rMax=4;this.setValue("[data-rmin]",2.4);this.setValue("[data-rmax]",4);this.text("[data-rmin-value]","2.400");this.text("[data-rmax-value]","4.000");this.cacheKey="";this.draw();},{signal});
+      this.canvas.addEventListener("pointerdown",e=>{const rect=this.canvas.getBoundingClientRect(),X=e.clientX-rect.left,Y=e.clientY-rect.top;if(Y>this.height*.62)return;this.r=this.rMin+(X/this.width)*(this.rMax-this.rMin);this.analyse();this.clock=0;this.draw();},{signal});}
+    analyse(){let x=this.x0,warm=0,sum=0;for(let n=0;n<900;n++){x=this.step(this.r,x);if(n>=600){sum+=Math.log(Math.abs(this.r*(1-2*x))+1e-12);}}this.lyap=sum/300;
+      const seen:number[]=[];for(let n=0;n<256;n++){seen.push(x);x=this.step(this.r,x);}
+      let p=0;for(let cand=1;cand<=64;cand++){let ok=true;for(let i=cand;i<128;i++){if(Math.abs(seen[i]-seen[i-cand])>1e-6){ok=false;break;}}if(ok){p=cand;break;}}
+      this.period=p?p===1?"fixed point":String(p):this.lyap>0?"chaotic":"long cycle";
+      this.orbit=[];for(let n=0;n<240;n++){this.orbit.push(x);x=this.step(this.r,x);}
+      this.text("[data-metric-1]",this.r.toFixed(3));this.text("[data-metric-2]",this.period);this.text("[data-metric-3]",this.lyap.toFixed(3));
+      if(this.period==="fixed point"){this.text("[data-title]","One state absorbs every seed");this.text("[data-reading-1]","The fixed point x★ = 1 − 1/r is stable.");this.text("[data-reading-2]","Slope r(1−2x★) has magnitude below one.");this.text("[data-reading-3]","Transients decay geometrically.");}
+      else if(this.period!=="chaotic"&&this.period!=="long cycle"){this.text("[data-title]","The cycle splits again and again");this.text("[data-reading-1]",`A stable cycle of period ${this.period} has appeared.`);this.text("[data-reading-2]","Each doubling arrives via a flip bifurcation.");this.text("[data-reading-3]","Doublings accumulate near r ≈ 3.56995.");}
+      else if(this.lyap>.0005){this.text("[data-title]","Prediction loses the race to precision");this.text("[data-reading-1]","Nearby seeds separate exponentially fast.");this.text("[data-reading-2]","Periodic windows punctuate the chaotic sea.");this.text("[data-reading-3]","A positive Lyapunov exponent certifies chaos.");}
+      else{this.text("[data-title]","At the edge of order");this.text("[data-reading-1]","The Lyapunov exponent hovers near zero.");this.text("[data-reading-2]","Long transients precede settling.");this.text("[data-reading-3]","Bifurcation points live exactly here.");}}
+    step(r:number,x:number){return r*x*(1-x);}
+    tick(t:number){const elapsed=Math.min(50,t-(this.last||t));this.last=t;if(this.playing)this.clock+=elapsed*.06*this.speed;this.draw();this.frame=requestAnimationFrame(n=>this.tick(n));}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    hex(c:string):[number,number,number]{const s=c.trim();if(s.startsWith("#"))return[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parseInt(s.slice(5,7),16)];return[75,63,214];}
+    renderDiagram(W:number,H:number){const off=this.buffer??document.createElement("canvas");this.buffer=off;off.width=W;off.height=H;const octx=off.getContext("2d");if(!octx)return;const img=octx.createImageData(W,H),data=img.data,[R,G,B]=this.hex(document.documentElement.dataset.theme==="dark"?this.css("--math-a"):this.css("--math-a"));
+      for(let i=3;i<data.length;i+=4)data[i]=0;
+      const cols=Math.min(W,1100);
+      for(let cx=0;cx<cols;cx++){const r=this.rMin+(cx/(cols-1))*(this.rMax-this.rMin);let x=this.x0;for(let n=0;n<320;n++)x=this.step(r,x);for(let n=0;n<260;n++){x=this.step(r,x);if(x<=0||x>=1)continue;const py=Math.min(H-1,(Math.floor((1-x)*H)));const idx=(py*W+Math.floor(cx/(cols-1)*(W-1)))*4;data[idx]=R;data[idx+1]=G;data[idx+2]=B;data[idx+3]=Math.min(255,data[idx+3]+80);}}
+      octx.putImageData(img,0,0);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height,dh=h*.62;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const key=`${this.rMin}|${this.rMax}|${w}|${h}|${document.documentElement.dataset.theme}`;
+      if(key!==this.cacheKey){this.renderDiagram(Math.round(w*Math.min(devicePixelRatio||1,2)),Math.round(dh*Math.min(devicePixelRatio||1,2)));this.cacheKey=key;}
+      if(this.buffer)c.drawImage(this.buffer,0,0,w,dh);
+      c.strokeStyle=this.css("--rule");c.lineWidth=1;c.strokeRect(.5,.5,w-1,dh-1);
+      const mx=(this.r-this.rMin)/(this.rMax-this.rMin)*w;c.strokeStyle=this.css("--math-b");c.lineWidth=1.4;c.beginPath();c.moveTo(mx,0);c.lineTo(mx,dh);c.stroke();
+      const side=Math.min(h*.30,w*.36),ox=w*.045,oy=dh+(h-dh-side)/2;
+      c.strokeStyle=this.css("--rule");c.strokeRect(ox,oy,side,side);
+      const X=(v:number)=>ox+v*side,Y=(v:number)=>oy+side-v*side;
+      c.strokeStyle=this.css("--ink-faint");c.beginPath();c.moveTo(X(0),Y(0));c.lineTo(X(1),Y(1));c.stroke();
+      c.strokeStyle=this.css("--math-b");c.beginPath();for(let n=0;n<=100;n++){const v=n/100,p=this.step(this.r,v);n?c.lineTo(X(v),Y(p)):c.moveTo(X(v),Y(p));}c.stroke();
+      let x=this.orbit[0]??this.x0;const steps=Math.min(this.orbit.length-1,Math.floor(this.clock)%this.orbit.length||Math.floor(this.clock));
+      c.strokeStyle=this.css("--math-a");c.lineWidth=1.3;c.beginPath();
+      for(let n=0;n<steps;n++){const nx=this.step(this.r,x);c.moveTo(X(x),Y(x));c.lineTo(X(x),Y(nx));c.lineTo(X(nx),Y(nx));x=nx;}
+      c.stroke();c.fillStyle=this.css("--math-good");c.beginPath();c.arc(X(x),Y(x),3.6,0,Math.PI*2);c.fill();
+      const tx=ox*2+side,tw=w-tx-w*.04,ty=oy+side*.15,th=side*.7;
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(tx,ty);c.lineTo(tx,ty+th);c.moveTo(tx,ty+th);c.lineTo(tx+tw,ty+th);c.stroke();
+      c.strokeStyle=this.css("--math-a");c.lineWidth=1.2;c.beginPath();
+      const shown=Math.min(140,this.orbit.length);for(let n=0;n<shown;n++){const v=this.orbit[(Math.floor(this.clock)+n)%this.orbit.length],px=tx+n/(shown-1)*tw,py=ty+th-v*th;n?c.lineTo(px,py):c.moveTo(px,py);}c.stroke();
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("cobweb · seed trajectory",tx,ty-6);}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+    setValue(q:string,v:number){const e=this.querySelector<HTMLInputElement>(q);if(e)e.value=String(v)}
+  }
+  if(!customElements.get("bifurcation-laboratory"))customElements.define("bifurcation-laboratory",BifurcationLaboratory);
+</script>
+
+<style>
+  bifurcation-laboratory{display:block}.math-stage canvas{cursor:crosshair}
+</style>

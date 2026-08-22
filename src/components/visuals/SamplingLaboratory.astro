@@ -1,0 +1,73 @@
+<sampling-laboratory>
+  <section class="math-instrument" aria-label="Interactive sampling and aliasing laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Sampling a band of sinusoids</span></div><div class="math-actions"><div class="math-tabs" aria-label="Signal"><button class="active" data-mode="voice">Two tones</button><button data-mode="bright">Bright mix</button><button data-mode="single">Single tone</button></div><div class="math-tabs" aria-label="Reconstruction"><button class="active" data-rec="zoh">Zero-order</button><button data-rec="linear">Linear</button><button data-rec="sinc">Band-limited</button></div><button class="math-button" data-play>Pause</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>time above · spectrum below · watch aliases fold in</span><canvas data-canvas aria-label="Sampled signal and its spectrum"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Signal processing</p><h2 data-title>Samples forget what they skip</h2><p data-description>Sampling freezes a signal only at instants. Any component faster than half the sample rate does not disappear — it folds to a lower impostor frequency that the samples cannot distinguish from the truth.</p><div class="math-formula">f_alias = |f − round(f/fₛ)·fₛ|</div>
+        <div class="math-metrics"><div><strong data-metric-1>24 Hz</strong><small data-metric-1-label>Sample rate fₛ</small></div><div><strong data-metric-2>12 Hz</strong><small data-metric-2-label>Nyquist limit</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Aliased parts</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Sample rate fₛ</span><b data-fs-value>24 Hz</b></label><input data-fs type="range" min="4" max="64" step="1" value="24" /></div><div class="math-control"><label><span>Hold phase drift</span><b data-drift-value>0.00 rad/s</b></label><input data-drift type="range" min="0" max="6" step="0.1" value="0" /></div></div>
+        <div class="math-legend"><span><i></i>true signal</span><span><i></i>samples</span><span><i></i>reconstruction</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Nyquist: faithful capture needs fₛ &gt; 2·f_max.</li><li data-reading-2>ZOH sags between samples; linear cuts corners.</li><li data-reading-3>Ideal sinc reconstruction is exact for a band-limited signal sampled above Nyquist.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</sampling-laboratory>
+
+<script>
+  type Mode="voice"|"bright"|"single";type Rec="zoh"|"linear"|"sinc";
+  const PARTS:Record<Mode,[number,number][]>={voice:[[3,.55],[7,.35]],bright:[[5,.4],[11,.32],[19,.22]],single:[[10,.8]]};
+  const RECINFO:Record<Rec,string>= {zoh:"Zero-order hold repeats each sample like a nervous staircase.",linear:"Linear connect-the-dots rounds every corner the signal makes.",sinc:"Band-limited sinc kernels rebuild the true continuum between samples."};
+  class SamplingLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;mode:Mode="voice";rec:Rec="zoh";fs=24;drift=0;phase=0;playing=true;last=0;frame=0;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.describe();this.layout();this.frame=requestAnimationFrame(t=>this.tick(t));}
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach(b=>b.addEventListener("click",()=>{this.mode=b.dataset.mode as Mode;this.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("active",x===b));this.describe();this.draw();},{signal}));
+      this.querySelectorAll<HTMLButtonElement>("[data-rec]").forEach(b=>b.addEventListener("click",()=>{this.rec=b.dataset.rec as Rec;this.querySelectorAll("[data-rec]").forEach(x=>x.classList.toggle("active",x===b));this.describe();this.draw();},{signal}));
+      this.querySelector("[data-play]")?.addEventListener("click",()=>{this.playing=!this.playing;const b=this.querySelector<HTMLButtonElement>("[data-play]");if(b)b.textContent=this.playing?"Pause":"Play";},{signal});
+      const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));this.draw();},{signal});
+      range("[data-fs]",v=>{this.fs=v;this.text("[data-fs-value]",v+" Hz");this.describe();});
+      range("[data-drift]",v=>{this.drift=v;this.text("[data-drift-value]",v.toFixed(2)+" rad/s");});}
+    describe(){const parts=PARTS[this.mode],nyq=this.fs/2,aliased=parts.filter(([f])=>f>nyq);
+      this.text("[data-title]",aliased.length?"An impostor takes the stage":"Everything fits below Nyquist");
+      this.text("[data-description]",aliased.length?`${RECINFO[this.rec]} But ${aliased.map(([f])=>f+" Hz").join(" and ")} exceed the ${nyq} Hz limit and return disguised as ${aliased.map(([f])=>this.alias(f).toFixed(1)+" Hz").join(" and ")}.`:RECINFO[this.rec]+" No component exceeds the Nyquist limit, so the samples still describe the original.");
+      this.text("[data-stage-label]",aliased.length?"aliasing active · compare the two spectra":"clean sampling · spectrum below");}
+    alias(f:number){return Math.abs(((f+this.fs/2)%this.fs)-this.fs/2);}
+    sig(t:number){return PARTS[this.mode].reduce((s,[f,a])=>s+a*Math.sin(2*Math.PI*f*t+this.phase*f*.3),0);}
+    tick(t:number){const elapsed=Math.min(50,t-(this.last||t));this.last=t;if(this.playing){this.phase+=elapsed*.001*this.drift||0;this.phase+=elapsed*.0004;}this.draw();this.frame=requestAnimationFrame(n=>this.tick(n));}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const pad=w*.05,tw=w-pad*2,mid=h*.30,amp=h*.17;
+      c.strokeStyle=this.css("--rule");c.lineWidth=1;c.beginPath();c.moveTo(pad,mid);c.lineTo(w-pad,mid);c.stroke();
+      c.strokeStyle=this.css("--ink-faint");c.lineWidth=1;c.beginPath();
+      for(let n=0;n<=700;n++){const t=n/700,X=pad+t*tw,Y=mid-this.sig(t)*amp;n?c.lineTo(X,Y):c.moveTo(X,Y);}c.stroke();
+      const nsamp=Math.max(8,Math.round(this.fs));
+      const samples:[number,number][]=[];for(let k=0;k<=nsamp;k++){const t=k/nsamp;samples.push([t,this.sig(t)]);}
+      c.strokeStyle=this.css("--rule");for(const[t,v]of samples){const X=pad+t*tw,Y=mid-v*amp;c.beginPath();c.moveTo(X,mid);c.lineTo(X,Y);c.stroke();}
+      c.strokeStyle=this.css("--math-b");c.lineWidth=1.8;
+      if(this.rec==="zoh"){c.beginPath();samples.forEach(([t,v],i)=>{const X=pad+t*tw,Y=mid-v*amp,x2=i<samples.length-1?pad+samples[i+1][0]*tw:w-pad;i?c.lineTo(X,Y):c.moveTo(X,Y);c.lineTo(x2,Y);});c.stroke();}
+      else if(this.rec==="linear"){c.beginPath();samples.forEach(([t,v],i)=>{const X=pad+t*tw,Y=mid-v*amp;i?c.lineTo(X,Y):c.moveTo(X,Y);});c.stroke();}
+      else{c.beginPath();const R=42;for(let n=0;n<=500;n++){const t=n/500;let acc=0;for(const[st,sv]of samples){const d=(t-st)*nsamp;if(Math.abs(d)<R&&d!==0)acc+=sv*Math.sin(Math.PI*d)/(Math.PI*d);else if(d===0)acc+=sv;}
+          const X=pad+t*tw,Y=mid-Math.min(1.4,Math.max(-1.4,acc))*amp;n?c.lineTo(X,Y):c.moveTo(X,Y);}c.stroke();}
+      c.fillStyle=this.css("--math-good");for(const[t,v]of samples){c.beginPath();c.arc(pad+t*tw,mid-v*amp,2.6,0,Math.PI*2);c.fill();}
+      const sy=h*.62,sh=h*.26,fmax=Math.max(25,this.fs/2);
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,sy+sh);c.lineTo(w-pad,sy+sh);c.moveTo(pad,sy);c.lineTo(pad,sy+sh);c.stroke();
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("0",pad-4,sy+sh+12);c.fillText(fmax+" Hz",w-pad-24,sy+sh+12);
+      const fx=(f:number)=>pad+Math.min(1,f/fmax)*tw;
+      const nyqX=fx(this.fs/2);c.strokeStyle=this.css("--math-bad");c.setLineDash([4,4]);c.beginPath();c.moveTo(nyqX,sy);c.lineTo(nyqX,sy+sh);c.stroke();c.setLineDash([]);
+      c.fillStyle=this.css("--math-bad");c.fillText("Nyquist",nyqX-20,sy-4);
+      let aliasCount=0;
+      for(const[f,a]of PARTS[this.mode]){const al=this.alias(f);if(al<f-.01)aliasCount++;
+        c.fillStyle=this.css("--math-a");c.globalAlpha=.85;c.fillRect(fx(f)-2,sy+sh-a*sh*1.6,4,a*sh*1.6);c.globalAlpha=1;
+        if(al<f-.01){c.fillStyle=this.css("--math-bad");c.globalAlpha=.75;c.fillRect(fx(al)-2,sy+sh-a*sh*1.6,4,a*sh*1.6);c.globalAlpha=1;
+          c.strokeStyle=this.css("--math-bad");c.setLineDash([2,3]);c.beginPath();c.arc(fx(f),sy+sh-a*sh*1.6-6,5,0,Math.PI*2);c.stroke();c.setLineDash([]);}}
+      this.text("[data-metric-1]",this.fs+" Hz");this.text("[data-metric-2]",(this.fs/2)+" Hz");
+      this.text("[data-metric-3]",aliasCount?`${aliasCount} of ${PARTS[this.mode].length}`:"none");}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("sampling-laboratory"))customElements.define("sampling-laboratory",SamplingLaboratory);
+</script>
+
+<style>
+  sampling-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

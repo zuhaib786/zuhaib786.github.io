@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import ConvolutionLaboratory from "../../components/visuals/ConvolutionLaboratory.astro";
+---
+<ExperimentPage title="Convolution" description="Interactive flip-slide-multiply-add animation for box, Gaussian, edge, and echo kernels." number="S03" eyebrow="Filtering" heading="One stencil to build" accent="every filter." lede="Smoothing, sharpening, echo, and edge detection are all the same gesture: flip the kernel, slide it along the signal, and accumulate products. Step through each offset and watch the output assemble." noteTitle="System lens" note="Convolution is how linear time-invariant systems answer any input given only their impulse response. The flipped kernel is not a convention — it is what causality demands of the sum." backHref="/signals" backLabel="Signals laboratory">
+  <ConvolutionLaboratory />
+</ExperimentPage>

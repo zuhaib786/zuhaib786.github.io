@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import RsaLaboratory from "../../components/visuals/RsaLaboratory.astro";
+---
+<ExperimentPage title="RSA" description="Interactive RSA key generation, modular exponentiation, and square-and-multiply ladder visualizer." number="C02" eyebrow="Public-key cryptography" heading="Easy to multiply," accent="hard to undo." lede="Choose two toy primes and publish their product. Encryption is one power; decryption is another — and only the hidden factorisation explains why the exponents cancel for the holder of d." noteTitle="Asymmetry lens" note="The whole scheme rests on a one-way street: multiplying primes is instant, factoring their product is not. A common 2048-bit RSA modulus uses two primes of roughly 1024 bits each, making that reverse trip impractical." backHref="/cryptography" backLabel="Cryptography laboratory">
+  <RsaLaboratory />
+</ExperimentPage>

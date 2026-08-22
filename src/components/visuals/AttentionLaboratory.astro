@@ -1,0 +1,75 @@
+<attention-laboratory>
+  <section class="math-instrument" aria-label="Interactive attention mechanism laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Querying the sequence · click a token</span></div><div class="math-actions"><div class="math-tabs" aria-label="Attention head"><button class="active" data-head="0">Head 1</button><button data-head="1">Head 2</button><button data-head="2">Head 3</button><button data-head="3">Head 4</button></div><button class="math-button" data-play>Pause scan</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>arcs = attention weights · matrix below is the full pattern</span><canvas data-canvas tabindex="0" aria-label="Attention arcs and weight matrix. Use left and right arrow keys to select a token."></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Transformers</p><h2 data-title>Every word asks a question</h2><p data-description>Each token emits a query; every token offers a key and a value. These illustrative, fixed projections turn query–key matches into softmax weights; a trained model would learn the projections from data.</p><div class="math-formula">A = softmax(QKᵀ⁄√d)·V</div>
+        <div class="math-metrics"><div><strong data-metric-1>—</strong><small data-metric-1-label>Selected token</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Peak weight</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Entropy</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Softmax temperature</span><b data-temp-value>1.00</b></label><input data-temp type="range" min="0.25" max="3" step="0.05" value="1" /></div><div class="math-control"><label><span>Scan interval</span><b data-rate-value>1.6 s</b></label><input data-rate type="range" min="0.4" max="4" step="0.1" value="1.6" /></div></div>
+        <div class="math-legend"><span><i></i>strong link</span><span><i></i>weak link</span><span><i></i>self-attention</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Low temperature makes attention spiky and confident.</li><li data-reading-2>Different heads learn different relational habits.</li><li data-reading-3>Causal masking would hide the future from the past.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</attention-laboratory>
+
+<script>
+  const SENTENCE="the cat sat on the mat because it was tired".split(" ");
+  const mulberry=(seed:number)=>()=>{seed|=0;seed=seed+0x6d2b79f5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+  const seedOf=(s:string)=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
+  const D=12;
+  const vec=(tok:string,salt:number)=>{const r=mulberry(seedOf(tok)^salt);return Array.from({length:D},()=>r()*2-1);};
+  const mat=(salt:number)=>{const r=mulberry(salt);return Array.from({length:D*D},()=>(r()*2-1)*.9);};
+  const mv=(m:number[],v:number[])=>{const o=new Array(D).fill(0);for(let i=0;i<D;i++)for(let j=0;j<D;j++)o[i]+=m[i*D+j]*v[j];return o;};
+  const dot=(a:number[],b:number[])=>a.reduce((s,x,i)=>s+x*b[i],0);
+  class AttentionLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;head=0;selected=9;temp=1;rate=1.6;playing=true;acc=0;last=0;frame=0;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.layout();this.frame=requestAnimationFrame(t=>this.tick(t));}
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-head]").forEach(b=>b.addEventListener("click",()=>{this.head=Number(b.dataset.head);this.querySelectorAll("[data-head]").forEach(x=>x.classList.toggle("active",x===b));this.draw();},{signal}));
+      this.querySelector("[data-play]")?.addEventListener("click",()=>{this.playing=!this.playing;const b=this.querySelector<HTMLButtonElement>("[data-play]");if(b)b.textContent=this.playing?"Pause scan":"Resume scan";},{signal});
+      const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));this.draw();},{signal});
+      range("[data-temp]",v=>{this.temp=v;this.text("[data-temp-value]",v.toFixed(2));});
+      range("[data-rate]",v=>{this.rate=v;this.text("[data-rate-value]",v.toFixed(1)+" s");});
+      this.canvas.addEventListener("pointerdown",e=>{const i=this.tokenAt(e);if(i>=0){this.selected=i;this.acc=0;this.draw();}},{signal});
+      this.canvas.addEventListener("pointermove",e=>{const i=this.tokenAt(e);if(e.buttons&&i>=0){this.selected=i;this.draw();}},{signal});
+      this.canvas.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();this.selected=(this.selected+(e.key==="ArrowLeft"?-1:1)+SENTENCE.length)%SENTENCE.length;this.acc=0;this.draw();}else if(e.key==="Home"||e.key==="End"){e.preventDefault();this.selected=e.key==="Home"?0:SENTENCE.length-1;this.acc=0;this.draw();}},{signal});}
+    tokenAt(e:PointerEvent){const rect=this.canvas.getBoundingClientRect(),X=e.clientX-rect.left,Y=e.clientY-rect.top;
+      for(const t of this.layout_tokens())if(X>=t.x-t.w/2&&X<=t.x+t.w/2&&Y>=t.y-14&&Y<=t.y+10)return t.i;return -1;}
+    layout_tokens(){const w=this.width,pad=w*.06,rowY=h=>h*.20,tokens=[];let x=pad,y=rowY(this.height);
+      SENTENCE.forEach((tok,i)=>{const tw=tok.length*8.4+18;if(x+tw>w-pad){x=pad;y+=44;}tokens.push({i,tok,x:x+tw/2,y,w:tw});x+=tw+6;});
+      return tokens;}
+    weights(queryIndex=this.selected){const salt=this.head*7919+13,q=mv(mat(salt+1),vec(`${SENTENCE[queryIndex]}@${queryIndex}`,seedOf("q"))),scale=Math.sqrt(D);
+      const raw=SENTENCE.map((tok,keyIndex)=>dot(q,mv(mat(salt+2),vec(`${tok}@${keyIndex}`,seedOf("k"))))/scale);
+      const m=Math.max(...raw),exps=raw.map(v=>Math.exp((v-m)/this.temp)),sum=exps.reduce((a,b)=>a+b,0);
+      return exps.map(e=>e/sum);}
+    tick(t:number){const elapsed=Math.min(50,t-(this.last||t));this.last=t;if(this.playing){this.acc+=elapsed/1000;if(this.acc>this.rate){this.acc=0;this.selected=(this.selected+1)%SENTENCE.length;this.draw();}}this.frame=requestAnimationFrame(n=>this.tick(n));}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const tokens=this.layout_tokens(),matrix=SENTENCE.map((_,qi)=>this.weights(qi)),weights=matrix[this.selected],sel=tokens[this.selected];
+      let peak=0,peakIdx=0;weights.forEach((v,i)=>{if(i!==this.selected&&v>peak){peak=v;peakIdx=i;}});
+      const entropy=-weights.reduce((s,v)=>s+(v>0?v*Math.log2(v):0),0);
+      tokens.forEach(t=>{const wt=weights[t.i];
+        if(t.i!==this.selected&&wt>.005){c.strokeStyle=t.i===peakIdx?this.css("--math-b"):this.css("--math-a");c.globalAlpha=.14+.8*wt;c.lineWidth=.8+9*wt;c.beginPath();c.moveTo(sel.x,sel.y-12);c.quadraticCurveTo((sel.x+t.x)/2,Math.min(sel.y,t.y)-90-wt*60,t.x,t.y-12);c.stroke();c.globalAlpha=1;}});
+      tokens.forEach(t=>{const wt=weights[t.i],on=t.i===this.selected;
+        c.fillStyle=on?this.css("--ink"):this.css("--glass");c.strokeStyle=wt===peak&&t.i!==this.selected?this.css("--math-b"):this.css(on?"--ink":"--rule");c.lineWidth=wt===peak&&t.i!==this.selected?1.8:1;
+        const bh=22;c.beginPath();if(c.roundRect)c.roundRect(t.x-t.w/2,t.y-bh/2,t.w,bh,6);else c.rect(t.x-t.w/2,t.y-bh/2,t.w,bh);c.fill();c.stroke();
+        c.fillStyle=on?this.css("--paper"):this.css("--ink-soft");c.font="600 10px IBM Plex Mono";c.textAlign="center";c.fillText(t.tok,t.x,t.y+3.5);
+        c.fillStyle=this.css("--math-a");c.globalAlpha=.25+.75*wt;c.fillRect(t.x-t.w/2,t.y+bh/2+3,t.w*wt,2.5);c.globalAlpha=1;c.textAlign="left";});
+      const n=SENTENCE.length,mx=w*.08,my=h*.52,cell=Math.min((w-mx*2)/n,(h-my-h*.09)/n);
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("FULL ATTENTION MATRIX · ROW = QUERY",mx,my-8);
+      matrix.forEach((row,qi)=>{for(let ki=0;ki<n;ki++){const v=row[ki];
+          c.fillStyle=qi===this.selected&&ki===this.selected?this.css("--math-good"):this.css("--math-a");
+          c.globalAlpha=.08+.86*v;c.fillRect(mx+ki*cell,my+qi*cell,cell-1.5,cell-1.5);}});
+      c.globalAlpha=1;
+      const selRow=my+this.selected*cell;c.strokeStyle=this.css("--math-b");c.lineWidth=1.2;c.strokeRect(mx-1,selRow-1,n*cell+1,cell+1);
+      this.text("[data-metric-1]",`"${SENTENCE[this.selected]}"`);this.text("[data-metric-2]",(peak*100).toFixed(1)+"% → "+SENTENCE[peakIdx]);this.text("[data-metric-3]",entropy.toFixed(2)+" bits");}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("attention-laboratory"))customElements.define("attention-laboratory",AttentionLaboratory);
+</script>
+
+<style>
+  attention-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

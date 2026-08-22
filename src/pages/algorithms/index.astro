@@ -13,6 +13,7 @@ const algorithms = [
   { number: "009", href: "/algorithms/geometry", title: "Geometry", kind: "geometry", topics: ["Convex hull", "Sweep line", "Delaunay"], description: "Place points and watch spatial structure emerge." },
   { number: "010", href: "/algorithms/markov-decision-processes", title: "Decision processes", kind: "mdp", topics: ["Value iteration", "Policy iteration", "Q-learning"], description: "Turn rewards, uncertainty, and future value into a policy." },
   { number: "011", href: "/algorithms/zero-knowledge-proofs", title: "Zero-knowledge proofs", kind: "zkp", topics: ["Commitment", "Challenge", "Soundness", "Simulation"], description: "Prove possession of a secret without revealing the secret." },
+  { number: "012", href: "/algorithms/cellular-automata", title: "Cellular automata", kind: "ca", topics: ["Game of Life", "Rule 30", "Rule 90", "Rule 110"], description: "Paint cells and watch global structure emerge from local rules." },
 ];
 
 const preview = (kind: string) => {
@@ -20,6 +21,7 @@ const preview = (kind: string) => {
   if (kind === "grid" || kind === "dp") return Array.from({ length: 48 }, (_, i) => `<i class="c${i % 9 === 4 || (i > 27 && i < 34) ? " on" : ""}"></i>`).join("");
   if (kind === "hash") return Array.from({ length: 8 }, (_, i) => `<i class="${[1,2,5,6].includes(i) ? "on" : ""}"></i>`).join("");
   if (kind === "bits") return `<b>010 1101 00</b><b>↳12,4</b><b>111 0010</b>`;
+  if (kind === "ca") return Array.from({ length: 48 }, (_, i) => `<i class="c${[11,12,23,24,25,34,35,36,37].includes(i) ? " on" : ""}"></i>`).join("");
   return "";
 };
 ---

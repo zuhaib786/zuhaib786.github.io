@@ -22,6 +22,8 @@ const visualPrefixes = [
   "/reliability",
   "/mathematics",
   "/physics",
+  "/signals",
+  "/cryptography",
 ];
 const isActive = (href: string) =>
   path.startsWith(href) ||
@@ -99,8 +101,10 @@ const isActive = (href: string) =>
   }
 
   .mark {
-    display: inline-grid;
-    place-items: center;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
@@ -114,10 +118,12 @@ const isActive = (href: string) =>
   }
 
   .mark sup {
-    margin-left: 0.03em;
-    font-size: 0.52em;
+    position: relative;
+    top: -0.48em;
+    margin-left: 0.02em;
+    font-size: 0.48em;
     font-style: normal;
-    vertical-align: 0.55em;
+    line-height: 1;
   }
 
   .wordmark:hover .mark {

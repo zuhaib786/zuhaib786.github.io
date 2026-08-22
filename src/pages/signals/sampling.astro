@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import SamplingLaboratory from "../../components/visuals/SamplingLaboratory.astro";
+---
+<ExperimentPage title="Sampling & aliasing" description="Interactive Nyquist, sample rate, zero-order hold, linear and sinc reconstruction visualizer." number="S01" eyebrow="Digitisation" heading="Samples forget what they" accent="skip." lede="A continuous melody crosses into digital land at discrete instants. Below twice the fastest frequency nothing is lost; above it, high tones return disguised as low impostors that no filter can unmask." noteTitle="Folding lens" note="Aliasing is mirror arithmetic: every frequency beyond half the sample rate reflects back into the band. The spectrum below shows exactly where each tone lands — true or folded." backHref="/signals" backLabel="Signals laboratory">
+  <SamplingLaboratory />
+</ExperimentPage>

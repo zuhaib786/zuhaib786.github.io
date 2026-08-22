@@ -1,4 +1,4 @@
-:where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory),
+:where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory, fourier-laboratory, bifurcation-laboratory, cellular-automata-laboratory, consistent-hashing-laboratory, vector-clocks-laboratory, attention-laboratory, sampling-laboratory, dft-laboratory, convolution-laboratory, cipher-laboratory, rsa-laboratory, avalanche-laboratory),
 .math-instrument {
   --math-a: #4b3fd6;
   --math-b: #c8401a;
@@ -14,7 +14,7 @@
   box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow);
 }
 
-html[data-theme="dark"] :where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory),
+html[data-theme="dark"] :where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory, fourier-laboratory, bifurcation-laboratory, cellular-automata-laboratory, consistent-hashing-laboratory, vector-clocks-laboratory, attention-laboratory, sampling-laboratory, dft-laboratory, convolution-laboratory, cipher-laboratory, rsa-laboratory, avalanche-laboratory),
 html[data-theme="dark"] .math-instrument {
   --math-a: #78d9ff;
   --math-b: #ff8a62;

@@ -1,0 +1,79 @@
+<convolution-laboratory>
+  <section class="math-instrument" aria-label="Interactive discrete convolution laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Sliding the flipped kernel across the signal</span></div><div class="math-actions"><div class="math-tabs" aria-label="Input signal"><button class="active" data-mode="pulses">Pulse pair</button><button data-mode="burst">Burst</button><button data-mode="steps">Steps</button></div><div class="math-tabs" aria-label="Kernel"><button class="active" data-kernel="box">Box</button><button data-kernel="gauss">Gaussian</button><button data-kernel="edge">Edge</button><button data-kernel="echo">Echo</button></div><button class="math-button" data-play>Pause</button><button class="math-button" data-step>Step</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>input · flipped kernel · running output</span><canvas data-canvas aria-label="Convolution flip and slide animation"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Systems &amp; filters</p><h2 data-title>Flip, slide, multiply, add</h2><p data-description>Every linear time-invariant system is one stencil. Flip the impulse response, slide it along the input, and at each offset accumulate the products. Smoothing, echo, and edge detection are all this same gesture.</p><div class="math-formula">y[n] = Σₖ x[k]·h[n−k]</div>
+        <div class="math-metrics"><div><strong data-metric-1>0</strong><small data-metric-1-label>Output index n</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>y[n] now</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Energy out/in</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Sweep speed</span><b data-speed-value>6 n/s</b></label><input data-speed type="range" min="1" max="30" step="1" value="6" /></div></div>
+        <div class="math-legend"><span><i></i>input x</span><span><i></i>kernel h[n−k]</span><span><i></i>output y</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Box and Gaussian kernels average: high frequencies vanish.</li><li data-reading-2>The edge kernel differentiates: flat regions go to zero.</li><li data-reading-3>The echo kernel convolves once per reflection.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</convolution-laboratory>
+
+<script>
+  type Mode="pulses"|"burst"|"steps";type Kernel="box"|"gauss"|"edge"|"echo";
+  const KINFO:Record<Kernel,string>={
+    box:"A moving average: every sharp corner of the input is smeared into a ramp.",
+    gauss:"Weighted averaging with a bell: smoother than a box, with no ringing sidelobes.",
+    edge:"A first difference: output spikes wherever the input changes and vanishes where it is flat.",
+    echo:"An impulse plus a delayed copy: the output repeats the input as a distant second voice."};
+  const MINFO:Record<Mode,string>={
+    pulses:"Two isolated impulses test the impulse response directly.",
+    burst:"A decaying oscillation probes ringing and smoothing together.",
+    steps:"Plateaus and jumps reveal both steady-state gain and transient response."};
+  class ConvolutionLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;mode:Mode="pulses";kernel:Kernel="box";N=110;k=0;speed=6;playing=true;acc=0;last=0;frame=0;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.layout();this.frame=requestAnimationFrame(t=>this.tick(t));}
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach(b=>b.addEventListener("click",()=>{this.mode=b.dataset.mode as Mode;this.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("active",x===b));this.k=0;this.describe();this.draw();},{signal}));
+      this.querySelectorAll<HTMLButtonElement>("[data-kernel]").forEach(b=>b.addEventListener("click",()=>{this.kernel=b.dataset.kernel as Kernel;this.querySelectorAll("[data-kernel]").forEach(x=>x.classList.toggle("active",x===b));this.k=0;this.describe();this.draw();},{signal}));
+      this.querySelector("[data-play]")?.addEventListener("click",()=>{this.playing=!this.playing;const b=this.querySelector<HTMLButtonElement>("[data-play]");if(b)b.textContent=this.playing?"Pause":"Play";},{signal});
+      this.querySelector("[data-step]")?.addEventListener("click",()=>{this.k=(this.k+1)%this.N;this.draw();},{signal});
+      const range=this.querySelector<HTMLInputElement>("[data-speed]");
+      range?.addEventListener("input",e=>{this.speed=Number((e.currentTarget as HTMLInputElement).value);this.text("[data-speed-value]",this.speed+" n/s");},{signal});}
+    describe(){this.text("[data-description]",KINFO[this.kernel]+" "+MINFO[this.mode]);}
+    xsig(n:number){if(this.mode==="pulses")return n===18?1:n===52?-.8:0;
+      if(this.mode==="burst")return n<70?Math.sin(n*.55)*Math.exp(-n/22):0;
+      return n<20?0:n<45?.55:n<70?-.4:.75;}
+    kernelVals(){const L=this.kernel==="gauss"?13:this.kernel==="box"?9:5,h=new Array(L).fill(0);
+      if(this.kernel==="box")return h.fill(1/L);
+      if(this.kernel==="gauss"){let s=0;for(let i=0;i<L;i++){const d=i-(L-1)/2;h[i]=Math.exp(-d*d/6);s+=h[i];}return h.map(v=>v/s);}
+      if(this.kernel==="edge")return[-1,0,1];
+      const g=.92;return[1,0,0,0,0,0,0,0,g*g,0,0,0,g];}
+    convolve(){const h=this.kernelVals(),L=h.length,y=new Array(this.N+L-1).fill(0);
+      for(let n=0;n<y.length;n++)for(let m=0;m<L;m++){const idx=n-m;if(idx>=0&&idx<this.N)y[n]+=this.xsig(idx)*h[m];}
+      return{y,L};}
+    tick(t:number){const elapsed=Math.min(50,t-(this.last||t));this.last=t;if(this.playing){this.acc+=elapsed/1000*this.speed;while(this.acc>=1){this.k=(this.k+1)%this.N;this.acc-=1;}this.draw();}this.frame=requestAnimationFrame(n=>this.tick(n));}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    row(y:number,h:number,label:string,color:string,values:number[],N:number,highlightFrom=-1,cursor=-1){const c=this.ctx,pad=this.width*.05,tw=this.width-pad*2,max=Math.max(1,...values.map(Math.abs));
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,y+h/2);c.lineTo(this.width-pad,y+h/2);c.stroke();
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(label,pad+2,y-h/2+10);
+      const stem=(v:number,n:number,alpha:number)=>{const X=pad+n/(N-1)*tw,Y=y+h/2-v/max*(h*.42);c.globalAlpha=alpha;c.strokeStyle=color;c.lineWidth=v===0?1:1.6;c.beginPath();c.moveTo(X,y+h/2);c.lineTo(X,Y);c.stroke();if(v!==0&&alpha>.5){c.fillStyle=color;c.beginPath();c.arc(X,Y,2.2,0,Math.PI*2);c.fill();}c.globalAlpha=1;};
+      values.forEach((v,n)=>stem(v,n,n<=cursor||cursor<0?1:.16));
+      if(highlightFrom>=0){const X1=pad+Math.max(0,highlightFrom)/(N-1)*tw,X2=pad+Math.min(N-1,cursor)/(N-1)*tw;c.fillStyle=this.css("--math-b");c.globalAlpha=.08;c.fillRect(X1,y-h/2,Math.max(2,X2-X1),h);c.globalAlpha=1;}
+      if(cursor>=0){const X=pad+cursor/(N-1)*tw;c.strokeStyle=this.css("--ink-faint");c.setLineDash([3,4]);c.beginPath();c.moveTo(X,y-h/2);c.lineTo(X,y+h/2);c.stroke();c.setLineDash([]);}}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const x=Array.from({length:this.N},(_,n)=>this.xsig(n)),{y,L}=this.convolve(),hk=this.kernelVals();
+      const rh=h*.24,gap=h*.06,r1=h*.07,r2=r1+rh+gap,r3=r2+rh+gap;
+      const kk=Math.min(this.k,this.N-1);
+      this.row(r1,rh,"input x[n]",this.css("--math-a"),x,this.N,-1,kk);
+      const flipped:Array<[number,number]>=[];
+      for(let n=Math.max(0,kk-L+1);n<=Math.min(this.N-1,kk);n++){const hv=hk[kk-n];if(hv!==undefined)flipped.push([n,hv]);}
+      const hvals=new Array(this.N).fill(0);for(const[n,v]of flipped)hvals[n]=v;
+      this.row(r2,rh,"kernel h[n−k]",this.css("--math-b"),hvals,this.N,flipped.length?kk-L+1:-1,kk);
+      this.row(r3,rh,"output y[n]",this.css("--math-good"),y.slice(0,this.N),this.N,-1,kk);
+      const cur=y[Math.min(kk,y.length-1)]??0;
+      let ex=0,ey=0;for(let n=0;n<this.N;n++)ex+=x[n]*x[n];for(const value of y)ey+=value*value;
+      this.text("[data-metric-1]",String(kk));this.text("[data-metric-2]",cur.toFixed(3));this.text("[data-metric-3]",ex>1e-9?(ey/ex).toFixed(2):"—");}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("convolution-laboratory"))customElements.define("convolution-laboratory",ConvolutionLaboratory);
+</script>
+
+<style>
+  convolution-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

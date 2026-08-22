@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import ConsistentHashingLaboratory from "../../components/visuals/ConsistentHashingLaboratory.astro";
+---
+<ExperimentPage title="Consistent hashing" description="Interactive hash ring, virtual nodes, key migration, and mod-N comparison visualizer." number="23" eyebrow="Distributed caching" heading="A circle that" accent="moves little." lede="Scatter thousands of keys across a cluster, then add or remove a server. Modulo placement reshuffles nearly everything; the hash ring relocates only the slice that changed hands." noteTitle="Scaling lens" note="The ring turns membership changes from a global rehash into a local hand-off. Virtual nodes are the fine print: enough clones per server and luck evens out into fair load." backHref="/systems" backLabel="Systems laboratory">
+  <ConsistentHashingLaboratory />
+</ExperimentPage>

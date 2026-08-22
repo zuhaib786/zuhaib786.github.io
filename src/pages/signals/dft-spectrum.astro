@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import DftLaboratory from "../../components/visuals/DftLaboratory.astro";
+---
+<ExperimentPage title="DFT spectrum" description="Interactive discrete Fourier transform, windowing, spectral leakage, and bin truncation visualizer." number="S02" eyebrow="Spectral analysis" heading="A prism made of" accent="arithmetic." lede="The DFT rewrites a block of samples as a sum of pure sinusoids. Choose the window, keep only the strongest bins, and watch how much of the waveform survives — and where the leakage lands." noteTitle="Resolution lens" note="A longer block separates close frequencies; a tapered window trades a little blur for clean bins. Compression follows the same law: most signals spend their energy in a handful of coefficients." backHref="/signals" backLabel="Signals laboratory">
+  <DftLaboratory />
+</ExperimentPage>

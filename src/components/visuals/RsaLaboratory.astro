@@ -1,0 +1,78 @@
+<rsa-laboratory>
+  <section class="math-instrument" aria-label="Interactive RSA laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Trapping one message inside modular arithmetic</span></div><div class="math-actions"><button class="math-button" data-random>Random keys</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>square-and-multiply ladders · every step reduced mod n</span><canvas data-canvas aria-label="RSA encryption and decryption ladders"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Public-key cryptography</p><h2 data-title>Easy to multiply, hard to undo</h2><p data-description>Publish n = p·q and an exponent e; keep d, the multiplicative inverse of e modulo φ(n). Encryption raises the message to the e-th power, decryption to the d-th — and the exponents cancel through the hidden factorisation.</p><div class="math-formula">c = mᵉ mod n &nbsp; ↔ &nbsp; m = cᵈ mod n</div>
+        <div class="math-metrics"><div><strong data-metric-1>—</strong><small data-metric-1-label>Modulus n</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Totient φ</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Private d</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Prime p</span><b data-p-value>13</b></label><input data-p type="range" min="0" max="7" step="1" value="1" /></div><div class="math-control"><label><span>Prime q</span><b data-q-value>17</b></label><input data-q type="range" min="0" max="7" step="1" value="4" /></div><div class="math-control"><label><span>Message m</span><b data-m-value>42</b></label><input data-m type="range" min="2" max="200" step="1" value="42" /></div><div class="math-control"><label><span>Public exponent e</span></label><div class="math-tabs" data-e-tabs style="flex-wrap:wrap"></div></div></div>
+        <div class="math-legend"><span><i></i>squaring step</span><span><i></i>multiply by m</span><span><i></i>ciphertext c</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>d exists because gcd(e, φ) = 1; Euclid finds it fast.</li><li data-reading-2>e·d ≡ 1 (mod φ) makes the two power maps inverses.</li><li data-reading-3>A common 2048-bit RSA modulus uses two primes of roughly 1024 bits each.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</rsa-laboratory>
+
+<script>
+  const PRIMES=[11,13,17,19,23,29,31,37];
+  const ECAND=[3,5,7,11,13,17,19];
+  function modinv(a:number,m:number){let[old_r,r]=[a,m],[old_s,s]=[1,0];while(r!==0){const q=Math.floor(old_r/r);[old_r,r]=[r,old_r-q*r];[old_s,s]=[s,old_s-q*s];}return((old_s%m)+m)%m;}
+  function modpow(b:number,e:number,n:number){let result=1;b%=n;while(e>0){if(e&1)result=result*b%n;b=b*b%n;e>>=1;}return result;}
+  class RsaLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;pi=1;qi=4;m=42;e=5;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.normalize("p");this.buildETabs();this.layout();}
+    disconnectedCallback(){this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    get p(){return PRIMES[this.pi]}get q(){return PRIMES[this.qi]}
+    get n(){return this.p*this.q}get phi(){return(this.p-1)*(this.q-1)}
+    get d(){return modinv(this.e,this.phi)}
+    bind(){const signal=this.aborter.signal;
+      const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));this.buildETabs();this.draw();},{signal});
+      range("[data-p]",v=>{this.pi=v;this.normalize("p");});
+      range("[data-q]",v=>{this.qi=v;this.normalize("q");});
+      range("[data-m]",v=>{this.m=Math.min(v,this.n-1);this.text("[data-m-value]",String(this.m));});
+      this.querySelector("[data-random]")?.addEventListener("click",()=>{this.pi=Math.floor(Math.random()*PRIMES.length);do{this.qi=Math.floor(Math.random()*PRIMES.length);}while(this.qi===this.pi);
+        this.m=2+Math.floor(Math.random()*Math.min(199,this.n-3));this.normalize("p");this.buildETabs();this.draw();},{signal});}
+    normalize(changed:"p"|"q"){if(this.pi===this.qi){if(changed==="p")this.qi=(this.qi+1)%PRIMES.length;else this.pi=(this.pi+PRIMES.length-1)%PRIMES.length;}
+      this.m=Math.min(this.m,this.n-1);this.setValue("[data-p]",this.pi);this.setValue("[data-q]",this.qi);this.setValue("[data-m]",this.m);this.text("[data-p-value]",String(this.p));this.text("[data-q-value]",String(this.q));this.text("[data-m-value]",String(this.m));const message=this.querySelector<HTMLInputElement>("[data-m]");if(message)message.max=String(this.n-1);}
+    validE(){return ECAND.filter(e=>{let a=e,b=this.phi;while(b){[a,b]=[b,a%b];}return a===1&&e<this.phi;});}
+    buildETabs(){const wrap=this.querySelector("[data-e-tabs]");if(!wrap)return;wrap.innerHTML="";const vs=this.validE();
+      if(!vs.includes(this.e))this.e=vs[0]??3;
+      for(const v of vs){const b=document.createElement("button");b.textContent=String(v);if(v===this.e)b.classList.add("active");
+        b.addEventListener("click",()=>{this.e=v;wrap.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));this.draw();});wrap.appendChild(b);}
+      this.draw();}
+    ladder(base:number,exp:number,n:number){const bits=exp.toString(2),steps:{val:number;mul:boolean}[]=[];let r=1;
+      for(const bit of bits){r=r*r%n;const mul=bit==="1";if(mul)r=r*base%n;steps.push({val:r,mul});}
+      return steps;}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    drawLadder(c:CanvasRenderingContext2D,x:number,y:number,w:number,title:string,base:number,exp:number,color:string){c.fillStyle=this.css("--ink-faint");c.font="600 9px IBM Plex Mono";c.fillText(title,x,y-14);
+      const steps=this.ladder(base,exp,this.n),n=steps.length,bw=Math.min(64,(w-20)/Math.max(1,n)-6);
+      steps.forEach((st,i)=>{const bx=x+i*(bw+6),by=y;
+        c.strokeStyle=i===n-1?color:this.css("--rule");c.lineWidth=i===n-1?1.8:1;c.fillStyle=this.css("--glass");
+        c.beginPath();c.rect(bx,by,bw,30);c.fill();c.stroke();
+        c.fillStyle=i===n-1?color:this.css("--ink-soft");c.font="600 10px IBM Plex Mono";c.textAlign="center";c.fillText(String(st.val),bx+bw/2,by+19);
+        c.fillStyle=this.css("--ink-faint");c.font="7px IBM Plex Mono";c.fillText(st.mul?"×"+base:"sq",bx+bw/2,by+40);c.textAlign="left";
+        if(i<n-1){c.strokeStyle=this.css("--ink-faint");c.beginPath();c.moveTo(bx+bw,by+15);c.lineTo(bx+bw+6,by+15);c.stroke();}});}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const{n,phi,e,d}=this,ciph=modpow(this.m,e,n),back=modpow(ciph,d,n);
+      let x=w*.05,y=h*.14;
+      const chip=(label:string,value:string,color:string)=>{const cw=118;c.strokeStyle=color;c.lineWidth=1;c.fillStyle=this.css("--glass");c.strokeRect(x,y,cw,26);c.fillStyle=color;c.fillRect(x,y,3,26);
+        c.fillStyle=this.css("--ink-faint");c.font="7px IBM Plex Mono";c.fillText(label,x+10,y+10);
+        c.fillStyle=this.css("--ink");c.font="600 11px IBM Plex Mono";c.fillText(value,x+10,y+21);x+=cw+8;};
+      chip("p",String(this.p),this.css("--math-a"));chip("q",String(this.q),this.css("--math-a"));chip("n = p·q",String(n),this.css("--ink-soft"));chip("φ(n)",String(phi),this.css("--ink-soft"));chip("e",String(e),this.css("--math-b"));chip("d",String(d),this.css("--math-good"));
+      y=h*.36;
+      this.drawLadder(c,w*.05,y,w*.42,"ENCRYPT · m^"+e+" mod "+n+"   (m = "+this.m+")",this.m,e,this.css("--math-b"));
+      this.drawLadder(c,w*.53,y,w*.42,"DECRYPT · c^"+d+" mod "+n+"   (c = "+ciph+")",ciph,d,this.css("--math-good"));
+      const ly=y+58;
+      c.strokeStyle=this.css("--rule");c.lineWidth=1;c.beginPath();c.moveTo(w*.05,ly);c.lineTo(w*.95,ly);c.stroke();
+      c.fillStyle=back===this.m?this.css("--math-good"):this.css("--math-bad");c.font="600 12px IBM Plex Mono";
+      c.fillText(back===this.m?`✓ round trip recovers m = ${back}`:`✗ mismatch: ${back} ≠ ${this.m}`,w*.05,ly+22);
+      this.text("[data-metric-1]",String(n));this.text("[data-metric-2]",String(phi));this.text("[data-metric-3]",String(d));}
+    text(q:string,s:string){const el=this.querySelector(q);if(el)el.textContent=s}
+    setValue(q:string,v:number){const el=this.querySelector<HTMLInputElement>(q);if(el)el.value=String(v)}
+  }
+  if(!customElements.get("rsa-laboratory"))customElements.define("rsa-laboratory",RsaLaboratory);
+</script>
+
+<style>
+  rsa-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

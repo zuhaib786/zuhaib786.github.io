@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import AvalancheLaboratory from "../../components/visuals/AvalancheLaboratory.astro";
+---
+<ExperimentPage title="Hash avalanche" description="Interactive bit-level diffusion, hamming distance, and mixing round visualizer for hash functions." number="C03" eyebrow="Digests" heading="One bit in," accent="half the bits out." lede="Flip a single input bit and compare the two digests side by side. With enough mixing rounds the difference looks like coin flips; with too few, the disturbance stalls in a visible corner of the output." noteTitle="Diffusion lens" note="Avalanche is the measurable heartbeat of a hash: distances should pile up around half the width. Where they do not, structure survives — and structure is what attackers ride." backHref="/cryptography" backLabel="Cryptography laboratory">
+  <AvalancheLaboratory />
+</ExperimentPage>

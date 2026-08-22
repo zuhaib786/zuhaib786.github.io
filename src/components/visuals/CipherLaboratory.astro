@@ -1,0 +1,68 @@
+<cipher-laboratory>
+  <section class="math-instrument" aria-label="Interactive classical cipher laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Substituting symbols under a reusable key</span></div><div class="math-actions"><div class="math-tabs" aria-label="Cipher"><button class="active" data-mode="caesar">Caesar</button><button data-mode="vigenere">Vigenère</button><button data-mode="xor">XOR stream</button></div></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>letter frequency of the ciphertext · english reference as ticks</span><canvas data-canvas aria-label="Ciphertext frequency analysis and brute force scores"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Cryptanalysis</p><h2 data-title>Secrecy needs more than scrambling</h2><p data-description>Shifts and polyalphabetic keys hide words but preserve statistics. Letter frequencies survive substitution, so the ciphertext testifies against itself — the very weakness modern design had to engineer away.</p><div class="math-formula" data-formula>cᵢ = (pᵢ + kᵢ) mod 26</div>
+        <div class="math-metrics"><div><strong data-metric-1>—</strong><small data-metric-1-label>Cipher</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Key length</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Best attack guess</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Plaintext</span></label><textarea data-plain rows="3" style="width:100%;resize:vertical;padding:.45rem .55rem;color:var(--ink);background:var(--glass);border:1px solid var(--rule);border-radius:6px;font-family:var(--font-mono);font-size:.62rem">the quick brown fox jumps over the lazy dog and keeps no secrets</textarea></div><div class="math-control" data-shift-control><label><span>Shift k</span><b data-shift-value>7</b></label><input data-shift type="range" min="0" max="25" step="1" value="7" /></div><div class="math-control" data-key-control hidden><label><span>Key</span></label><input data-key type="text" value="LEMON" style="min-height:2.2rem;padding:.4rem .55rem;color:var(--ink);background:var(--glass);border:1px solid var(--rule);border-radius:6px;font-size:.62rem" /></div></div>
+        <div class="math-legend"><span><i></i>ciphertext count</span><span><i></i><b data-legend-2>English expectation</b></span><span><i></i>attack signal</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Caesar falls to 26 trials; frequency scoring ranks the candidates.</li><li data-reading-2>Vigenère mixes shifted alphabets, but repeated-key periodicity still leaks.</li><li data-reading-3>XOR is secure only with a random keystream as long as the message, used once.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</cipher-laboratory>
+
+<script>
+  type Mode="caesar"|"vigenere"|"xor";
+  const ENGLISH=[.0817,.0149,.0278,.0425,.127,.0223,.0202,.0609,.0697,.0015,.0077,.0403,.0241,.0675,.0751,.0193,.0009,.0599,.0633,.0906,.0276,.0098,.0236,.0015,.0197,.0007];
+  const chi2=(counts:number[],total:number)=>{if(!total)return 1e9;let s=0;for(let i=0;i<26;i++){const exp=ENGLISH[i]*total;s+=(counts[i]-exp)**2/Math.max(1,exp);}return s;};
+  class CipherLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;mode:Mode="caesar";shift=7;key="LEMON";resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.describe();this.layout();}
+    disconnectedCallback(){this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach(b=>b.addEventListener("click",()=>{this.mode=b.dataset.mode as Mode;this.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("active",x===b));
+        const sc=this.querySelector("[data-shift-control]") as HTMLElement,kc=this.querySelector("[data-key-control]") as HTMLElement;if(sc)sc.hidden=this.mode!=="caesar";if(kc)kc.hidden=this.mode==="caesar";this.describe();this.draw();},{signal}));
+      this.querySelector<HTMLInputElement>("[data-shift]")?.addEventListener("input",e=>{this.shift=Number((e.currentTarget as HTMLInputElement).value);this.text("[data-shift-value]",String(this.shift));this.draw();},{signal});
+      this.querySelector<HTMLInputElement>("[data-key]")?.addEventListener("input",e=>{this.key=(e.currentTarget as HTMLInputElement).value||"A";this.draw();},{signal});
+      this.querySelector<HTMLTextAreaElement>("[data-plain]")?.addEventListener("input",()=>this.draw(),{signal});}
+    plainCodes(){return Array.from((this.querySelector<HTMLTextAreaElement>("[data-plain]")?.value??"").toUpperCase()).filter(ch=>ch>="A"&&ch<="Z").map(ch=>ch.charCodeAt(0)-65);}
+    encrypt():number[]{const p=this.plainCodes();
+      if(this.mode==="caesar")return p.map(v=>(v+this.shift)%26);
+      const key=this.key.toUpperCase().replace(/[^A-Z]/g,"")||"A",k=Array.from(key,ch=>ch.charCodeAt(0)-65);
+      if(this.mode==="vigenere")return p.map((v,i)=>(v+k[i%k.length])%26);
+      return p.map((v,i)=>v^(k[i%k.length]&31));}
+    counts(values:number[],bins:number){const c=new Array(bins).fill(0);for(const value of values)if(value>=0&&value<bins)c[value]++;return c;}
+    describe(){const xor=this.mode==="xor";this.text("[data-stage-label]",xor?"5-bit ciphertext values · repeating-key alignment below":"letter frequency of the ciphertext · English reference as ticks");this.text("[data-legend-2]",xor?"5-bit value":"English expectation");this.text("[data-formula]",this.mode==="caesar"?"cᵢ = (pᵢ + k) mod 26":this.mode==="vigenere"?"cᵢ = (pᵢ + kᵢ) mod 26":"cᵢ = pᵢ ⊕ kᵢ  (toy 5-bit alphabet)");}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const ct=this.encrypt(),binCount=this.mode==="xor"?32:26,cc=this.counts(ct,binCount),pad=w*.05,tw=w-pad*2,max=Math.max(...cc,1);
+      const cy=h*.42,ch=h*.30,bw=tw/binCount;
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,cy+ch);c.lineTo(w-pad,cy+ch);c.stroke();
+      let best=0,bestScore=1e9;
+      if(this.mode==="caesar"){for(let s=0;s<26;s++){const shifted=ct.map(x=>(x+26-s)%26),sc=chi2(this.counts(shifted,26),shifted.length);if(sc<bestScore){bestScore=sc;best=s;}}}
+      cc.forEach((v,i)=>{const bh=v/max*ch*.92;c.fillStyle=this.css("--math-a");c.fillRect(pad+i*bw+bw*.18,cy+ch-bh,bw*.64,bh);
+        if(this.mode!=="xor"){const ey=ENGLISH[i]*ct.length/max*ch*.92;c.fillStyle=this.css("--math-b");c.fillRect(pad+i*bw+bw*.12,cy+ch-ey,bw*.76,1.6);}
+        const label=this.mode==="xor"?(i%4===0?i.toString(16).padStart(2,"0"):""):String.fromCharCode(65+i);c.fillStyle=this.css("--ink-faint");c.font="7px IBM Plex Mono";c.textAlign="center";c.fillText(label,pad+i*bw+bw/2,cy+ch+10);c.textAlign="left";});
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(this.mode==="xor"?"TOY 5-BIT CIPHERTEXT VALUE COUNTS":"CIPHERTEXT FREQUENCY · RED TICKS = ENGLISH",pad,cy-ch*.94);
+      const ky=h*.62,kh=h*.28;
+      c.strokeStyle=this.css("--rule");c.strokeRect(pad,ky,tw,kh);
+      c.fillStyle=this.css("--ink-faint");c.fillText(this.mode==="caesar"?"BRUTE-FORCE TRIALS · CHI-SQUARED AGAINST ENGLISH":"KEYSTREAM ALIGNMENT OVER MESSAGE POSITIONS",pad,ky-6);
+      if(this.mode==="caesar"){for(let s=0;s<26;s++){const shifted=ct.map(x=>(x+26-s)%26),sc=chi2(this.counts(shifted,26),shifted.length);
+          const bh=Math.min(1,sc/(bestScore*8+1))*kh*.9;c.fillStyle=s===best?this.css("--math-good"):this.css("--rule");c.fillRect(pad+s*tw/26+tw/26*.18,ky+kh-bh,tw/26*.64,bh);}
+        c.fillStyle=this.css("--ink");c.font="600 9px IBM Plex Mono";c.fillText(`most English-looking shift: ${best}`,pad+tw*.55,ky+14);}
+      else{const k=this.key.toUpperCase().replace(/[^A-Z]/g,"")||"A";
+        for(let i=0;i<Math.min(48,ct.length);i++){const kc=k.charCodeAt(i%k.length)-65;c.fillStyle=`hsl(${(kc*14+200)%360} 70% ${document.documentElement.dataset.theme==="dark"?"62%":"46%"})`;c.globalAlpha=.85;c.fillRect(pad+i*(tw/48),ky+kh*.25,tw/48-2,kh*.5);c.globalAlpha=1;}
+        c.fillStyle=this.css("--ink-soft");c.font="9px IBM Plex Mono";c.fillText(`key "${k}" repeats every ${k.length} characters`,pad,ky+kh-8);}
+      this.text("[data-metric-1]",this.mode==="caesar"?"Caesar":this.mode==="vigenere"?"Vigenère":"XOR stream");
+      this.text("[data-metric-2]",this.mode==="caesar"?"1 character":`${(this.key.replace(/[^A-Za-z]/g,"")||"A").length} characters`);
+      this.text("[data-metric-3]",this.mode==="caesar"?`shift ${best}`:"see readings");}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("cipher-laboratory"))customElements.define("cipher-laboratory",CipherLaboratory);
+</script>
+
+<style>
+  cipher-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

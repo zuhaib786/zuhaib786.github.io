@@ -1,0 +1,70 @@
+<vector-clocks-laboratory>
+  <section class="math-instrument" aria-label="Interactive vector clock laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Tracing happens-before between replicas</span></div><div class="math-actions"><button class="math-button" data-edit-a>✎ Event at A</button><button class="math-button" data-edit-b>✎ Event at B</button><button class="math-button" data-sync-ab>Sync A→B</button><button class="math-button" data-sync-ba>Sync B→A</button><button class="math-button" data-reset>Reset</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>space–time diagram · arrows carry knowledge</span><canvas data-canvas aria-label="Vector clock space-time diagram"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Distributed state</p><h2 data-title>Causality is a partial order</h2><p data-description>A wall clock cannot tell whether two updates raced. Vector clocks can: each replica remembers how much of every other replica's history it has seen, and comparison reveals cause, effect, or true concurrency.</p><div class="math-formula">u ≤ v ⟺ ∀i uᵢ ≤ vᵢ</div>
+        <div class="math-metrics"><div><strong data-metric-1>(0, 0)</strong><small data-metric-1-label>Clock at A</small></div><div><strong data-metric-2>(0, 0)</strong><small data-metric-2-label>Clock at B</small></div><div><strong data-metric-3>identical</strong><small data-metric-3-label>Relationship</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Unseen at A</span><b data-unseen-a>0 events</b></label><input type="range" disabled /></div><div class="math-control"><label><span>Unseen at B</span><b data-unseen-b>0 events</b></label><input type="range" disabled /></div></div>
+        <div class="math-legend"><span><i></i>local event</span><span><i></i>sync message</span><span><i></i>concurrent window</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Happens-before is transitive but never total.</li><li data-reading-2>Concurrent writes need a policy: LWW, multi-value, or CRDT merge.</li><li data-reading-3>Merging takes element-wise maximum — no information is lost.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</vector-clocks-laboratory>
+
+<script>
+  type Lane="A"|"B";
+  interface Ev{lane:Lane;kind:"local"|"recv";seq:number;vc:[number,number];from?:Lane}
+  class VectorClocksLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;clocks:{A:[number,number];B:[number,number]}={A:[0,0],B:[0,0]};events:Ev[]=[];resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.layout();this.update();}
+    disconnectedCallback(){this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      const local=(lane:Lane)=>{const idx=lane==="A"?0:1;this.clocks[lane][idx]++;this.events.push({lane,kind:"local",seq:this.clocks[lane][idx],vc:[...this.clocks[lane]] as [number,number]});this.update();};
+      const sync=(from:Lane,to:Lane)=>{for(let i=0;i<2;i++)this.clocks[to][i]=Math.max(this.clocks[to][i],this.clocks[from][i]);const own=to==="A"?0:1;this.clocks[to][own]++;this.events.push({lane:to,kind:"recv",seq:this.clocks[to][own],vc:[...this.clocks[to]] as [number,number],from});this.update();};
+      this.querySelector("[data-edit-a]")?.addEventListener("click",()=>local("A"),{signal});
+      this.querySelector("[data-edit-b]")?.addEventListener("click",()=>local("B"),{signal});
+      this.querySelector("[data-sync-ab]")?.addEventListener("click",()=>sync("A","B"),{signal});
+      this.querySelector("[data-sync-ba]")?.addEventListener("click",()=>sync("B","A"),{signal});
+      this.querySelector("[data-reset]")?.addEventListener("click",()=>{this.clocks={A:[0,0],B:[0,0]};this.events=[];this.update();},{signal});}
+    compare():string{const[a,b]=[this.clocks.A,this.clocks.B];const le=(x:[number,number],y:[number,number])=>x[0]<=y[0]&&x[1]<=y[1];
+      if(a[0]===b[0]&&a[1]===b[1])return"identical";if(le(a,b))return"A → B causal";if(le(b,a))return"B → A causal";return"concurrent";}
+    unseen(lane:Lane){const mine=this.clocks[lane],other=lane==="A"?this.clocks.B:this.clocks.A,idx=lane==="A"?1:0;return other[idx]-mine[idx];}
+    update(){const rel=this.compare();
+      this.text("[data-metric-1]",`(${this.clocks.A[0]}, ${this.clocks.A[1]})`);
+      this.text("[data-metric-2]",`(${this.clocks.B[0]}, ${this.clocks.B[1]})`);
+      this.text("[data-metric-3]",rel);
+      this.text("[data-unseen-a]",this.unseen("A")+" events");
+      this.text("[data-unseen-b]",this.unseen("B")+" events");
+      if(rel==="concurrent"){this.text("[data-title]","Two futures collide");this.text("[data-state]","Concurrent histories — a merge policy must choose");}
+      else if(rel==="identical"){this.text("[data-title]","Causality is a partial order");this.text("[data-state]","Replicas agree · tracing happens-before");}
+      else{this.text("[data-title]","One history explains the other");this.text("[data-state]",rel+" · the lagging replica can catch up");}
+      this.draw();}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const ax=w*.30,bx=w*.70,top=h*.12,gap=Math.min(44,(h*.84)/Math.max(6,this.events.length+1));
+      c.strokeStyle=this.css("--rule");c.lineWidth=1;c.setLineDash([4,6]);
+      c.beginPath();c.moveTo(ax,top-24);c.lineTo(ax,h-16);c.moveTo(bx,top-24);c.lineTo(bx,h-16);c.stroke();c.setLineDash([]);
+      c.fillStyle=this.css("--ink-faint");c.font="600 10px IBM Plex Mono";c.textAlign="center";
+      c.fillText("REPLICA A",ax,top-32);c.fillText("REPLICA B",bx,top-32);c.textAlign="left";
+      const shown=this.events.slice(-Math.floor((h-top-30)/gap));
+      const positions=new Map<Ev,{x:number;y:number}>();
+      shown.forEach((ev,i)=>positions.set(ev,{x:ev.lane==="A"?ax:bx,y:top+i*gap}));
+      for(let i=1;i<shown.length;i++){const p=shown[i-1],q=shown[i];if(p.lane!==q.lane&&p.kind==="local"&&q.kind==="local"){const y1=positions.get(p)!.y,y2=positions.get(q)!.y;c.fillStyle=this.css("--math-bad");c.globalAlpha=.10;c.fillRect(Math.min(ax,bx),y1,Math.abs(bx-ax),y2-y1);c.globalAlpha=1;}}
+      shown.forEach((ev,evIndex)=>{const p=positions.get(ev)!;
+        if(ev.kind==="recv"&&ev.from){const fx=ev.from==="A"?ax:bx;let sy=top-gap;for(let i=evIndex-1;i>=0;i--){if(shown[i].lane===ev.from){sy=positions.get(shown[i])!.y;break;}}
+          c.strokeStyle=this.css("--math-good");c.lineWidth=1.5;c.beginPath();c.moveTo(fx,sy);c.quadraticCurveTo((fx+p.x)/2,sy-18,p.x,p.y-7);c.stroke();
+          c.fillStyle=this.css("--math-good");c.beginPath();c.arc(p.x,p.y-7,3,0,Math.PI*2);c.fill();
+          c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(`sync ${ev.from}→${ev.lane}`,(fx+p.x)/2+8,(sy+p.y)/2);}
+        c.fillStyle=ev.kind==="local"?this.css("--math-a"):this.css("--paper-sunken");c.strokeStyle=this.css("--math-a");c.lineWidth=1.6;c.beginPath();c.arc(p.x,p.y,6,0,Math.PI*2);if(ev.kind==="local")c.fill();else c.stroke();
+        c.fillStyle=this.css("--ink-soft");c.font="9px IBM Plex Mono";c.fillText(`${ev.lane}${ev.seq} · (${ev.vc[0]},${ev.vc[1]})`,p.x+12,p.y+3);});
+}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("vector-clocks-laboratory"))customElements.define("vector-clocks-laboratory",VectorClocksLaboratory);
+</script>
+
+<style>
+  vector-clocks-laboratory{display:block}.math-stage canvas{cursor:pointer}.math-control input[type="range"][disabled]{accent-color:var(--rule)}
+</style>

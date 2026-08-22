@@ -1,0 +1,7 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import VectorClocksLaboratory from "../../components/visuals/VectorClocksLaboratory.astro";
+---
+<ExperimentPage title="Vector clocks" description="Interactive happens-before, causality, concurrent writes, and merge conflict visualizer." number="24" eyebrow="Distributed systems" heading="Causality is a" accent="partial order." lede="Two replicas take events offline and reconcile later. Vector clocks record who knew what at each moment, exposing which histories are cause and effect — and which are genuinely concurrent." noteTitle="Ordering lens" note="No wall clock can certify that one update preceded another. Comparing vector clocks answers the only question that matters for conflicts: did either replica act without seeing the other's latest state?" backHref="/systems" backLabel="Systems laboratory">
+  <VectorClocksLaboratory />
+</ExperimentPage>

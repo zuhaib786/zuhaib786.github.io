@@ -1,0 +1,66 @@
+<fourier-laboratory>
+  <section class="math-instrument" aria-label="Interactive Fourier series laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Synthesising a waveform from rotating vectors</span></div><div class="math-actions"><div class="math-tabs" aria-label="Target waveform"><button class="active" data-mode="square">Square</button><button data-mode="sawtooth">Sawtooth</button><button data-mode="triangle">Triangle</button><button data-mode="pulse">Pulse train</button></div><button class="math-button" data-play>Pause</button><button class="math-button" data-reset>Reset phase</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>epicycles · partial sum · spectrum</span><canvas data-canvas aria-label="Fourier epicycles, partial sum, and harmonic spectrum"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Fourier series</p><h2 data-title>Circles compose the sharp edge</h2><p data-description>A square wave is the sum of every odd sine harmonic. Each circle carries one harmonic; the pen at the end of the chain traces their sum while the spectrum below shows which frequencies are being used.</p><div class="math-formula" data-formula>f(t) = Σₖ cₖ eⁱᵏᵗ</div>
+        <div class="math-metrics"><div><strong data-metric-1>12</strong><small data-metric-1-label>Harmonic cutoff</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Truncation error</small></div><div><strong data-metric-3>odd only</strong><small data-metric-3-label>Active spectrum</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Harmonic cutoff N</span><b data-n-value>12</b></label><input data-n type="range" min="1" max="40" step="1" value="12" /></div><div class="math-control"><label><span>Rotation speed</span><b data-speed-value>1.00×</b></label><input data-speed type="range" min="0.1" max="3" step="0.05" value="1" /></div></div>
+        <div class="math-legend"><span><i></i>partial sum</span><span><i></i>target waveform</span><span><i></i>spectrum |cₖ|</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Jumps in the target demand slowly decaying coefficients.</li><li data-reading-2>Gibbs overshoot near the jump never disappears as N grows.</li><li data-reading-3>Smoothness of f controls the decay rate of |cₖ|.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</fourier-laboratory>
+
+<script>
+  type Mode="square"|"sawtooth"|"triangle"|"pulse";
+  const INFO:Record<Mode,[string,string,string,string]>={
+    square:["Circles compose the sharp edge","A square wave is built from odd sine harmonics alone. Adding more circles sharpens the flat plateaus, but the overshoot at each jump merely narrows.","f(t)=4/π Σ sin((2m−1)t)/(2m−1)","epicycles · partial sum · spectrum"],
+    sawtooth:["Every harmonic takes part","The ramp uses both even and odd harmonics with slowly decaying amplitudes, so removing any single term leaves a visible dent in the slope.","f(t)=−2/π Σ sin(kt)/k","epicycles · partial sum · spectrum"],
+    triangle:["Smoothness buys fast decay","The triangle stays continuous through its corners, so its odd-harmonic amplitudes fall as 1/k². A handful of circles already looks convincing.","f(t)=8/π² Σ (−1)^m sin((2m+1)t)/(2m+1)²","epicycles · partial sum · spectrum"],
+    pulse:["Duty cycle shapes the envelope","A unipolar pulse train of duty d places its energy under a sinc-like envelope: wide pulses spread energy narrowly, narrow pulses excite a broad range of frequencies.","f(t)=d + Σ 2 sin(kπd) cos(kt)/(πk)","epicycles · partial sum · spectrum"],
+  };
+  const TAU=Math.PI*2;
+  class FourierLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;mode:Mode="square";terms=12;speed=1;theta=0;playing=true;last=0;frame=0;resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.layout();this.frame=requestAnimationFrame(t=>this.tick(t));}
+    disconnectedCallback(){cancelAnimationFrame(this.frame);this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;this.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach(b=>b.addEventListener("click",()=>{this.mode=b.dataset.mode as Mode;this.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("active",x===b));this.configure();this.draw();},{signal}));this.querySelector("[data-play]")?.addEventListener("click",()=>{this.playing=!this.playing;const b=this.querySelector<HTMLButtonElement>("[data-play]");if(b)b.textContent=this.playing?"Pause":"Play";this.text("[data-state]",this.playing?"Synthesising a waveform from rotating vectors":"Frozen at the current phase");},{signal});this.querySelector("[data-reset]")?.addEventListener("click",()=>{this.theta=0;this.draw();},{signal});
+      const range=(q:string,f:(n:number)=>void)=>this.querySelector<HTMLInputElement>(q)?.addEventListener("input",e=>{f(Number((e.currentTarget as HTMLInputElement).value));this.draw();},{signal});range("[data-n]",v=>{this.terms=v;this.text("[data-n-value]",String(v));});range("[data-speed]",v=>{this.speed=v;this.text("[data-speed-value]",v.toFixed(2)+"×");});}
+    configure(){const info=INFO[this.mode];this.text("[data-title]",info[0]);this.text("[data-description]",info[1]);this.text("[data-formula]",info[2]);this.text("[data-stage-label]",info[3]);
+      if(this.mode==="square"){this.text("[data-reading-1]","Only odd harmonics carry energy.");this.text("[data-reading-2]","Coefficients decay like 1/k — jumps are expensive.");this.text("[data-reading-3]","Gibbs overshoot stays near 9% of the jump.");}
+      else if(this.mode==="sawtooth"){this.text("[data-reading-1]","Every harmonic participates, odd and even alike.");this.text("[data-reading-2]","One discontinuity per period forces 1/k decay.");this.text("[data-reading-3]","Removing one term leaves a visible dent in the ramp.");}
+      else if(this.mode==="triangle"){this.text("[data-reading-1]","Amplitudes decay like 1/k² — smoothness pays.");this.text("[data-reading-2]","A dozen harmonics already look indistinguishable.");this.text("[data-reading-3]","No Gibbs tail: the corners are continuous.");}
+      else{this.text("[data-reading-1]","Energy sits under a sinc-shaped envelope.");this.text("[data-reading-2]","Narrowing the pulse widens the spectrum.");this.text("[data-reading-3]","Even harmonics vanish at duty d = 0.5.");}}
+    coef(k:number):[number,number]{if(this.mode==="square")return k%2?[0,4/(Math.PI*k)]:[0,0];if(this.mode==="sawtooth")return[0,-2/(Math.PI*k)];if(this.mode==="triangle"){if(k%2===0)return[0,0];const m=(k-1)/2;return[0,8*(m%2?-1:1)/(Math.PI*Math.PI*k*k)];}return[2*Math.sin(k*Math.PI*.25)/(Math.PI*k),0];}
+    target(th:number){if(this.mode==="square")return Math.sin(th)>=0?1:-1;if(this.mode==="sawtooth"){const p=((th%TAU)+TAU)%TAU;return 2*p/TAU-1;}if(this.mode==="triangle")return 2/Math.PI*Math.asin(Math.sin(th));const p=(((th+Math.PI)%TAU)+TAU)%TAU-Math.PI;return Math.abs(p)<Math.PI*.25?1:0;}
+    tick(t:number){const elapsed=Math.min(50,t-(this.last||t));this.last=t;if(this.playing){this.theta+=elapsed*.0016*this.speed;this.draw();}this.frame=requestAnimationFrame(n=>this.tick(n));}
+    layout(){const r=this.canvas.getBoundingClientRect();if(!r.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=r.width;this.height=r.height;this.canvas.width=Math.round(r.width*d);this.canvas.height=Math.round(r.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const cy=h*.44,scale=Math.min(h*.30,w*.15),cx=w*.24;
+      const dc=this.mode==="pulse"?.25:0;
+      let px=cx+dc*scale,py=cy,err=0;const parts:[number,number,number][]=[];
+      for(let k=1;k<=40;k++){const[a,b]=this.coef(k),r=Math.hypot(a,b);err+=k>this.terms?r*r/2:0;if(!r)continue;parts.push([k,r,Math.atan2(-b,a)]);}
+      const active=parts.filter(([k])=>k<=this.terms);c.strokeStyle=this.css("--rule");c.lineWidth=1;
+      for(const[k,r,ph]of active){const R=r*scale,nx=px+R*Math.cos(k*this.theta+ph),ny=py-R*Math.sin(k*this.theta+ph);c.globalAlpha=.55;c.beginPath();c.arc(px,py,R,0,TAU);c.stroke();c.globalAlpha=1;c.strokeStyle=this.css("--math-a");c.beginPath();c.moveTo(px,py);c.lineTo(nx,ny);c.stroke();c.strokeStyle=this.css("--rule");px=nx;py=ny;}
+      c.fillStyle=this.css("--math-good");c.beginPath();c.arc(px,py,4,0,TAU);c.fill();
+      const wx0=w*.47,wx1=w*.975,midY=cy,amp=h*.27;
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(wx0,cy);c.lineTo(wx1,cy);c.stroke();
+      const span=TAU*2,y=(th:number)=>{let s=dc;for(const[k,r,ph]of active)s+=r*Math.cos(k*th+ph);return s;};
+      c.strokeStyle=this.css("--math-b");c.setLineDash([4,5]);c.globalAlpha=.7;c.beginPath();for(let n=0;n<=240;n++){const th=this.theta-span*n/240,X=wx0+(wx1-wx0)*n/240,Y=midY-this.target(th)*amp;n?c.lineTo(X,Y):c.moveTo(X,Y);}c.stroke();c.setLineDash([]);c.globalAlpha=1;
+      c.strokeStyle=this.css("--math-a");c.lineWidth=1.8;c.beginPath();for(let n=0;n<=240;n++){const th=this.theta-span*n/240,X=wx0+(wx1-wx0)*n/240,Y=midY-y(th)*amp;n?c.lineTo(X,Y):c.moveTo(X,Y);}c.stroke();
+      c.strokeStyle=this.css("--ink-faint");c.setLineDash([3,4]);c.beginPath();c.moveTo(px,py);c.lineTo(wx0,midY-y(this.theta)*amp);c.stroke();c.setLineDash([]);
+      c.fillStyle=this.css("--math-good");c.beginPath();c.arc(wx0,midY-y(this.theta)*amp,3.4,0,TAU);c.fill();
+      const sbY=h*.86,sbH=h*.10,max=Math.max(...parts.map(p=>p[1]),.01);
+      for(const[k,r]of parts){const X=wx0+(wx1-wx0)*(k-.5)/40,BH=r/max*sbH;c.fillStyle=k<=this.terms?this.css("--math-a"):this.css("--rule");c.fillRect(X-2,sbY-BH,4,BH);}
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(wx0,sbY);c.lineTo(wx1,sbY);c.stroke();
+      this.text("[data-metric-1]",String(this.terms));this.text("[data-metric-2]",Math.sqrt(err).toFixed(3));this.text("[data-metric-3]",this.mode==="square"||this.mode==="triangle"?"odd k":"all k");}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("fourier-laboratory"))customElements.define("fourier-laboratory",FourierLaboratory);
+</script>
+
+<style>
+  fourier-laboratory{display:block}.math-stage canvas{cursor:crosshair}
+</style>

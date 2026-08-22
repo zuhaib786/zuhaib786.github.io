@@ -17,7 +17,7 @@ const experiments = [
     title: "Algorithms",
     kicker: "Growing collection · Computer science",
     description:
-      "Executable explanations of classic algorithms, beginning with five ways to sort an array.",
+      "Executable explanations of classic algorithms, from sorting and search to zero-knowledge proofs and cellular automata.",
     kind: "sorting",
   },
   {
@@ -26,7 +26,7 @@ const experiments = [
     title: "Systems",
     kicker: "Fault injection · State machines · Simulation",
     description:
-      "Twelve executable models of storage, consensus, runtimes, networking, parallelism, and reliability.",
+      "Fifteen executable models of storage, consensus, runtimes, networking, parallelism, learning, and reliability.",
     kind: "systems",
   },
   {
@@ -42,9 +42,9 @@ const experiments = [
     number: "005",
     href: "/mathematics",
     title: "Mathematics",
-    kicker: "Six instruments · Analysis · Geometry · Probability",
+    kicker: "Eight instruments · Analysis · Geometry · Probability",
     description:
-      "Complex dynamics, Pappus, domain colouring, phase portraits, linear maps, and Monte Carlo estimation — all manipulable.",
+      "Complex dynamics, Pappus, domain colouring, phase portraits, linear maps, Monte Carlo estimation, Fourier epicycles, and the road to chaos — all manipulable.",
     kind: "measure",
   },
   {
@@ -55,6 +55,24 @@ const experiments = [
     description:
       "Orbits, fields, waves, Hamiltonian chaos, quantum packets, and phase transitions — with invariants and numerical error exposed.",
     kind: "physics",
+  },
+  {
+    number: "007",
+    href: "/signals",
+    title: "Signals",
+    kicker: "Three instruments · Sampling · Spectra · Filtering",
+    description:
+      "Sample continuous waves into digital land, decompose them into pure frequencies, and build every filter from one sliding stencil.",
+    kind: "signal",
+  },
+  {
+    number: "008",
+    href: "/cryptography",
+    title: "Cryptography",
+    kicker: "Three instruments · Ciphers · Public keys · Hashes",
+    description:
+      "Break classical ciphers with their own statistics, walk RSA's modular ladders, and measure whether a hash truly mixes.",
+    kind: "cipher",
   },
 ];
 ---
@@ -124,6 +142,25 @@ const experiments = [
                   <circle class="mass mass--orbiter" cx="192" cy="70" r="4" />
                   <path class="wave" d="M18,112 C34,92 48,132 64,112 S94,92 110,112 S140,132 156,112 S186,92 202,112" />
                 </svg>
+              </div>
+            ) : experiment.kind === "signal" ? (
+              <div class="mini-signal">
+                <svg viewBox="0 0 220 120" aria-hidden="true">
+                  <line class="axis" x1="8" y1="60" x2="212" y2="60" />
+                  <path class="carrier" d="M8,60 C18,24 28,96 38,60 S58,24 68,60 S88,96 108,60 S128,24 148,60 S168,96 188,60 S208,24 218,60" />
+                  {[[8,60],[24,35],[40,45],[56,75],[72,85],[88,60],[104,35],[120,45],[136,75],[152,85],[168,60],[184,35],[200,45]].map(([cx,cy],i)=>(
+                    <circle class="dot" cx={cx} cy={cy} r="3" style={`--i:${i}`} />
+                  ))}
+                </svg>
+              </div>
+            ) : experiment.kind === "cipher" ? (
+              <div class="mini-cipher">
+                <p><span>attack at dawn</span><b aria-hidden="true">⇒</b><em>xzqwl dg yrhu</em></p>
+                <div class="mini-bars">
+                  {[62,38,80,24,55,70,30,66,42,74,28,58].map((height, i) => (
+                    <span style={`--h:${height}%; --i:${i}`} />
+                  ))}
+                </div>
               </div>
             ) : (
               <div class="mini-sky">
@@ -449,12 +486,37 @@ const experiments = [
     to { offset-distance: 100%; }
   }
 
+  .mini-signal { position: relative; z-index: 1; width: min(76%, 17rem); }
+  .mini-signal svg { display: block; width: 100%; }
+  .mini-signal .axis { stroke: var(--rule); stroke-width: 1; }
+  .mini-signal .carrier { fill: none; stroke: var(--rule-strong); stroke-width: 1.4; }
+  .mini-signal .dot {
+    fill: var(--interact);
+    filter: drop-shadow(0 0 5px var(--interact));
+    animation: twinkle 2.4s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -160ms);
+  }
+
+  .mini-cipher { display: flex; flex-direction: column; gap: 1.1rem; z-index: 1; width: min(70%, 15rem); }
+  .mini-cipher .mini-bars { height: 4.5rem; }
+  .mini-cipher p {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+  }
+  .mini-cipher em { color: var(--interact); font-style: normal; letter-spacing: 0.06em; }
+
   @media (prefers-reduced-motion: reduce) {
     .quake,
     .mini-bars span,
     .mini-sky circle,
     .mini-measure .centroid,
-    .mini-physics .mass--orbiter { animation: none; }
+    .mini-physics .mass--orbiter,
+    .mini-signal .dot { animation: none; }
   }
 
   @media (max-width: 45rem) {

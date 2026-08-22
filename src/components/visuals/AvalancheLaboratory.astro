@@ -1,0 +1,71 @@
+<avalanche-laboratory>
+  <section class="math-instrument" aria-label="Interactive hash avalanche laboratory">
+    <div class="math-bar"><div class="math-state"><i></i><span data-state>Comparing digests of nearly identical inputs</span></div><div class="math-actions"><button class="math-button" data-flip>Flip one input bit</button><button class="math-button" data-resample>Resample 240</button></div></div>
+    <div class="math-dashboard">
+      <div class="math-stage"><span class="math-stage-label label" data-stage-label>32-bit digests above · hamming-distance histogram below</span><canvas data-canvas aria-label="Hash bit grids and avalanche histogram"></canvas></div>
+      <aside class="math-readout"><p class="label label--accent">Hash diffusion</p><h2 data-title>One bit in, half the bits out</h2><p data-description>A secure hash must look like a fair coin flipper: change a single input bit and each output bit should turn with probability one half. This toy 32-bit mixer demonstrates diffusion; it is not a cryptographic hash.</p><div class="math-formula">P(bitᵢ flips) = ½ &nbsp; ; &nbsp; d ∼ Binomial(32, ½)</div>
+        <div class="math-metrics"><div><strong data-metric-1>—</strong><small data-metric-1-label>Hamming distance</small></div><div><strong data-metric-2>—</strong><small data-metric-2-label>Mean over samples</small></div><div><strong data-metric-3>—</strong><small data-metric-3-label>Mixing rounds</small></div></div>
+        <div class="math-controls"><div class="math-control"><label><span>Input text</span></label><input data-text type="text" value="attack at dawn" style="min-height:2.2rem;padding:.4rem .55rem;color:var(--ink);background:var(--glass);border:1px solid var(--rule);border-radius:6px;font-size:.62rem" /></div><div class="math-control"><label><span>Mixing rounds</span><b data-rounds-value>4</b></label><input data-rounds type="range" min="0" max="8" step="1" value="4" /></div></div>
+        <div class="math-legend"><span><i></i>bit = 1</span><span><i></i>bit = 0</span><span><i></i>differing bit</span></div><div class="math-trace"><p class="label">Qualitative reading</p><ol><li data-reading-1>Zero rounds: only bits near the change ever move.</li><li data-reading-2>Each round of xor-shift-multiply spreads changes outward.</li><li data-reading-3>Avalanche is necessary for hashes but not sufficient.</li></ol></div>
+      </aside>
+    </div>
+  </section>
+</avalanche-laboratory>
+
+<script>
+  function zhash(bytes:Uint8Array,rounds:number){let h=0x811c9dc5;
+    for(const b of bytes){h^=b;h=Math.imul(h,0x01000193)>>>0;}
+    if(!bytes.length)h^=0xff;
+    for(let r=0;r<rounds;r++){h^=h>>>16;h=Math.imul(h,0x85ebca6b)>>>0;h^=h>>>13;h=Math.imul(h,0xc2b2ae35)>>>0;h^=h>>>16;}
+    return h>>>0;}
+  const popcount=(x:number)=>{let c=0;while(x){c+=x&1;x>>>=1;}return c;};
+  class AvalancheLaboratory extends HTMLElement{
+    canvas!:HTMLCanvasElement;ctx!:CanvasRenderingContext2D;width=0;height=0;rounds=4;mutated:Uint8Array|null=null;distances:number[]=[];resize?:ResizeObserver;theme?:MutationObserver;aborter=new AbortController();
+    connectedCallback(){this.canvas=this.querySelector("[data-canvas]") as HTMLCanvasElement;const c=this.canvas.getContext("2d");if(!c)return;this.ctx=c;this.bind();this.resize=new ResizeObserver(()=>this.layout());this.resize.observe(this.canvas);this.theme=new MutationObserver(()=>this.draw());this.theme.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});this.resample();this.layout();}
+    disconnectedCallback(){this.aborter.abort();this.resize?.disconnect();this.theme?.disconnect();}
+    bind(){const signal=this.aborter.signal;
+      this.querySelector<HTMLInputElement>("[data-text]")?.addEventListener("input",()=>{this.mutated=null;this.resample();},{signal});
+      this.querySelector<HTMLInputElement>("[data-rounds]")?.addEventListener("input",e=>{this.rounds=Number((e.currentTarget as HTMLInputElement).value);this.text("[data-rounds-value]",String(this.rounds));this.resample();},{signal});
+      this.querySelector("[data-flip]")?.addEventListener("click",()=>{const bytes=new TextEncoder().encode(this.baseText());
+        if(!bytes.length)return;const i=Math.floor(Math.random()*bytes.length),bit=Math.floor(Math.random()*8);bytes[i]^=1<<bit;
+        this.mutated=bytes;this.draw();},{signal});
+      this.querySelector("[data-resample]")?.addEventListener("click",()=>this.resample(),{signal});}
+    baseText(){return this.querySelector<HTMLInputElement>("[data-text]")?.value??"hello";}
+    resample(){const enc=new TextEncoder(),base=enc.encode(this.baseText()),out:number[]=[];
+      for(let s=0;s<240;s++){const m=base.slice();if(!m.length){out.push(0);continue;}
+        const i=Math.floor(Math.random()*m.length),bit=Math.floor(Math.random()*8);m[i]^=1<<bit;
+        out.push(popcount(zhash(base,this.rounds)^zhash(m,this.rounds)));}
+      this.distances=out;this.draw();}
+    layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
+    css(v:string){return getComputedStyle(this).getPropertyValue(v);}
+    drawBits(c:CanvasRenderingContext2D,x:number,y:number,label:string,value:number,other:number|null){c.fillStyle=this.css("--ink-faint");c.font="600 9px IBM Plex Mono";c.fillText(label,x,y-7);
+      const cw=Math.min(14,(this.width*.82)/32),diff=other===null?0:popcount(value^other);
+      for(let b=0;b<32;b++){const on=(value>>>(31-b))&1,diffBit=other!==null&&(((value>>>(31-b))^((other>>>(31-b))&1))===1);
+        c.fillStyle=diffBit?this.css("--math-bad"):on?this.css("--math-a"):this.css("--rule");
+        c.fillRect(x+b*cw,y,cw-2,12);}
+      return diff;}
+    draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
+      const enc=new TextEncoder(),base=enc.encode(this.baseText()),a=zhash(base,this.rounds),mut=this.mutated??base,b=zhash(mut,this.rounds);
+      const x=w*.06;let y=h*.13;
+      const dA=this.drawBits(c,x,y,"INPUT A · "+JSON.stringify(this.baseText()).slice(0,34),a,null);y+=30;
+      const dB=this.drawBits(c,x,y,"INPUT B · "+(this.mutated?"one bit flipped":"identical to A"),b,a);
+      c.fillStyle=dA===dB&&dA===0?this.css("--ink-faint"):this.css("--math-bad");c.font="600 11px IBM Plex Mono";
+      c.fillText(`hamming distance ${popcount(a^b)}`,w*.72,y+10);
+      const hy=h*.52,hh=h*.36,pad=w*.06,pw=w-pad*2,maxD=Math.max(...this.distances,1);
+      const bins=new Array(33).fill(0);for(const d of this.distances)bins[d]++;
+      c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,hy+hh);c.lineTo(w-pad,hy+hh);c.moveTo(pad,hy);c.lineTo(pad,hy+hh);c.stroke();
+      const bw=pw/33;
+      bins.forEach((v,i)=>{const bh=v/maxD*hh*.92;if(!v)return;c.fillStyle=i===16?this.css("--math-good"):this.css("--math-a");c.globalAlpha=i===16?1:.75;c.fillRect(pad+i*bw+bw*.15,hy+hh-bh,bw*.7,bh);c.globalAlpha=1;});
+      let mean=0;for(const d of this.distances)mean+=d;mean/=Math.max(1,this.distances.length);
+      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";
+      c.fillText("0",pad-3,hy+hh+12);c.fillText("16",pad+16*bw-6,hy+hh+12);c.fillText("32",w-pad-14,hy+hh+12);
+      c.fillText("distribution of hamming distances over 240 single-bit mutations",pad,hy-8);
+      this.text("[data-metric-1]",String(popcount(a^b)));this.text("[data-metric-2]",mean.toFixed(2));this.text("[data-metric-3]",String(this.rounds));}
+    text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
+  }
+  if(!customElements.get("avalanche-laboratory"))customElements.define("avalanche-laboratory",AvalancheLaboratory);
+</script>
+
+<style>
+  avalanche-laboratory{display:block}.math-stage canvas{cursor:pointer}
+</style>

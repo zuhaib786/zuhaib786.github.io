@@ -1,0 +1,7 @@
+---
+import AlgorithmPage from "../../layouts/AlgorithmPage.astro";
+import CellularAutomataLaboratory from "../../components/visuals/CellularAutomataLaboratory.astro";
+---
+<AlgorithmPage title="Cellular Automata" description="Run Conway's Game of Life and Wolfram's elementary rules 30, 90, and 110 cell by cell." number="012" eyebrow="Emergent computation" heading="Local rules," accent="global behaviour." lede="A cell knows only its neighbours, yet gliders, fractals, and universal computers emerge. Paint the grid, seed a rule-30 cascade, and watch complexity assemble itself from trivial updates." noteTitle="Computation without a computer" note="Rule 110 can simulate any Turing machine, which means a one-line update rule is enough to run any program. Complexity here is not designed — it is an attractor of the dynamics.">
+  <CellularAutomataLaboratory />
+</AlgorithmPage>
