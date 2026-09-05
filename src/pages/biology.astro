@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import SolidBiologyExplorer from '../components/visuals/SolidBiologyExplorer.astro';
+---
+<Base title="Biology Atlas — Zuhaib Ul Zamann" description="Explore real segmented anatomy and a detailed animal-cell cutaway. Hover to identify, click to isolate, and rotate each structure in three dimensions.">
+  <header class="biology-heading"><a href="/visuals">Visual laboratory</a><div><h1>Life, in three dimensions.</h1><p>Get closer. Turn it over. Find out what makes it work.</p></div></header>
+  <SolidBiologyExplorer />
+  <section class="model-credits" id="model-credits">
+    <h2>Built to look inside.</h2>
+    <p>The cell is a purpose-built teaching model with exaggerated features. The organ views use segmented <a href="https://humanatlas.io/3d-reference-library">Human Reference Atlas</a> geometry, including Visible Human and Allen brain reference data. Colours identify viewing groups; they are not natural tissue colours. The whole-body view contains a selection of reference organs.</p>
+    <p>Visible Human meshes are distributed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The brain reference is subject to the <a href="https://alleninstitute.org/terms-of-use/">Allen Institute terms for noncommercial use</a>; its hemispheres were mirrored in the source atlas. See the <a href="/models/atlas/CREDITS.md">asset credits and original sources</a>. Anatomical explanations are informed by <a href="https://openstax.org/books/anatomy-and-physiology-2e/pages/1-introduction">OpenStax Anatomy and Physiology</a>. This atlas is for exploration and education.</p>
+  </section>
+</Base>
+<style>
+  .biology-heading { padding: 2rem 0 2.3rem; }
+  .biology-heading > a { font-size: 0.75rem; color: var(--ink-soft); text-decoration: none; }
+  .biology-heading > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1rem; margin-top: 1.2rem; }
+  h1 { font-family: var(--font-display); font-size: clamp(2.4rem, 4.5vw, 4rem); font-weight: 400; letter-spacing: -0.025em; line-height: 1; }
+  .biology-heading p { max-width: 35ch; color: var(--ink-soft); font-size: 0.85rem; }
+  .model-credits { max-width: 52rem; margin: 3rem auto 0; }
+  .model-credits h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 400; }
+  .model-credits p { margin-top: 0.8rem; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.85; }
+</style>

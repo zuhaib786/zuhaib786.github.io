@@ -1,0 +1,46 @@
+---
+import { surfaceLines } from "../scripts/surface";
+const lines = surfaceLines(32);
+---
+<figure class="surface" data-surface>
+  <svg viewBox="0 0 560 490" role="img" aria-label="A woven torus projected from three dimensions. Use the rotation slider to explore its shape.">
+    <g fill="none" stroke="currentColor" stroke-width="0.7">
+      {lines.map((points, i) => <polyline points={points} opacity={i < 64 ? 0.64 : 0.32} />)}
+    </g>
+  </svg>
+  <figcaption>
+    <span class="surface-caption">A little perspective changes everything.</span>
+    <div class="surface-controls">
+      <label for="surface-rotation">Rotate the surface</label>
+      <input id="surface-rotation" type="range" min="0" max="180" value="32" />
+      <output for="surface-rotation">32°</output>
+    </div>
+  </figcaption>
+</figure>
+<script>
+  import { surfaceLines } from "../scripts/surface";
+  function setupSurface() {
+    const surface = document.querySelector<HTMLElement>("[data-surface]");
+    if (!surface || surface.dataset.ready) return;
+    surface.dataset.ready = "true";
+    const input = surface.querySelector<HTMLInputElement>("input")!;
+    const output = surface.querySelector("output")!;
+    const lines = surface.querySelectorAll("polyline");
+    input.addEventListener("input", () => {
+      output.textContent = `${input.value}°`;
+      surfaceLines(Number(input.value)).forEach((points, i) => lines[i].setAttribute("points", points));
+    });
+  }
+  setupSurface();
+  document.addEventListener("astro:page-load", setupSurface);
+</script>
+<style>
+  .surface { position: relative; margin: 0; min-width: 0; color: var(--accent); }
+  .surface svg { width: 100%; height: auto; overflow: visible; }
+  figcaption { text-align: center; margin-top: -0.5rem; }
+  .surface-caption { color: var(--ink-soft); font-family: var(--font-display); font-size: 1.25rem; }
+  .surface-controls { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin-top: 0.8rem; font-size: 0.65rem; color: var(--ink-soft); }
+  input { width: 6rem; height: 1.5rem; accent-color: var(--accent); cursor: ew-resize; }
+  output { min-width: 2.5em; font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) { .surface { max-width: 29rem; width: 100%; margin-inline: auto; } }
+</style>

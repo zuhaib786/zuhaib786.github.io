@@ -2,348 +2,120 @@
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import EntryRow from "../components/EntryRow.astro";
+import MathematicalSurface from "../components/MathematicalSurface.astro";
 import { getSeriesMeta, postIsVisible } from "../data/series";
-
-const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
-  (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
-);
-const recent = [...posts].reverse().slice(0, 4);
-
-const seriesPosts = (
-  await getCollection("series", ({ id, data }) =>
-    postIsVisible(id, data.draft),
-  )
-).sort(
-  (a, b) =>
-    a.data.date.valueOf() - b.data.date.valueOf() ||
-    a.data.order - b.data.order,
-);
-const recentSeries = [...seriesPosts].reverse().slice(0, 4);
-const seriesPostPath = (id: string) => {
-  const parts = id.split("/");
-  return `/series/${parts[0]}/${parts.slice(1).join("/")}`;
-};
-
-const sections = [
-  {
-    number: "I",
-    title: "Writing",
-    href: "/blog",
-    blurb: "Long-form work on systems, performance, and ML infrastructure.",
-  },
-  {
-    number: "II",
-    title: "Series",
-    href: "/series",
-    blurb: "Structured, multi-part technical learning projects.",
-  },
-  {
-    number: "III",
-    title: "Notes",
-    href: "/notes",
-    blurb: "Compact reference notes from active study.",
-  },
-  {
-    number: "IV",
-    title: "Visuals",
-    href: "/visuals",
-    blurb: "Interactive explanations, simulations, and experiments.",
-  },
-  {
-    number: "V",
-    title: "Projects",
-    href: "/projects",
-    blurb: "Selected engineering and academic work.",
-  },
-  {
-    number: "VI",
-    title: "Résumé",
-    href: "/resume",
-    blurb: "Experience, education, and technical background.",
-  },
+const combined = process.env.COMBINED_SITE === "1";
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const seriesPosts = (await getCollection("series", ({ id, data }) => postIsVisible(id, data.draft))).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf() || b.data.order - a.data.order);
+const experiments = [
+  { href: "/mathematics", title: "Mathematics, made tangible", description: "Turn a linear map. Follow a strange attractor. Watch a Fourier series find its shape.", kind: "math", category: "Geometry & motion" },
+  { href: "/sky", title: "A window into the night", description: "Two thousand stars, planetary orbits, and the sky above you. A planetarium in your browser.", kind: "sky", category: "The night sky" },
+  { href: "/systems", title: "Under the abstraction", description: "Break a distributed system. Trace a packet. See what happens between the lines of code.", kind: "systems", category: "Systems & computation" },
 ];
 ---
-
 <Base title="Zuhaib Ul Zamann — Software Engineer">
-  <section class="hero">
-    <div class="hero-grid" aria-hidden="true"></div>
+  <section class="home-hero" aria-labelledby="home-title">
     <div class="hero-copy">
-      <p class="eyebrow">ML Engineering · Distributed Systems · Agentic AI</p>
-      <h1>Zuhaib <em>Ul Zamann</em></h1>
-      <p class="role">Software Engineer II, AI/ML · Uber</p>
+      <p class="hello"><span aria-hidden="true"></span> Engineer. Student. Endlessly curious.</p>
+      <h1 id="home-title">Zuhaib<br />Ul Zamann<span class="name-period">.</span></h1>
+      <p class="hero-intro">I build systems.<br />And take ideas apart to understand them.</p>
+      <p class="hero-detail">AI/ML engineering at Uber. Exploring the space between reliable software, mathematics, and things you can learn by playing.</p>
+      <div class="hero-actions"><a class="primary-action" href="/visuals">Explore the laboratory <span aria-hidden="true">↗</span></a><a class="quiet-action" href="/resume">More about me</a></div>
     </div>
-    <p class="intro">
-      I build agentic AI systems and the infrastructure that keeps them
-      reliable and economical to run. At Uber, I work on AI/ML engineering.
-      Previously at Sprinklr, I shipped production copilots, built cost
-      telemetry across 1,000+ microservices, and designed platform resiliency
-      systems.
-    </p>
+    <MathematicalSurface />
   </section>
-
-  <section class="contents" data-reveal>
-    <header class="section-head">
-      <p>Contents</p>
-      <h2>Browse the work</h2>
-    </header>
-    <ol class="contents-list">
-      {
-        sections.map((section) => (
-          <li>
-            <a href={section.href}>
-              <span class="section-number">{section.number}</span>
-              <span>
-                <strong>{section.title}</strong>
-                <small>{section.blurb}</small>
-              </span>
-              <span class="arrow" aria-hidden="true">↗</span>
-            </a>
-          </li>
-        ))
-      }
-    </ol>
-  </section>
-
-  <section class="recent" data-reveal>
-    <header class="section-head section-head--row">
-      <div>
-        <p>Latest entries</p>
-        <h2>Recent writing</h2>
-      </div>
-      <a href="/blog">All articles →</a>
-    </header>
-    {
-      recent.map((post) => (
-        <EntryRow
-          href={`/blog/${post.id}`}
-          number={String(posts.indexOf(post) + 1).padStart(2, "0")}
-          title={post.data.title}
-          description={post.data.description}
-          date={post.data.date}
-        />
-      ))
-    }
-  </section>
-
-  {
-    recentSeries.length > 0 && (
-      <section class="recent" data-reveal>
-        <header class="section-head section-head--row">
-          <div>
-            <p>In sequence</p>
-            <h2>Recent series</h2>
+  <div class="interests" aria-label="Areas of interest"><span>Following my curiosity through</span><p>Machine learning <i aria-hidden="true">/</i> Distributed systems <i aria-hidden="true">/</i> Mathematics</p></div>
+  <section class="laboratory" aria-labelledby="lab-title">
+    <header class="section-heading"><div><h2 id="lab-title">Ideas you can get your hands on.</h2><p>Small experiments. Big rabbit holes. Pick something that makes you curious.</p></div><a class="text-link" href="/visuals">All experiments <span aria-hidden="true">↗</span></a></header>
+    <div class="experiment-grid">
+      {experiments.map((experiment) => (
+        <a class={`experiment-link experiment-link--${experiment.kind}`} href={experiment.href}>
+          <div class="experiment-art" aria-hidden="true">
+            {experiment.kind === "math" ? (
+              <svg viewBox="0 0 360 240"><g fill="none" stroke="currentColor" stroke-width="0.8">{Array.from({ length: 28 }, (_, i) => <ellipse cx="180" cy="120" rx={35 + i * 3.3} ry={83 - i * 1.6} transform={`rotate(${i * 6.5} 180 120)`} />)}</g></svg>
+            ) : experiment.kind === "sky" ? (
+              <svg viewBox="0 0 360 240"><g fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.23"><circle cx="180" cy="120" r="87"/><circle cx="180" cy="120" r="57"/><ellipse cx="180" cy="120" rx="130" ry="42" transform="rotate(-25 180 120)"/></g><path d="M78 145 128 95 175 112 212 57 271 86" fill="none" stroke="currentColor" opacity="0.5"/>{Array.from({length: 42}, (_, i) => <circle cx={22 + (i * 137.5) % 316} cy={20 + (i * 71.3) % 200} r={i % 7 === 0 ? 1.6 : 0.7} fill="currentColor" opacity={0.25 + (i % 4) * 0.18}/>)}{[[78,145],[128,95],[175,112],[212,57],[271,86]].map(([cx,cy]) => <circle cx={cx} cy={cy} r="3" fill="currentColor"/>)}</svg>
+            ) : (
+              <svg viewBox="0 0 360 240"><g stroke="currentColor" fill="none"><path d="M76 120H180M180 120L270 59M180 120L270 181M76 120V59H270M76 120V181H270" stroke-width="1" opacity="0.45"/>{[[76,120],[180,120],[270,59],[270,181]].map(([cx,cy]) => <><circle cx={cx} cy={cy} r="22" stroke-width="0.8"/><circle cx={cx} cy={cy} r="5" fill="currentColor" stroke="none"/></>)}</g><g fill="currentColor" opacity="0.6"><circle cx="124" cy="120" r="3"/><circle cx="221" cy="92" r="3"/><circle cx="173" cy="181" r="3"/></g></svg>
+            )}
+            <span class="art-open">↗</span>
           </div>
-          <a href="/series">All series →</a>
-        </header>
-        {recentSeries.map((post) => (
-          <EntryRow
-            href={seriesPostPath(post.id)}
-            number={String(seriesPosts.indexOf(post) + 1).padStart(2, "0")}
-            eyebrow={getSeriesMeta(post.id.split("/")[0])?.title}
-            title={post.data.title}
-            description={post.data.description}
-            date={post.data.date}
-          />
-        ))}
-      </section>
-    )
-  }
+          <div class="experiment-copy"><span class="experiment-category">{experiment.category}</span><h3>{experiment.title}</h3><p>{experiment.description}</p></div>
+        </a>
+      ))}
+    </div>
+  </section>
+  <section class="writing-section" aria-labelledby="writing-title">
+    <div class="writing-intro"><h2 id="writing-title">Thinking<br />out loud.</h2><p>Notes from building things, chasing questions, and learning where the difficult parts are.</p><a class="text-link" href="/blog">All writing <span aria-hidden="true">↗</span></a></div>
+    <div class="writing-entries">{posts.slice(0, 3).map((post, index) => <EntryRow href={`/blog/${post.id}`} number={String(index + 1)} title={post.data.title} description={post.data.description} date={post.data.date} />)}</div>
+  </section>
+  <section class="learning-section" aria-labelledby="learning-title">
+    <div class="learning-copy"><span class="learning-symbol" aria-hidden="true">{combined ? "∑" : "{ }"}</span><h2 id="learning-title">{combined ? "The Long Proof" : "Learning in the open."}</h2><p>{combined ? "A living mathematics notebook. From linear algebra to research, one proof, one question, one small breakthrough at a time." : "Some ideas take more than one sitting. Follow the notebooks and longer journeys as understanding takes shape."}</p><a class="primary-action" href={combined ? "/math" : "/series"}>{combined ? "Open the mathematics notebook" : "Explore the series"}<span aria-hidden="true">↗</span></a></div>
+    <div class="learning-list">{seriesPosts.slice(0, 3).map(post => <a href={`/series/${post.id}`}><small>{getSeriesMeta(post.id.split("/")[0])?.title}</small><h3>{post.data.title}</h3><span aria-hidden="true">↗</span></a>)}<a class="notes-link" href="/notes">Browse the study notes <span aria-hidden="true">↗</span></a></div>
+  </section>
 </Base>
-
 <style>
-  .hero {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.65fr);
-    gap: clamp(2.5rem, 7vw, 7rem);
-    align-items: end;
-    min-height: 34rem;
-    margin-inline: calc(-1 * var(--folio-pad));
-    padding: clamp(4rem, 10vw, 7rem) var(--folio-pad);
-    overflow: hidden;
-    background: #102b3a;
-    color: #fffdf7;
-  }
-
-  .hero-grid {
-    position: absolute;
-    z-index: -2;
-    inset: 0;
-    opacity: 0.08;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.7) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.7) 1px, transparent 1px);
-    background-size: 42px 42px;
-    mask-image: linear-gradient(to right, black, transparent 82%);
-  }
-
-  .hero::after {
-    position: absolute;
-    right: -4rem;
-    bottom: -7rem;
-    z-index: -1;
-    color: rgba(244, 201, 93, 0.08);
-    font-family: var(--font-display);
-    font-size: 26rem;
-    font-style: italic;
-    line-height: 1;
-    content: "Z²";
-  }
-
-  .eyebrow,
-  .role {
-    color: #f07a62;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    max-width: 48rem;
-    margin: 1.2rem 0 1.4rem;
-    font-family: var(--font-display);
-    font-size: clamp(3.6rem, 9vw, 7.6rem);
-    font-weight: 400;
-    letter-spacing: -0.04em;
-    line-height: 0.82;
-  }
-
-  h1 em {
-    color: #f4c95d;
-    font-weight: 400;
-  }
-
-  .intro {
-    position: relative;
-    max-width: 34rem;
-    color: rgba(255, 253, 247, 0.72);
-    font-family: var(--font-serif);
-    font-size: clamp(1rem, 1.5vw, 1.12rem);
-    line-height: 1.65;
-  }
-
-  .contents,
-  .recent {
-    padding-top: clamp(3rem, 7vw, 5.5rem);
-  }
-
-  .section-head {
-    margin-bottom: 1.8rem;
-    text-align: center;
-  }
-
-  .section-head p {
-    color: var(--accent);
-    font-family: var(--font-serif);
-    font-size: 0.76rem;
-    font-variant-caps: all-small-caps;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-  }
-
-  .section-head h2 {
-    margin-top: 0.25rem;
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 400;
-    line-height: 1;
-  }
-
-  .section-head--row {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    gap: 1rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid var(--ink);
-    text-align: left;
-  }
-
-  .section-head--row a {
-    color: var(--ink-soft);
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-
-  .contents-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 1px solid var(--rule);
-    list-style: none;
-  }
-
-  .contents-list li {
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .contents-list li:nth-child(odd) {
-    border-right: 1px solid var(--rule);
-  }
-
-  .contents-list a {
-    display: grid;
-    grid-template-columns: 2.2rem 1fr auto;
-    gap: 0.85rem;
-    align-items: baseline;
-    min-height: 8rem;
-    padding: 1.4rem;
-    text-decoration: none;
-  }
-
-  .section-number {
-    color: var(--accent);
-    font-family: var(--font-serif);
-    font-size: 0.82rem;
-  }
-
-  .contents-list strong {
-    display: block;
-    font-family: var(--font-serif);
-    font-size: 1.25rem;
-  }
-
-  .contents-list small {
-    display: block;
-    margin-top: 0.35rem;
-    color: var(--ink-soft);
-    font-family: var(--font-serif);
-    font-size: 0.88rem;
-    line-height: 1.45;
-  }
-
-  .arrow {
-    color: var(--rule-strong);
-  }
-
-  .contents-list a:hover {
-    background: color-mix(in srgb, var(--paper-sunken) 52%, transparent);
-  }
-
-  .contents-list a:hover strong,
-  .contents-list a:hover .arrow {
-    color: var(--accent);
-  }
-
+  .home-hero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 1.5rem; padding: 4.5rem 0 4rem; }
+  .hello { display: flex; align-items: center; gap: 0.6rem; font-size: 0.75rem; color: var(--ink-soft); }
+  .hello span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 { margin: 1.6rem 0 1.7rem; font-family: var(--font-sans); font-size: clamp(3.7rem, 6.4vw, 6.2rem); font-weight: 500; letter-spacing: -0.075em; line-height: 1.01; }
+  .name-period { color: var(--accent); }
+  .hero-intro { font-family: var(--font-display); font-size: clamp(1.65rem, 2.3vw, 2.15rem); line-height: 1.22; letter-spacing: -0.015em; }
+  .hero-detail { max-width: 37ch; margin-top: 1.2rem; color: var(--ink-soft); font-size: 0.88rem; line-height: 1.8; }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; margin-top: 1.9rem; }
+  .primary-action { display: inline-flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding: 0.85rem 1.2rem; background: var(--accent); color: var(--paper); border-radius: 7px; font-size: 0.78rem; font-weight: 600; text-decoration: none; }
+  .primary-action:hover { background: var(--interact); color: var(--paper); }
+  .quiet-action, .text-link { font-size: 0.78rem; text-decoration: none; font-weight: 500; }
+  .quiet-action { text-decoration: underline; text-decoration-color: var(--rule-strong); }
+  .text-link { display: inline-flex; align-items: center; gap: 1rem; white-space: nowrap; }
+  .interests { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.35rem 0; border-block: 1px solid var(--rule); font-size: 0.72rem; }
+  .interests > span { color: var(--ink-soft); }
+  .interests p { display: flex; gap: clamp(0.65rem, 2vw, 1.6rem); }
+  .interests i { font-style: normal; color: var(--rule-strong); }
+  .laboratory { padding-top: 5.5rem; }
+  .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 2rem; }
+  h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.3rem, 3.5vw, 3.25rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .section-heading p { margin-top: 0.8rem; font-size: 0.85rem; color: var(--ink-soft); }
+  .experiment-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; }
+  .experiment-link { display: block; text-decoration: none; min-width: 0; }
+  .experiment-art { position: relative; overflow: hidden; border-radius: 10px; background: var(--paper-sunken); color: var(--accent); }
+  .experiment-link--sky .experiment-art { background: #222d51; color: #d5defe; }
+  .experiment-link--systems .experiment-art { background: #e4ece9; color: #376c60; }
+  .experiment-art svg { width: 100%; transition: transform 400ms var(--ease-out); }
+  .experiment-link:hover svg { transform: scale(1.04); }
+  .art-open { position: absolute; bottom: 0.85rem; right: 1rem; font-size: 1.2rem; }
+  .experiment-copy { padding: 1.1rem 0.25rem 0; }
+  .experiment-category { font-size: 0.67rem; color: var(--ink-soft); }
+  h3 { font-size: 1.05rem; line-height: 1.4; font-weight: 500; margin: 0.4rem 0 0.6rem; letter-spacing: -0.02em; }
+  .experiment-copy p { color: var(--ink-soft); font-size: 0.79rem; line-height: 1.7; }
+  .writing-section { display: grid; grid-template-columns: 0.75fr 1.5fr; gap: 5rem; margin-top: 5.5rem; padding-top: 4rem; border-top: 1px solid var(--rule); }
+  .writing-intro p { max-width: 28ch; color: var(--ink-soft); font-size: 0.85rem; margin: 1rem 0 1.7rem; }
+  .writing-entries { min-width: 0; }
+  .learning-section { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 5.5rem; padding: 3rem; border-radius: 12px; background: var(--paper-sunken); }
+  .learning-symbol { display: block; margin-bottom: 1rem; color: var(--accent); font-family: var(--font-display); font-size: 2.7rem; line-height: 1; }
+  .learning-copy p { font-size: 0.85rem; line-height: 1.8; color: var(--ink-soft); margin: 1rem 0 1.5rem; max-width: 38ch; }
+  .learning-list { align-self: center; }
+  .learning-list a { display: block; position: relative; padding: 1rem 1.8rem 1rem 0; border-bottom: 1px solid var(--rule-strong); text-decoration: none; }
+  .learning-list small { font-size: 0.65rem; color: var(--ink-soft); }
+  .learning-list h3 { font-size: 0.9rem; margin-bottom: 0; }
+  .learning-list a > span { position: absolute; right: 0; top: 50%; }
+  .learning-list .notes-link { border: 0; font-size: 0.75rem; padding-top: 1.5rem; }
+  @media (max-width: 1000px) { .home-hero { padding-top: 3rem; } .writing-section { gap: 2rem; } .interests { flex-wrap: wrap; } .learning-section { gap: 2rem; padding: 2rem; } }
   @media (max-width: 760px) {
-    .hero {
-      grid-template-columns: 1fr;
-      min-height: auto;
-      gap: 2rem;
-    }
-
-    .hero::after {
-      font-size: 16rem;
-    }
-
-    .contents-list {
-      grid-template-columns: 1fr;
-    }
-
-    .contents-list li:nth-child(odd) {
-      border-right: 0;
-    }
+    .home-hero { grid-template-columns: 1fr; padding: 2.5rem 0; gap: 0; }
+    h1 { font-size: clamp(3.7rem, 12vw, 5rem); }
+    .hero-detail { max-width: 46ch; }
+    .hero-copy { padding-bottom: 0.5rem; }
+    .interests { font-size: 0.67rem; gap: 0.5rem; }
+    .interests p { flex-wrap: wrap; gap: 0.65rem; }
+    .laboratory { padding-top: 3.5rem; }
+    .section-heading { flex-wrap: wrap; gap: 1rem; }
+    .experiment-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .experiment-art svg { max-height: 17rem; }
+    .writing-section { grid-template-columns: 1fr; margin-top: 3.5rem; padding-top: 3rem; gap: 1rem; }
+    .writing-intro h2 br { display: none; }
+    .writing-intro p { max-width: 42ch; }
+    .learning-section { grid-template-columns: 1fr; margin-top: 3rem; padding: 1.6rem; }
   }
+  @media (prefers-reduced-motion: reduce) { .experiment-art svg { transition: none; } }
 </style>

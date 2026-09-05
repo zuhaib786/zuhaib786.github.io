@@ -3,6 +3,15 @@ import Base from "../../layouts/Base.astro";
 
 const experiments = [
   {
+    number: "009",
+    href: "/biology",
+    title: "Biology Atlas",
+    kicker: "3D anatomy · Cutaways · Selectable structures",
+    description:
+      "An open animal cell and real reference anatomy. Hover to identify a structure, click to isolate it, and turn it over while you read.",
+    kind: "biology",
+  },
+  {
     number: "001",
     href: "/earthquakes",
     title: "Earthquakes",
@@ -101,7 +110,18 @@ const experiments = [
           style={`--delay: ${index * 90}ms`}
         >
           <div class={`preview preview--${experiment.kind}`} aria-hidden="true">
-            {experiment.kind === "globe" ? (
+            {experiment.kind === "biology" ? (
+              <svg viewBox="0 0 260 180" width="260" aria-hidden="true">
+                <ellipse cx="130" cy="94" rx="99" ry="59" fill="#c9d2ba" stroke="#94ab91" stroke-width="2" />
+                <path d="M31 94a99 59 0 0 0 198 0" fill="none" stroke="#e1e4cb" stroke-width="7" />
+                <ellipse cx="111" cy="82" rx="35" ry="29" fill="#ad91c7" stroke="#8e72ae" stroke-width="2" />
+                <circle cx="114" cy="86" r="12" fill="#7d6197" />
+                <g fill="none" stroke="#6e8cb6" stroke-width="4"><path d="M68 64q-27 35 11 59"/><path d="M59 58q-31 39 12 72"/><path d="M48 61q-30 39 13 71"/></g>
+                <g transform="translate(177 105) rotate(-25)"><ellipse rx="29" ry="13" fill="#dc9b61"/><path d="M-18-7v14m9-18v22m9-23v24m9-21v18m9-13v10" stroke="#f2d19e" stroke-width="3"/></g>
+                <g fill="none" stroke="#c6a05c" stroke-width="4"><path d="M163 59q17-9 32 0m-33 7q18-9 33 0m-30 7q15-9 29 0"/></g>
+                <circle cx="125" cy="122" r="10" fill="#be8299" />
+              </svg>
+            ) : experiment.kind === "globe" ? (
               <div class="mini-globe">
                 <span class="orbit orbit-a" />
                 <span class="orbit orbit-b" />

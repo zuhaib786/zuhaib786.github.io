@@ -26,7 +26,7 @@ const year = new Date().getFullYear();
     {links.map((link) => <a href={link.href}>{link.label}</a>)}
   </nav>
 
-  <p class="copyright">© {year} · Built with Astro</p>
+  <p class="copyright">© {year} Zuhaib Ul Zamann. Always a work in progress.</p>
 </footer>
 
 <style>
@@ -35,9 +35,9 @@ const year = new Date().getFullYear();
     grid-template-columns: 1fr auto;
     gap: 1.5rem 3rem;
     align-items: end;
-    width: min(72rem, calc(100% - 2rem));
+    width: min(74rem, calc(100% - 2 * var(--folio-pad)));
     margin: 1.5rem auto 0;
-    padding: 1.75rem var(--gutter) 2.5rem;
+    padding: 2.5rem 0;
     border-top: 1px solid var(--rule-strong);
     color: var(--ink-soft);
   }
@@ -61,7 +61,7 @@ const year = new Date().getFullYear();
   }
 
   .footer-identity p {
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
     font-size: 0.86rem;
     line-height: 1.35;
   }

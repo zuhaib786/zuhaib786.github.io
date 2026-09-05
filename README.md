@@ -1,13 +1,15 @@
 # zuhaib786.github.io
 
 Personal portfolio and blog of Zuhaib Ul Zamann, built with [Astro](https://astro.build)
-and deployed to GitHub Pages. The design is an astronomical glass plate: content is
-written on a transparent plate ruled with a *reseau* (the coordinate grid observatories
-etched into the glass itself), floating over a deep field of stars in slow sidereal
-rotation. Dark mode is the sky as observed; light mode is the same plate as a negative
-on a light table, where stars read dark and the accent becomes the warm ink used to
-annotate plate margins. Titles are set in Instrument Serif, everything measured in
-IBM Plex Mono, with numbered sections carried over from the field-manual bones.
+and deployed to GitHub Pages. The design pairs cool porcelain and ink blue with
+Avenir system typography, locally hosted Instrument Serif, and mathematical drawings.
+The homepage torus is rendered statically and can be rotated with a keyboard-accessible
+slider. Light and dark palettes follow system preferences, with a persistent theme
+switch. Writing, projects and the interactive laboratories share the same design tokens.
+
+The sibling `../zuhaib-web` combines this site with The Long Proof at `/math`.
+Its assembler sets `COMBINED_SITE=1` to enable the mathematics navigation and
+homepage feature. Ordinary builds keep links appropriate to standalone GitHub Pages.
 
 **Live site:** https://zuhaib786.github.io
 
