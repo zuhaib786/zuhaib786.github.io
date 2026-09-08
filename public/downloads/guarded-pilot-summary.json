@@ -1,0 +1,59 @@
+{
+  "status": "exploratory; no demonstrated ML advantage",
+  "completed_runs": 77,
+  "failures": 0,
+  "cases": [
+    {
+      "problem": "smooth",
+      "mesh": "structured",
+      "n": 32,
+      "minmod": 0.005986177766914693,
+      "guard-only": 0.0006137765028059974,
+      "ungated-ml": {
+        "mean": 0.008652416070627418,
+        "sample_sd": 5.205867565317632e-05
+      },
+      "gated-ml": {
+        "mean": 0.0006137485701964256,
+        "sample_sd": 0.0
+      },
+      "jump-prior": 0.0006137485701964256
+    },
+    {
+      "problem": "rotation",
+      "mesh": "structured",
+      "n": 12,
+      "minmod": 0.1394676229047976,
+      "guard-only": 0.09452079442654919,
+      "ungated-ml": {
+        "mean": 0.15221447062201318,
+        "sample_sd": 4.806340302829513e-05
+      },
+      "gated-ml": {
+        "mean": 0.11975128020826488,
+        "sample_sd": 6.682201318117551e-12
+      },
+      "jump-prior": 0.11975128020258478
+    },
+    {
+      "problem": "rotation",
+      "mesh": "delaunay",
+      "n": 12,
+      "minmod": 0.1408702737909294,
+      "guard-only": 0.09479029763935269,
+      "ungated-ml": {
+        "mean": 0.15793265546418297,
+        "sample_sd": 4.2724680929828256e-05
+      },
+      "gated-ml": {
+        "mean": 0.12168790841132578,
+        "sample_sd": 1.5243844521591985e-09
+      },
+      "jump-prior": 0.12168790602985419
+    }
+  ],
+  "guarded_stage_minimum": -1.3877787807814457e-17,
+  "guarded_stage_maximum": 1.0,
+  "rejected_steps": 0,
+  "maximum_smooth_periodic_mass_change": 1.2212453270876722e-15
+}

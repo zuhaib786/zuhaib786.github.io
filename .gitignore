@@ -11,6 +11,7 @@ node_modules/
 
 # datasets (dataminingmtl782.zip is 280MB, past GitHub's file limit)
 *.zip
+!public/downloads/guarded-limiter-pilot.zip
 
 # os
 .DS_Store
