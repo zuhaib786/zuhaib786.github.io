@@ -1,0 +1,152 @@
+---
+import Base from "../layouts/Base.astro";
+import BlowupLaboratory from "../components/visuals/BlowupLaboratory.astro";
+---
+
+<Base
+  title="Finite-Time Blowup — Visuals by Zuhaib Ul Zamann"
+  description="An interactive model of the collapsing vortex in OpenAI's September 2026 finite-time blowup construction for the three-dimensional Navier–Stokes equations."
+>
+  <section class="experiment-head">
+    <div>
+      <a href="/visuals" class="label back">← Visual laboratory</a>
+      <p class="label label--accent">Experiment 010 · Fluid singularities</p>
+      <h1>Finite-Time<br />Blowup</h1>
+    </div>
+    <p class="lede">
+      In September 2026 OpenAI published a construction in which a
+      three-dimensional fluid, starting from rest, reaches unbounded velocity in
+      finite time while its kinetic energy stays bounded. This is the flow: a
+      vortex drawn into an ever more slender column, and the oscillations that
+      keep the force driving it smooth.
+    </p>
+  </section>
+
+  <BlowupLaboratory />
+
+  <section class="brief">
+    <div>
+      <p class="label">What is being claimed</p>
+      <p>
+        Fefferman's statement of the Millennium problem offers four
+        alternatives. (A) and (B) ask you to prove that smooth solutions always
+        exist; (C) and (D) ask you to exhibit a breakdown, and permit a smooth
+        external force. The paper's Theorem 1.1 settles (C), and its corollary
+        on the torus settles (D): for every viscosity ν &gt; 0 there is a force
+        f ∈ C<sub>c</sub><sup>∞</sup> and a smooth solution on ℝ³ × [0, 1)
+        starting from u(·, 0) = 0 with
+        sup<sub>t</sub> ‖u(t)‖<sub>L²</sub> &lt; ∞ and
+        limsup<sub>t↑1</sub> ‖u(t)‖<sub>L<sup>∞</sup></sub> = ∞. It does not
+        settle the unforced alternatives (A) and (B), and at the time of
+        writing the proof is under review and its authorship is disputed.
+      </p>
+    </div>
+    <div>
+      <p class="label">How the flow works</p>
+      <p>
+        Fluid spirals inward toward the axis and is thrown out along it, on
+        opposite sides of a dividing layer near z = 0. Radial inflow carries
+        angular momentum r·u<sub>θ</sub> inward and spins the core up; the axial
+        jet clears the arriving fluid so the inflow never chokes. The core
+        contracts self-similarly with radius ℓ<sub>r</sub> ≍ τ<sup>½</sup> and
+        height ℓ<sub>z</sub> ≍ τ<sup>½−h</sup>, so it becomes an increasingly
+        slender column. Sustaining that background alone would need a force that
+        blows up in the annulus around it, so the construction adds oscillatory
+        ring pulses: seeded exponentially small, amplified by the background
+        shear, and eventually killed by viscosity as the shear steepens their
+        radial wavenumber. Their averaged momentum fluxes cancel the singular
+        part of the residual, leaving a force that extends smoothly through
+        t = 1.
+      </p>
+    </div>
+  </section>
+
+  <footer class="source-note">
+    <span class="label">Provenance</span>
+    <p>
+      Geometry, similarity coordinates, scaling exponents and the pulse
+      mechanism follow
+      <a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf"
+        >“Finite time blowup for Navier–Stokes”, OpenAI, September 2026</a
+      >
+      (see also the
+      <a href="https://openai.com/index/navier-stokes-solution/">announcement</a>).
+      The profiles E, U and Ψ animated here are illustrative stand-ins for the
+      ones the paper constructs, chosen so that the leading radial pressure
+      balance ∂<sub>r</sub>p = u<sub>θ</sub>²/r holds exactly and the exterior is
+      an Oseen–Lamb vortex, an exact solution of the radial heat equation for
+      u<sub>θ</sub>. The anisotropy is exaggerated whenever h is pushed past
+      1/100, as the paper's own Figure 1 exaggerates it. This page is a
+      visualisation, not a verification: the formal Lean development is
+      OpenAI's.
+    </p>
+  </footer>
+</Base>
+
+<style>
+  .experiment-head {
+    display: grid;
+    grid-template-columns: 1fr minmax(19rem, 0.68fr);
+    align-items: end;
+    gap: 3rem;
+    padding: 3rem 0 2rem;
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 8.5vw, 6.5rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.85;
+  }
+
+  .lede {
+    max-width: 31rem;
+    padding-bottom: 0.2rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+  }
+
+  .brief {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .brief p:not(.label) {
+    margin-top: 0.7rem;
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    line-height: 1.7;
+  }
+
+  .source-note {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+  }
+
+  .source-note p { max-width: 43rem; line-height: 1.75; }
+
+  @media (max-width: 44rem) {
+    .experiment-head { grid-template-columns: 1fr; gap: 1.5rem; }
+    .brief { grid-template-columns: 1fr; gap: 1.75rem; }
+    .source-note { grid-template-columns: 1fr; }
+  }
+</style>
