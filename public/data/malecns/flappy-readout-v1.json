@@ -1,0 +1,96 @@
+{
+  "schema": "malecns-flappy-readout/v1",
+  "dataset": "male-cns:v1.0",
+  "graphSha256": "e33df182bed7a6f3ea279daf4790a82b05706d3d41e819a6a80c0473e8c559f3",
+  "graphDecompressedSha256": "bc1cdcaf443cdf4ca51d00d32ce20d3b2d51c0854a985dbacdf0285a49be5936",
+  "graph": {
+    "neurons": 176422,
+    "connections": 6287749,
+    "minSynapsesPerConnection": 5
+  },
+  "neuralModel": {
+    "kind": "current-based LIF with exponential synapse",
+    "dtMs": 1,
+    "membraneTauMs": 20,
+    "synapseTauMs": 5,
+    "restMv": -52,
+    "thresholdMv": -45,
+    "refractoryMs": 2.2,
+    "delayMs": 1.8,
+    "millivoltsPerSynapse": 0.275,
+    "globalGain": 0.65
+  },
+  "encoder": {
+    "kind": "engineered feature-level visual drive",
+    "populations": [
+      "LC4",
+      "LPLC2",
+      "VS",
+      "HS"
+    ]
+  },
+  "readout": {
+    "kind": "L2 logistic regression",
+    "features": [
+      "DNp01",
+      "DNp04",
+      "DNp11",
+      "DNp03/L",
+      "DNp03/R",
+      "DNa02/L",
+      "DNa02/R",
+      "DNg13/L",
+      "DNg13/R",
+      "subclass:wm"
+    ],
+    "mean": [
+      42.49999999999997,
+      228.29861111111126,
+      52.01388888888887,
+      50.208333333333336,
+      10.486111111111121,
+      10.9027777777778,
+      0,
+      19.09722222222221,
+      47.08333333333324,
+      37.095771144278665
+    ],
+    "scale": [
+      64.04750840847217,
+      123.19342175918997,
+      79.25941813219639,
+      77.85285934590534,
+      23.68279559297778,
+      12.770038417046342,
+      0.000001,
+      13.663271653742012,
+      17.868151368659635,
+      8.699870901719834
+    ],
+    "weights": [
+      -1.6038784392069407,
+      0.14300897895992934,
+      2.015359003085927,
+      1.238109540281254,
+      0.4492783767822691,
+      -0.27298440912617644,
+      0,
+      0.17176112846248812,
+      -0.19176368431431146,
+      0.439349735399879
+    ],
+    "bias": 0.37171153165992266,
+    "threshold": 0.31
+  },
+  "training": {
+    "seed": 85924471,
+    "examples": 360,
+    "trainExamples": 288,
+    "validationExamples": 72,
+    "windowMs": 50,
+    "trainAccuracy": 0.8819444444444444,
+    "validationAccuracy": 0.9722222222222222,
+    "generatedAt": "2026-09-11T00:00:00.000Z",
+    "elapsedSeconds": 31.906180833
+  }
+}

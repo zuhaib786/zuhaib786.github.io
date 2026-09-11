@@ -1,0 +1,20 @@
+---
+import ExperimentPage from "../../layouts/ExperimentPage.astro";
+import FlyFlightLaboratory from "../../components/visuals/FlyFlightLaboratory.astro";
+---
+
+<ExperimentPage
+  title="MaleCNS Flappy Fly"
+  description="The complete published male fruit fly CNS connectome runs as 176,422 spiking neurons and autonomously plays a Flappy-style game."
+  number="26"
+  eyebrow="Whole-connectome simulation"
+  heading="The mapped fly"
+  accent="takes the controls."
+  lede="MaleCNS v1.0 runs in your browser as 176,422 leaky integrate-and-fire neurons. Real visual, descending, and motor populations produce the activity from which a trained readout decides when to flap."
+  noteTitle="Scientific boundary"
+  note="This uses the published MaleCNS graph and fixed synapse counts. The LIF dynamics follow Shiu et al. (2024); the feature-level visual encoder, body physics, and trained flap readout are additions for this game. It is a connectome-constrained simulation, not a claim that a biological fly learned Flappy Bird."
+  backHref="/visuals"
+  backLabel="Visual laboratory"
+>
+  <FlyFlightLaboratory />
+</ExperimentPage>

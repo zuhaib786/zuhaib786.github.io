@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "verify:malecns": "node scripts/verify-malecns.mjs",
+    "train:flappy": "node scripts/train-flappy-readout.mjs",
+    "validate:flappy": "node scripts/validate-flappy-policy.mjs",
+    "smoke:fly-worker": "node scripts/smoke-fly-worker.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",

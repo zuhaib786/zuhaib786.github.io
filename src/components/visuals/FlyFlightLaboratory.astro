@@ -1,0 +1,611 @@
+<fly-flight-laboratory>
+  <section class="connectome-lab" aria-label="Male fruit fly connectome playing a Flappy-style game">
+    <header class="lab-header">
+      <div class="live-state">
+        <i data-live-light></i>
+        <div>
+          <span data-stage>MaleCNS v1.0</span>
+          <strong data-state>Preparing connectome</strong>
+        </div>
+      </div>
+      <div class="graph-seal">
+        <span>Graph identity</span>
+        <code>SHA-256 · e33df182…559f3</code>
+      </div>
+      <div class="lab-actions">
+        <button type="button" data-pause disabled>Pause</button>
+        <button type="button" data-gust disabled>Gust</button>
+        <button type="button" data-restart disabled>Reset</button>
+      </div>
+    </header>
+
+    <div class="workbench">
+      <section class="arena-panel" aria-labelledby="arena-title">
+        <div class="panel-title">
+          <div><span>01 / Embodied task</span><h2 id="arena-title">Flight chamber</h2></div>
+          <p><b data-score>0</b> gates <i></i> <b data-time>0.0</b> seconds</p>
+        </div>
+        <div class="arena-wrap">
+          <canvas
+            data-arena
+            tabindex="0"
+            aria-label="A fly controlled by the MaleCNS simulation navigating apertures. Press Space to pause, G for a gust, or R to reset."
+          ></canvas>
+          <div class="loader" data-loader>
+            <div class="loader-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <strong data-loader-label>Downloading MaleCNS v1.0 · 22.9 MB</strong>
+            <p>The simulation starts after the complete thresholded graph is verified and expanded in a Web Worker.</p>
+          </div>
+          <div class="crash-card" data-crash hidden>
+            <span>CONTACT</span>
+            <strong data-crash-score>0 gates cleared</strong>
+            <small>New chamber in a moment</small>
+          </div>
+          <span class="arena-key">SPACE pause · G gust · R reset</span>
+        </div>
+      </section>
+
+      <aside class="brain-panel" aria-labelledby="brain-title">
+        <div class="panel-title panel-title--brain">
+          <div><span>02 / Full graph</span><h2 id="brain-title">Neural field</h2></div>
+          <p data-neural-clock>0 ms neural time</p>
+        </div>
+        <canvas data-brain aria-label="Sampled real soma positions from the MaleCNS graph; firing neurons flash amber."></canvas>
+        <div class="brain-legend"><span><i></i> sampled soma</span><span><i></i> spike</span></div>
+        <div class="brain-counters">
+          <div><strong>176,422</strong><span>neurons loaded</span></div>
+          <div><strong data-active>0</strong><span>active now</span></div>
+          <div><strong data-spikes>0</strong><span>spikes / 50 ms</span></div>
+          <div><strong data-speed>—</strong><span>worker compute</span></div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="signal-rack" aria-labelledby="signal-title">
+      <header>
+        <div><span>03 / Sensorimotor path</span><h2 id="signal-title">Real populations, trained readout</h2></div>
+        <div class="decision-readout">
+          <span>Flap probability</span>
+          <strong data-probability>0%</strong>
+          <div><i data-probability-bar></i><b data-threshold-marker></b></div>
+        </div>
+      </header>
+      <div class="population-flow">
+        <div class="population-group population-group--input">
+          <p>Engineered visual drive</p>
+          <div class="population" data-input="LC4"><span>LC4</span><i><b></b></i><em>0 Hz</em></div>
+          <div class="population" data-input="LPLC2"><span>LPLC2</span><i><b></b></i><em>0 Hz</em></div>
+          <div class="population" data-input="VS"><span>VS</span><i><b></b></i><em>0 Hz</em></div>
+          <div class="population" data-input="HS"><span>HS</span><i><b></b></i><em>0 Hz</em></div>
+        </div>
+        <div class="synapse-field" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <b>6,287,749</b><small>connections ≥ 5 synapses</small>
+        </div>
+        <div class="population-group population-group--output">
+          <p>Descending + motor activity</p>
+          <div class="population" data-rate="DNp01"><span>DNp01</span><i><b></b></i><em>0 Hz</em></div>
+          <div class="population" data-rate="DNp04"><span>DNp04</span><i><b></b></i><em>0 Hz</em></div>
+          <div class="population" data-rate="DNp11"><span>DNp11</span><i><b></b></i><em>0 Hz</em></div>
+          <div class="population" data-rate="subclass:wm"><span>wing motor</span><i><b></b></i><em>0 Hz</em></div>
+        </div>
+      </div>
+      <footer class="rack-footer">
+        <p><strong data-training>97.2%</strong><span>held-out readout accuracy · 72 examples</span></p>
+        <label><span>Sensory gain <b data-gain-value>1.00×</b></span><input data-gain type="range" min="0.5" max="1.5" value="1" step="0.05" /></label>
+        <canvas data-trace aria-label="Recent readout probability trace"></canvas>
+      </footer>
+    </section>
+  </section>
+
+  <section class="method" aria-labelledby="method-title">
+    <header>
+      <p>What is original, and what was added?</p>
+      <h2 id="method-title">The graph is the published fly. The game interface is ours.</h2>
+    </header>
+    <div class="method-grid">
+      <article>
+        <span>01</span>
+        <h3>Original MaleCNS data</h3>
+        <p>The page downloads a checksum-pinned derivative of Janelia’s <code>male-cns:v1.0</code>: all 176,422 neuPrint neurons and 6,287,749 connections carrying at least five synapses. Body IDs, cell types, transmitters, sides, soma positions, and synapse counts come from the release.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Published dynamics</h3>
+        <p>Every cell runs as a current-based leaky integrate-and-fire unit following Shiu et al. The browser uses a 1 ms integration step, 20 ms membrane constant, 5 ms synaptic constant, 1.8 ms delay, and transmitter-derived connection signs.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Trained for this task</h3>
+        <p>A logistic readout was fitted on 288 full-network response windows and checked on 72 held-out windows. Its inputs are firing rates from named descending and wing-motor populations. Three seeded end-to-end trials cleared 10, 9, and 10 gates.</p>
+      </article>
+      <article>
+        <span>04</span>
+        <h3>The honest boundary</h3>
+        <p>The release has no pixel encoder, neuron-specific physiology, muscles, or Flappy experience. Gap error and vertical optic flow therefore drive LC4, LPLC2, VS, and HS at the feature level. Connectome weights remain fixed; only the final flap readout was trained.</p>
+      </article>
+    </div>
+    <div class="method-links">
+      <a href="https://male-cns.janelia.org/">MaleCNS dataset ↗</a>
+      <a href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/">Google Research report ↗</a>
+      <a href="https://doi.org/10.1038/s41586-024-07763-9">LIF model paper ↗</a>
+      <a href="https://github.com/blendi-remade/fly-brain-minecraft">Reference implementation ↗</a>
+      <a href="/data/malecns/flappy-readout-v1.json">Trained weights ↗</a>
+    </div>
+  </section>
+</fly-flight-laboratory>
+
+<script>
+  const WORLD_W = 1000;
+  const WORLD_H = 600;
+  const FLY_X = 235;
+  const FLY_RADIUS = 14;
+  const GRAVITY = 650;
+  const FLAP_IMPULSE = -305;
+  const GATE_WIDTH = 90;
+  const GATE_GAP = 206;
+  const GATE_SPEED = 170;
+
+  type Gate = { x: number; cy: number; passed: boolean };
+  type BrainFlash = { x: number; y: number; life: number };
+  type Sense = { error: number; velocity: number; urgency: number };
+
+  const clamp = (value: number, low = 0, high = 1) => Math.max(low, Math.min(high, value));
+
+  class FlyFlightLaboratory extends HTMLElement {
+    arena!: HTMLCanvasElement;
+    arenaCtx!: CanvasRenderingContext2D;
+    brain!: HTMLCanvasElement;
+    brainCtx!: CanvasRenderingContext2D;
+    trace!: HTMLCanvasElement;
+    traceCtx!: CanvasRenderingContext2D;
+    worker?: Worker;
+    resizeObserver?: ResizeObserver;
+    aborter = new AbortController();
+    brainReady = false;
+    paused = false;
+    crashed = false;
+    crashTimer = 0;
+    y = WORLD_H / 2;
+    vy = 0;
+    gates: Gate[] = [];
+    nextGateIndex = 0;
+    attempt = 0;
+    score = 0;
+    flightTime = 0;
+    cooldown = 0;
+    wingFlash = 0;
+    gustFlash = 0;
+    pendingFlap = false;
+    probability = 0;
+    threshold = 0.5;
+    traceValues: number[] = Array(90).fill(0);
+    soma = new Float32Array();
+    flashes: BrainFlash[] = [];
+    readoutFeatures: string[] = [];
+    sensoryGain = 1;
+    lastFrame = 0;
+    sensorClock = 0;
+    animationFrame = 0;
+    arenaDpr = 1;
+    brainDpr = 1;
+    traceDpr = 1;
+    gateSeed = 0x786;
+
+    connectedCallback() {
+      this.arena = this.querySelector("[data-arena]")!;
+      this.arenaCtx = this.arena.getContext("2d")!;
+      this.brain = this.querySelector("[data-brain]")!;
+      this.brainCtx = this.brain.getContext("2d")!;
+      this.trace = this.querySelector("[data-trace]")!;
+      this.traceCtx = this.trace.getContext("2d")!;
+      this.bindControls();
+      this.resizeObserver = new ResizeObserver(() => this.resize());
+      this.resizeObserver.observe(this);
+      this.resize();
+      this.resetChamber(false);
+      this.startWorker();
+      this.animationFrame = requestAnimationFrame((time) => this.frame(time));
+    }
+
+    disconnectedCallback() {
+      this.aborter.abort();
+      this.resizeObserver?.disconnect();
+      this.worker?.terminate();
+      cancelAnimationFrame(this.animationFrame);
+    }
+
+    bindControls() {
+      const signal = this.aborter.signal;
+      this.querySelector("[data-pause]")?.addEventListener("click", () => this.togglePause(), { signal });
+      this.querySelector("[data-gust]")?.addEventListener("click", () => this.gust(), { signal });
+      this.querySelector("[data-restart]")?.addEventListener("click", () => this.resetChamber(true), { signal });
+      const gain = this.querySelector<HTMLInputElement>("[data-gain]")!;
+      gain.addEventListener("input", () => {
+        this.sensoryGain = Number(gain.value);
+        this.querySelector("[data-gain-value]")!.textContent = `${this.sensoryGain.toFixed(2)}×`;
+        this.worker?.postMessage({ type: "gain", value: this.sensoryGain });
+      }, { signal });
+      window.addEventListener("keydown", (event) => {
+        if (event.target instanceof HTMLInputElement) return;
+        if (event.code === "Space") { event.preventDefault(); this.togglePause(); }
+        if (event.key.toLowerCase() === "g") this.gust();
+        if (event.key.toLowerCase() === "r") this.resetChamber(true);
+      }, { signal });
+    }
+
+    startWorker() {
+      this.worker = new Worker("/scripts/fly-connectome-worker.js", { type: "module" });
+      this.worker.addEventListener("message", (event) => this.onWorkerMessage(event.data), { signal: this.aborter.signal });
+      this.worker.addEventListener("error", () => this.showError("The connectome worker stopped unexpectedly."), { signal: this.aborter.signal });
+    }
+
+    onWorkerMessage(message: any) {
+      if (message.type === "status") {
+        this.querySelector("[data-loader-label]")!.textContent = message.label;
+        this.querySelector("[data-state]")!.textContent = message.label;
+        return;
+      }
+      if (message.type === "error") {
+        this.showError(message.message);
+        return;
+      }
+      if (message.type === "ready") {
+        this.brainReady = true;
+        this.soma = message.soma;
+        this.readoutFeatures = message.readoutFeatures;
+        this.querySelector<HTMLElement>("[data-loader]")!.hidden = true;
+        this.querySelector("[data-state]")!.textContent = "Connectome online · autonomous";
+        this.querySelector("[data-stage]")!.textContent = `${message.dataset} · verified`;
+        this.querySelector("[data-live-light]")?.classList.add("is-live");
+        this.querySelectorAll<HTMLButtonElement>(".lab-actions button").forEach((button) => { button.disabled = false; });
+        const accuracy = message.training.validationAccuracy * 100;
+        this.querySelector("[data-training]")!.textContent = `${accuracy.toFixed(1)}%`;
+        this.resetChamber(false);
+        return;
+      }
+      if (message.type !== "tick") return;
+      this.probability = message.probability;
+      this.threshold = message.threshold;
+      if (message.flap && !this.paused && !this.crashed && this.cooldown <= 0) this.pendingFlap = true;
+      this.querySelector("[data-probability]")!.textContent = `${Math.round(this.probability * 100)}%`;
+      const probabilityBar = this.querySelector<HTMLElement>("[data-probability-bar]")!;
+      probabilityBar.style.width = `${this.probability * 100}%`;
+      const marker = this.querySelector<HTMLElement>("[data-threshold-marker]")!;
+      marker.style.left = `${this.threshold * 100}%`;
+      this.querySelector("[data-active]")!.textContent = Number(message.activeNeurons).toLocaleString();
+      this.querySelector("[data-spikes]")!.textContent = Number(message.spikes).toLocaleString();
+      this.querySelector("[data-speed]")!.textContent = `${message.computeMs.toFixed(0)} ms`;
+      this.querySelector("[data-neural-clock]")!.textContent = `${(message.neuralTimeMs / 1000).toFixed(2)} s neural time`;
+      this.updateOutputRates(message.rates);
+      const spikeCoordinates: Float32Array = message.spikeCoordinates;
+      for (let i = 0; i < spikeCoordinates.length; i += 2) {
+        this.flashes.push({ x: spikeCoordinates[i], y: spikeCoordinates[i + 1], life: 1 });
+      }
+      if (this.flashes.length > 650) this.flashes.splice(0, this.flashes.length - 650);
+      this.traceValues.push(this.probability);
+      if (this.traceValues.length > 90) this.traceValues.shift();
+    }
+
+    showError(message: string) {
+      const loader = this.querySelector<HTMLElement>("[data-loader]")!;
+      loader.hidden = false;
+      loader.classList.add("is-error");
+      this.querySelector("[data-loader-label]")!.textContent = "Connectome could not start";
+      loader.querySelector("p")!.textContent = message;
+      this.querySelector("[data-state]")!.textContent = "Worker error";
+    }
+
+    togglePause() {
+      if (!this.brainReady) return;
+      this.paused = !this.paused;
+      this.worker?.postMessage({ type: "pause", paused: this.paused });
+      this.querySelector("[data-pause]")!.textContent = this.paused ? "Resume" : "Pause";
+      this.querySelector("[data-state]")!.textContent = this.paused ? "Simulation paused" : "Connectome online · autonomous";
+      this.querySelector("[data-live-light]")?.classList.toggle("is-paused", this.paused);
+    }
+
+    gust() {
+      if (!this.brainReady || this.paused || this.crashed) return;
+      this.vy += this.y < WORLD_H / 2 ? 235 : -235;
+      this.gustFlash = 1;
+    }
+
+    nextRandom() {
+      this.gateSeed = (Math.imul(this.gateSeed, 1664525) + 1013904223) >>> 0;
+      return this.gateSeed / 4294967296;
+    }
+
+    makeGate(x: number): Gate {
+      return { x, cy: 158 + this.nextRandom() * 284, passed: false };
+    }
+
+    resetChamber(resetBrain: boolean) {
+      this.attempt += 1;
+      this.gateSeed = (0x786 + this.attempt * 7919) >>> 0;
+      this.y = WORLD_H / 2;
+      this.vy = 0;
+      this.score = 0;
+      this.flightTime = 0;
+      this.cooldown = 0;
+      this.crashed = false;
+      this.crashTimer = 0;
+      this.pendingFlap = false;
+      this.nextGateIndex = 0;
+      this.gates = [this.makeGate(690), this.makeGate(1080), this.makeGate(1470)];
+      const crash = this.querySelector<HTMLElement>("[data-crash]")!;
+      crash.hidden = true;
+      this.querySelector("[data-score]")!.textContent = "0";
+      this.querySelector("[data-time]")!.textContent = "0.0";
+      if (resetBrain) this.worker?.postMessage({ type: "reset" });
+    }
+
+    currentSense(): Sense {
+      const gate = this.gates.find((item) => item.x + GATE_WIDTH >= FLY_X) ?? this.gates[0];
+      const distance = Math.max(0, gate.x - FLY_X);
+      return {
+        error: (this.y - gate.cy) / (GATE_GAP * 0.5),
+        velocity: this.vy / 450,
+        urgency: clamp(1 - distance / 650),
+      };
+    }
+
+    sendSense() {
+      const state = this.currentSense();
+      this.worker?.postMessage({ type: "sense", state });
+      const contrast = 0.55 + 0.45 * state.urgency;
+      const rate = (signal: number) => signal <= 0.015 ? 0 : (18 + 142 * Math.min(1, signal)) * contrast * this.sensoryGain;
+      this.updatePopulation(this.querySelector('[data-input="LC4"]')!, rate(Math.max(0, state.error)), 180);
+      this.updatePopulation(this.querySelector('[data-input="LPLC2"]')!, rate(Math.max(0, -state.error)), 180);
+      this.updatePopulation(this.querySelector('[data-input="VS"]')!, rate(Math.max(0, state.velocity)), 180);
+      this.updatePopulation(this.querySelector('[data-input="HS"]')!, rate(Math.max(0, -state.velocity)), 180);
+    }
+
+    updateOutputRates(rates: number[]) {
+      const shown = ["DNp01", "DNp04", "DNp11", "subclass:wm"];
+      for (const name of shown) {
+        const index = this.readoutFeatures.indexOf(name);
+        if (index >= 0) this.updatePopulation(this.querySelector(`[data-rate="${name}"]`)!, rates[index], 450);
+      }
+    }
+
+    updatePopulation(element: Element, hz: number, maximum: number) {
+      const bar = element.querySelector<HTMLElement>("i b")!;
+      const value = element.querySelector("em")!;
+      bar.style.width = `${clamp(hz / maximum) * 100}%`;
+      value.textContent = `${hz < 10 ? hz.toFixed(1) : Math.round(hz)} Hz`;
+    }
+
+    update(dt: number) {
+      this.flashes.forEach((flash) => { flash.life -= dt * 2.4; });
+      this.flashes = this.flashes.filter((flash) => flash.life > 0);
+      this.wingFlash = Math.max(0, this.wingFlash - dt * 6);
+      this.gustFlash = Math.max(0, this.gustFlash - dt * 1.6);
+      if (!this.brainReady || this.paused) return;
+      if (this.crashed) {
+        this.crashTimer += dt;
+        if (this.crashTimer > 1.45) this.resetChamber(false);
+        return;
+      }
+
+      this.sensorClock += dt;
+      if (this.sensorClock >= 0.05) {
+        this.sensorClock %= 0.05;
+        this.sendSense();
+      }
+      this.cooldown -= dt;
+      if (this.pendingFlap && this.cooldown <= 0) {
+        this.vy = FLAP_IMPULSE;
+        this.cooldown = 0.17;
+        this.wingFlash = 1;
+      }
+      this.pendingFlap = false;
+      this.vy += GRAVITY * dt;
+      this.y += this.vy * dt;
+      this.flightTime += dt;
+
+      for (const gate of this.gates) {
+        gate.x -= GATE_SPEED * dt;
+        if (!gate.passed && gate.x + GATE_WIDTH < FLY_X) {
+          gate.passed = true;
+          this.score += 1;
+        }
+      }
+      while (this.gates[0].x + GATE_WIDTH < -20) {
+        this.gates.shift();
+        this.gates.push(this.makeGate(this.gates[this.gates.length - 1].x + 390));
+      }
+
+      const hitGate = this.gates.some((gate) =>
+        FLY_X + FLY_RADIUS > gate.x && FLY_X - FLY_RADIUS < gate.x + GATE_WIDTH
+        && (this.y - FLY_RADIUS < gate.cy - GATE_GAP / 2 || this.y + FLY_RADIUS > gate.cy + GATE_GAP / 2));
+      if (this.y < FLY_RADIUS || this.y > WORLD_H - FLY_RADIUS || hitGate) this.crash();
+      this.querySelector("[data-score]")!.textContent = String(this.score);
+      this.querySelector("[data-time]")!.textContent = this.flightTime.toFixed(1);
+    }
+
+    crash() {
+      this.crashed = true;
+      this.crashTimer = 0;
+      const card = this.querySelector<HTMLElement>("[data-crash]")!;
+      card.hidden = false;
+      this.querySelector("[data-crash-score]")!.textContent = `${this.score} gate${this.score === 1 ? "" : "s"} cleared`;
+    }
+
+    resizeCanvas(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, dpr: number) {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    resize() {
+      this.arenaDpr = Math.min(window.devicePixelRatio || 1, 2);
+      this.brainDpr = this.arenaDpr;
+      this.traceDpr = this.arenaDpr;
+      this.resizeCanvas(this.arena, this.arenaCtx, this.arenaDpr);
+      this.resizeCanvas(this.brain, this.brainCtx, this.brainDpr);
+      this.resizeCanvas(this.trace, this.traceCtx, this.traceDpr);
+    }
+
+    drawArena() {
+      const rect = this.arena.getBoundingClientRect();
+      const ctx = this.arenaCtx;
+      const sx = rect.width / WORLD_W;
+      const sy = rect.height / WORLD_H;
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      const sky = ctx.createLinearGradient(0, 0, 0, rect.height);
+      sky.addColorStop(0, "#eef0e6");
+      sky.addColorStop(0.62, "#dfe7d8");
+      sky.addColorStop(1, "#ccd9c4");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      ctx.strokeStyle = "rgba(29,45,34,.09)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= WORLD_W; x += 50) {
+        ctx.beginPath(); ctx.moveTo(x * sx, 0); ctx.lineTo(x * sx, rect.height); ctx.stroke();
+      }
+      for (let y = 0; y <= WORLD_H; y += 50) {
+        ctx.beginPath(); ctx.moveTo(0, y * sy); ctx.lineTo(rect.width, y * sy); ctx.stroke();
+      }
+
+      for (const gate of this.gates) {
+        const x = gate.x * sx;
+        const width = GATE_WIDTH * sx;
+        const top = (gate.cy - GATE_GAP / 2) * sy;
+        const bottom = (gate.cy + GATE_GAP / 2) * sy;
+        const gateGradient = ctx.createLinearGradient(x, 0, x + width, 0);
+        gateGradient.addColorStop(0, "#536d54");
+        gateGradient.addColorStop(1, "#294932");
+        ctx.fillStyle = gateGradient;
+        ctx.fillRect(x, 0, width, top);
+        ctx.fillRect(x, bottom, width, rect.height - bottom);
+        ctx.fillStyle = "#dce6ce";
+        ctx.fillRect(x - 5, top - 11, width + 10, 11);
+        ctx.fillRect(x - 5, bottom, width + 10, 11);
+        ctx.strokeStyle = "rgba(255,255,255,.35)";
+        ctx.strokeRect(x + 8, 0, 1, top - 12);
+        ctx.strokeRect(x + 8, bottom + 12, 1, rect.height - bottom);
+        if (gate.x > FLY_X && gate.x < FLY_X + 650) {
+          ctx.setLineDash([5, 7]);
+          ctx.strokeStyle = "rgba(186,91,42,.45)";
+          ctx.beginPath(); ctx.moveTo(FLY_X * sx + 24, this.y * sy); ctx.lineTo(x, gate.cy * sy); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+
+      if (this.gustFlash > 0) {
+        ctx.strokeStyle = `rgba(186,91,42,${this.gustFlash * 0.7})`;
+        ctx.lineWidth = 2;
+        for (let k = 0; k < 5; k += 1) {
+          const gy = (this.y - 70 + k * 28) * sy;
+          ctx.beginPath(); ctx.moveTo(20 * sx, gy); ctx.bezierCurveTo(90 * sx, gy - 12, 145 * sx, gy + 12, 205 * sx, gy); ctx.stroke();
+        }
+      }
+      this.drawFly(FLY_X * sx, this.y * sy, sx, sy);
+
+      ctx.fillStyle = "rgba(21,32,25,.55)";
+      ctx.font = "10px monospace";
+      ctx.fillText("CAMERA → FEATURE ENCODER → MALECNS", 16, 23);
+    }
+
+    drawFly(x: number, y: number, sx: number, sy: number) {
+      const ctx = this.arenaCtx;
+      const scale = Math.min(sx, sy) * 1.1;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(clamp(this.vy / 900, -0.35, 0.55));
+      ctx.scale(scale, scale);
+      const wingLift = 8 + this.wingFlash * 10;
+      ctx.fillStyle = "rgba(247,250,232,.72)";
+      ctx.strokeStyle = "#4f624c";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.ellipse(-6, -wingLift, 22, 8, -0.45, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(-6, wingLift, 22, 8, 0.45, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#b85b2e";
+      ctx.beginPath(); ctx.ellipse(0, 0, 20, 8.5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#73361f";
+      ctx.beginPath(); ctx.moveTo(-9, -7); ctx.lineTo(-9, 7); ctx.moveTo(3, -8); ctx.lineTo(3, 8); ctx.stroke();
+      ctx.fillStyle = "#263629";
+      ctx.beginPath(); ctx.arc(18, 0, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = this.pendingFlap ? "#ffd36a" : "#94c9aa";
+      ctx.beginPath(); ctx.arc(21, -2, 3.2, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    drawBrain(dt: number) {
+      const rect = this.brain.getBoundingClientRect();
+      const ctx = this.brainCtx;
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.fillStyle = "#111813";
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      const pad = 20;
+      const width = rect.width - pad * 2;
+      const height = rect.height - pad * 2;
+      const colors = ["#64816b", "#536e65", "#7b7658", "#485f54", "#6c5f50"];
+      for (let i = 0; i < this.soma.length; i += 3) {
+        const x = pad + this.soma[i] * width;
+        const y = pad + this.soma[i + 1] * height;
+        ctx.fillStyle = colors[Math.round(this.soma[i + 2]) % colors.length];
+        ctx.globalAlpha = 0.38;
+        ctx.fillRect(x, y, 1.15, 1.15);
+      }
+      ctx.globalAlpha = 1;
+      for (const flash of this.flashes) {
+        const x = pad + flash.x * width;
+        const y = pad + flash.y * height;
+        const alpha = clamp(flash.life);
+        ctx.fillStyle = `rgba(255,190,82,${alpha})`;
+        ctx.shadowColor = "#ffb84d";
+        ctx.shadowBlur = 8 * alpha;
+        ctx.beginPath(); ctx.arc(x, y, 1.2 + 2.2 * alpha, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(157,188,163,.18)";
+      ctx.strokeRect(pad - 6, pad - 6, width + 12, height + 12);
+      ctx.fillStyle = "rgba(207,222,205,.5)";
+      ctx.font = "9px monospace";
+      ctx.fillText("REAL SOMA COORDINATES / STRIDED SAMPLE", pad, rect.height - 8);
+      void dt;
+    }
+
+    drawTrace() {
+      const rect = this.trace.getBoundingClientRect();
+      const ctx = this.traceCtx;
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.fillStyle = "rgba(18,27,21,.55)";
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      const thresholdY = rect.height - this.threshold * rect.height;
+      ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = "rgba(255,211,106,.32)";
+      ctx.beginPath(); ctx.moveTo(0, thresholdY); ctx.lineTo(rect.width, thresholdY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.strokeStyle = "#efaa54";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      this.traceValues.forEach((value, index) => {
+        const x = index / Math.max(1, this.traceValues.length - 1) * rect.width;
+        const y = rect.height - value * rect.height;
+        if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    frame(time: number) {
+      const dt = this.lastFrame ? Math.min(0.033, (time - this.lastFrame) / 1000) : 0;
+      this.lastFrame = time;
+      this.update(dt);
+      this.drawArena();
+      this.drawBrain(dt);
+      this.drawTrace();
+      this.animationFrame = requestAnimationFrame((next) => this.frame(next));
+    }
+  }
+
+  if (!customElements.get("fly-flight-laboratory")) customElements.define("fly-flight-laboratory", FlyFlightLaboratory);
+</script>
+
+<style>
+  fly-flight-laboratory{display:block}.connectome-lab{overflow:hidden;color:#d8e3d7;background:#111813;border:1px solid #2e4234;border-radius:18px;box-shadow:0 22px 70px rgba(19,30,23,.18)}.lab-header{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:2rem;padding:.85rem 1rem;border-bottom:1px solid #314338;background:#151f18}.live-state{display:flex;align-items:center;gap:.7rem}.live-state>i{width:.55rem;height:.55rem;border:1px solid #8b9d8c;border-radius:50%;background:#37463a}.live-state>i.is-live{border-color:#a6d2af;background:#75c58b;box-shadow:0 0 14px rgba(117,197,139,.7)}.live-state>i.is-paused{background:#d9a55d;box-shadow:none}.live-state div,.graph-seal{display:grid}.live-state span,.graph-seal span,.panel-title span,.signal-rack header span{color:#87998b;font-size:.55rem;letter-spacing:.13em;text-transform:uppercase}.live-state strong{margin-top:.12rem;color:#dce7db;font-size:.7rem;font-weight:500}.graph-seal code{margin-top:.12rem;color:#9eaea0;font-size:.6rem}.lab-actions{display:flex;gap:.35rem}.lab-actions button{padding:.48rem .68rem;color:#c9d6ca;font:600 .56rem var(--font-mono);letter-spacing:.08em;text-transform:uppercase;background:#1b291f;border:1px solid #3b5040;border-radius:999px;cursor:pointer}.lab-actions button:hover:not(:disabled){color:#fff5d6;border-color:#b97843}.lab-actions button:disabled{opacity:.35;cursor:wait}.workbench{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(18rem,.72fr)}.arena-panel{border-right:1px solid #314338}.panel-title{display:flex;min-height:4.6rem;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1rem;border-bottom:1px solid #314338}.panel-title h2,.signal-rack h2{margin:.15rem 0 0;color:#edf2e9;font-family:var(--font-display);font-size:1.65rem;font-weight:400}.panel-title p{color:#89998c;font-size:.62rem;white-space:nowrap}.panel-title p b{color:#f0b064;font-size:.82rem;font-weight:500}.panel-title p i{display:inline-block;width:1px;height:.65rem;margin:0 .55rem;vertical-align:middle;background:#405246}.arena-wrap{position:relative;aspect-ratio:5/3;min-height:24rem}.arena-wrap canvas{display:block;width:100%;height:100%;outline:none}.arena-wrap canvas:focus-visible{box-shadow:inset 0 0 0 2px #d1874b}.arena-key{position:absolute;right:.75rem;bottom:.6rem;padding:.25rem .4rem;color:rgba(31,45,35,.52);font:600 .48rem var(--font-mono);letter-spacing:.08em;background:rgba(235,240,225,.62)}.loader{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;padding:2rem;text-align:center;background:rgba(20,29,23,.94);backdrop-filter:blur(8px)}.loader[hidden]{display:none}.loader strong{margin-top:1rem;color:#eef3e9;font:500 .72rem var(--font-mono);letter-spacing:.06em}.loader p{max-width:25rem;margin-top:.65rem;color:#8fa092;font-size:.65rem}.loader-mark{display:flex;height:3.2rem;align-items:flex-end;gap:.3rem}.loader-mark i{width:.34rem;height:1.2rem;background:#d98e4f;animation:neural-load 1s ease-in-out infinite alternate}.loader-mark i:nth-child(2){height:2.7rem;animation-delay:-.7s}.loader-mark i:nth-child(3){height:1.8rem;animation-delay:-.35s}.loader-mark i:nth-child(4){height:3.1rem;animation-delay:-.55s}.loader-mark i:nth-child(5){height:1.45rem;animation-delay:-.15s}.loader.is-error .loader-mark i{background:#b45b47;animation:none}@keyframes neural-load{to{height:.45rem;opacity:.35}}.crash-card{position:absolute;top:50%;left:50%;display:grid;min-width:13rem;padding:1rem 1.2rem;text-align:center;background:rgba(18,27,21,.92);border:1px solid #c07743;transform:translate(-50%,-50%)}.crash-card[hidden]{display:none}.crash-card span{color:#de9254;font:.55rem var(--font-mono);letter-spacing:.15em}.crash-card strong{margin:.25rem 0;color:#f0f1e9;font-family:var(--font-display);font-size:1.5rem;font-weight:400}.crash-card small{color:#8fa092;font-size:.58rem}.brain-panel{min-width:0;background:#111813}.panel-title--brain{align-items:end}.brain-panel>canvas{display:block;width:100%;height:clamp(17rem,30vw,25rem)}.brain-legend{display:flex;justify-content:flex-end;gap:1rem;padding:.35rem .8rem;color:#77897b;font-size:.5rem;border-top:1px solid #283a2e}.brain-legend i{display:inline-block;width:.35rem;height:.35rem;margin-right:.25rem;border-radius:50%;background:#607666}.brain-legend span:last-child i{background:#ffb852;box-shadow:0 0 6px #ffb852}.brain-counters{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #314338}.brain-counters div{display:grid;padding:.72rem .8rem;border-right:1px solid #314338;border-bottom:1px solid #314338}.brain-counters div:nth-child(even){border-right:0}.brain-counters strong{color:#edf2e9;font:500 .78rem var(--font-mono)}.brain-counters span{margin-top:.18rem;color:#77897b;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase}.signal-rack{border-top:1px solid #314338}.signal-rack>header{display:grid;grid-template-columns:1fr minmax(15rem,.42fr);align-items:end;gap:2rem;padding:1rem}.decision-readout{display:grid;grid-template-columns:1fr auto;align-items:end;column-gap:1rem}.decision-readout strong{color:#ffbc64;font:500 1.7rem var(--font-mono)}.decision-readout div{position:relative;grid-column:1/-1;height:5px;margin-top:.45rem;background:#2c3b31}.decision-readout div i{display:block;width:0;height:100%;background:linear-gradient(90deg,#6d8f74,#eda557);transition:width 120ms linear}.decision-readout div b{position:absolute;top:-3px;left:50%;width:1px;height:11px;background:#f7e0b5}.population-flow{display:grid;grid-template-columns:minmax(12rem,.8fr) minmax(12rem,1.1fr) minmax(12rem,.8fr);gap:1.5rem;padding:1.15rem 1rem;border-top:1px solid #314338;border-bottom:1px solid #314338}.population-group>p{margin-bottom:.65rem;color:#829486;font-size:.52rem;letter-spacing:.11em;text-transform:uppercase}.population{display:grid;grid-template-columns:4.8rem 1fr 3rem;align-items:center;gap:.5rem;margin:.48rem 0}.population>span{color:#cbd7cc;font:500 .62rem var(--font-mono)}.population>i{height:3px;background:#2d3f32}.population>i b{display:block;width:0;height:100%;background:#79a481;transition:width 140ms linear}.population-group--output .population>i b{background:#dc9857}.population em{color:#7d8d80;font:normal .52rem var(--font-mono);text-align:right}.synapse-field{position:relative;display:grid;min-height:7.6rem;place-content:center;text-align:center;overflow:hidden;border-right:1px solid #2e4234;border-left:1px solid #2e4234}.synapse-field span{position:absolute;top:50%;left:-10%;width:120%;height:1px;background:linear-gradient(90deg,transparent,#57705d,#bf7949,transparent);transform-origin:center}.synapse-field span:nth-child(1){transform:translateY(-2.2rem) rotate(7deg)}.synapse-field span:nth-child(2){transform:translateY(-1.1rem) rotate(-5deg)}.synapse-field span:nth-child(4){transform:translateY(1.1rem) rotate(4deg)}.synapse-field span:nth-child(5){transform:translateY(2.2rem) rotate(-7deg)}.synapse-field b{position:relative;padding:.15rem .45rem;color:#e8eee5;font:500 .85rem var(--font-mono);background:#111813}.synapse-field small{position:relative;color:#718276;font-size:.49rem;letter-spacing:.08em;text-transform:uppercase}.rack-footer{display:grid;grid-template-columns:.62fr .75fr 1fr;align-items:center;gap:2rem;padding:.85rem 1rem}.rack-footer>p{display:flex;align-items:center;gap:.7rem}.rack-footer>p strong{color:#f1b16a;font:500 1.05rem var(--font-mono)}.rack-footer>p span{max-width:8rem;color:#788a7c;font-size:.5rem;line-height:1.35;text-transform:uppercase}.rack-footer label{display:grid;gap:.35rem;color:#8fa092;font-size:.55rem}.rack-footer label span{display:flex;justify-content:space-between}.rack-footer label b{color:#dce7db}.rack-footer input{width:100%;accent-color:#d4874b}.rack-footer canvas{width:100%;height:3rem;border:1px solid #2d4033}.method{display:grid;grid-template-columns:minmax(16rem,.63fr) 1.37fr;gap:3rem;margin-top:1.5rem;padding:clamp(1.4rem,4vw,2.5rem);background:color-mix(in srgb,var(--paper-sunken) 72%,transparent);border:1px solid var(--rule)}.method>header p{color:var(--interact);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase}.method>header h2{max-width:26rem;margin-top:.7rem;font-family:var(--font-display);font-size:clamp(2rem,4.2vw,3.6rem);font-weight:400;line-height:.98}.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule);border-left:1px solid var(--rule)}.method article{position:relative;padding:1.25rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}.method article>span{position:absolute;top:.7rem;right:.75rem;color:var(--ink-faint);font-size:.55rem}.method h3{margin-bottom:.6rem;font-family:var(--font-display);font-size:1.25rem;font-weight:400}.method article p{color:var(--ink-soft);font-size:.68rem;line-height:1.65}.method article code{font-size:.62rem}.method-links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.5rem;margin-top:-1.5rem}.method-links a{padding:.5rem .7rem;color:var(--ink-soft);font-size:.55rem;letter-spacing:.06em;text-decoration:none;border:1px solid var(--rule);border-radius:999px}.method-links a:hover{color:var(--interact);border-color:var(--interact)}@media(max-width:62rem){.lab-header{grid-template-columns:1fr auto}.graph-seal{display:none}.workbench{grid-template-columns:1fr}.arena-panel{border-right:0;border-bottom:1px solid #314338}.brain-panel>canvas{height:23rem}.brain-counters{grid-template-columns:repeat(4,1fr)}.brain-counters div:nth-child(n){border-right:1px solid #314338}.population-flow{grid-template-columns:1fr 1fr}.synapse-field{grid-row:2;grid-column:1/-1;min-height:5rem;border:1px solid #2e4234}.method{grid-template-columns:1fr}.method-links{margin-top:0}}@media(max-width:42rem){.lab-header{grid-template-columns:1fr}.lab-actions{width:100%}.lab-actions button{flex:1}.panel-title{min-height:4rem}.panel-title h2,.signal-rack h2{font-size:1.35rem}.arena-wrap{min-height:19rem}.brain-panel>canvas{height:19rem}.brain-counters{grid-template-columns:1fr 1fr}.population-flow{grid-template-columns:1fr;gap:1rem}.synapse-field{grid-row:auto;grid-column:auto}.rack-footer{grid-template-columns:1fr;gap:.8rem}.signal-rack>header{grid-template-columns:1fr;gap:.8rem}.method-grid{grid-template-columns:1fr}.method-links{gap:.35rem}.method-links a{font-size:.5rem}}@media(prefers-reduced-motion:reduce){.loader-mark i{animation:none}.population>i b,.decision-readout div i{transition:none}}
+</style>

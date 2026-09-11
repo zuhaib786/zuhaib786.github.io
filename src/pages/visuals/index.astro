@@ -3,6 +3,15 @@ import Base from "../../layouts/Base.astro";
 
 const experiments = [
   {
+    number: "011",
+    href: "/biology/fly-flight",
+    title: "MaleCNS Flappy Fly",
+    kicker: "176,422 neurons · MaleCNS v1.0 · Trained readout",
+    description:
+      "The published male fly CNS graph runs as a full spiking network in a Web Worker, driving an autonomous Flappy-style flight through real descending and motor activity.",
+    kind: "fly",
+  },
+  {
     number: "010",
     href: "/navier-stokes",
     title: "Finite-Time Blowup",
@@ -119,7 +128,31 @@ const experiments = [
           style={`--delay: ${index * 90}ms`}
         >
           <div class={`preview preview--${experiment.kind}`} aria-hidden="true">
-            {experiment.kind === "blowup" ? (
+            {experiment.kind === "fly" ? (
+              <div class="mini-fly">
+                <svg viewBox="0 0 240 164" aria-hidden="true">
+                  <path class="sight" d="M67 83L166 48M67 83L166 116" />
+                  <g class="gate">
+                    <path d="M166 0H222V48H166Z" />
+                    <path d="M166 116H222V164H166Z" />
+                  </g>
+                  <g class="agent" transform="translate(66 83)">
+                    <path class="wing wing-a" d="M0-3C-18-29-36-21-27-3C-21 10-8 8 1 2Z" />
+                    <path class="wing wing-b" d="M0 3C-18 29-36 21-27 3C-21-10-8-8 1-2Z" />
+                    <ellipse rx="20" ry="9" />
+                    <circle class="head" cx="19" cy="0" r="8" />
+                    <circle class="eye" cx="21" cy="-2" r="4" />
+                  </g>
+                  <g class="neurons">
+                    <circle cx="28" cy="132" r="4" />
+                    <circle cx="58" cy="142" r="4" />
+                    <circle cx="91" cy="132" r="4" />
+                    <circle cx="122" cy="142" r="4" />
+                    <path d="M32 133L54 140M62 140L87 134M95 134L118 140" />
+                  </g>
+                </svg>
+              </div>
+            ) : experiment.kind === "blowup" ? (
               <div class="mini-blowup">
                 <svg viewBox="0 0 220 152" aria-hidden="true">
                   <line class="axis" x1="110" y1="6" x2="110" y2="146" />
@@ -391,6 +424,22 @@ const experiments = [
     to { stroke-dashoffset: -44; }
   }
 
+  .mini-fly { position: relative; z-index: 1; width: min(76%, 17rem); }
+  .mini-fly svg { width: 100%; overflow: visible; }
+  .mini-fly .sight { fill: none; stroke: var(--interact); stroke-width: 1; stroke-dasharray: 4 5; opacity: 0.55; }
+  .mini-fly .gate path { fill: color-mix(in srgb, var(--accent-soft) 48%, transparent); stroke: var(--ink-soft); stroke-width: 1.2; }
+  .mini-fly .agent > ellipse { fill: var(--accent-2); stroke: var(--ink); stroke-width: 1; }
+  .mini-fly .head { fill: var(--ink); }
+  .mini-fly .eye { fill: var(--interact); }
+  .mini-fly .wing { fill: color-mix(in srgb, var(--accent-2) 20%, transparent); stroke: var(--accent-2); transform-origin: 0 0; animation: fly-wing 240ms ease-in-out infinite alternate; }
+  .mini-fly .wing-b { animation-direction: alternate-reverse; }
+  .mini-fly .neurons circle { fill: var(--interact); }
+  .mini-fly .neurons path { fill: none; stroke: var(--rule-strong); stroke-width: 1; }
+
+  @keyframes fly-wing {
+    to { transform: scaleY(0.45); }
+  }
+
   .mini-globe {
     position: relative;
     width: min(69%, 18rem);
@@ -586,6 +635,7 @@ const experiments = [
     .mini-measure .centroid,
     .mini-physics .mass--orbiter,
     .mini-signal .dot,
+    .mini-fly .wing,
     .mini-blowup .spiral,
     .mini-blowup .focus { animation: none; }
   }
