@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 452" width="700" height="452" role="img">
+<rect x="0" y="0" width="700" height="452" fill="#ffffff"/>
+<text x="20" y="26" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing=".09em">WHERE THIS REQUEST ENDS</text>
+<text x="20" y="50" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#4d5670" text-anchor="start">The parser consumes the stream in wire order. Each region has its own grammar.</text>
+<rect x="20" y="66" width="146" height="44" rx="4" fill="#fbe5da"/>
+<rect x="20" y="66" width="146" height="3" rx="2" fill="#c2410c"/>
+<text x="93.0" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#c2410c" text-anchor="middle">request-line</text>
+<rect x="170" y="66" width="166" height="44" rx="4" fill="#fbe5da"/>
+<rect x="170" y="66" width="166" height="3" rx="2" fill="#c2410c"/>
+<text x="253.0" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#c2410c" text-anchor="middle">field-lines</text>
+<rect x="340" y="66" width="106" height="44" rx="4" fill="#e6e4fb"/>
+<rect x="340" y="66" width="106" height="3" rx="2" fill="#4338ca"/>
+<text x="393.0" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#4338ca" text-anchor="middle">CRLF CRLF</text>
+<rect x="450" y="66" width="126" height="44" rx="4" fill="#fbf0d5"/>
+<rect x="450" y="66" width="126" height="3" rx="2" fill="#a16207"/>
+<text x="513.0" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#a16207" text-anchor="middle">body</text>
+<rect x="580" y="66" width="96" height="44" rx="4" fill="#e4e9f3"/>
+<rect x="580" y="66" width="96" height="3" rx="2" fill="#ccd4e4"/>
+<text x="628.0" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#8b95ad" text-anchor="middle">next req</text>
+<text x="20" y="132" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">request-line -- exactly three fields</text>
+<rect x="20" y="146" width="78" height="34" rx="4" fill="#e6e4fb"/>
+<text x="59.0" y="169" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#4338ca" text-anchor="middle">POST</text>
+<text x="59.0" y="196" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#131824" text-anchor="middle">method</text>
+<text x="59.0" y="212" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">case-SENSITIVE</text>
+<text x="113" y="169" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">SP</text>
+<rect x="128" y="146" width="168" height="34" rx="4" fill="#e6e4fb"/>
+<text x="212.0" y="169" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#4338ca" text-anchor="middle">/packages/x</text>
+<text x="212.0" y="196" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#131824" text-anchor="middle">target</text>
+<text x="212.0" y="212" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">must start with /</text>
+<text x="311" y="169" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">SP</text>
+<rect x="326" y="146" width="120" height="34" rx="4" fill="#fbf0d5"/>
+<text x="386.0" y="169" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#a16207" text-anchor="middle">HTTP/1.1</text>
+<text x="386.0" y="196" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#131824" text-anchor="middle">version</text>
+<text x="386.0" y="212" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">unvalidated -- a gap</text>
+<text x="20" y="238" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">field-line -- the name and the value differ</text>
+<rect x="20" y="252" width="166" height="34" rx="4" fill="#e6e4fb"/>
+<text x="103.0" y="275" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#4338ca" text-anchor="middle">Content-Length</text>
+<text x="103.0" y="302" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">tchar only</text>
+<rect x="190" y="252" width="88" height="34" rx="4" fill="#fbe5da"/>
+<text x="234.0" y="275" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#c2410c" text-anchor="middle">:</text>
+<text x="234.0" y="302" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">first colon</text>
+<rect x="282" y="252" width="96" height="34" rx="4" fill="#fbf0d5"/>
+<text x="330.0" y="275" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#a16207" text-anchor="middle">SP</text>
+<text x="330.0" y="302" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">OWS, trimmed</text>
+<rect x="382" y="252" width="86" height="34" rx="4" fill="#e4e9f3"/>
+<text x="425.0" y="275" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#131824" text-anchor="middle">27</text>
+<text x="425.0" y="302" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#8b95ad" text-anchor="middle">the value</text>
+<rect x="20" y="320" width="660" height="34" rx="4" fill="#fbe5da"/>
+<text x="34" y="342" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#c2410c" text-anchor="start">no whitespace between the name and the colon -- RFC 9112 5.1 MUST reject</text>
+<rect x="20" y="376" width="660" height="1" rx="0" fill="#ccd4e4"/>
+<text x="20" y="402" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="400" fill="#4d5670" text-anchor="start">Every boundary above is a decision the spec answers.</text>
+<rect x="20" y="421" width="9" height="9" rx="2" fill="#c2410c"/>
+<text x="34" y="428" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="start">attacker chooses</text>
+<rect x="152.0" y="421" width="9" height="9" rx="2" fill="#4338ca"/>
+<text x="166.0" y="428" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="start">parser fixes the meaning</text>
+<rect x="332.0" y="421" width="9" height="9" rx="2" fill="#a16207"/>
+<text x="346.0" y="428" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="start">still loose</text>
+</svg>

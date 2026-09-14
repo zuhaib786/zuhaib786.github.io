@@ -44,6 +44,14 @@ export const allSeries: SeriesMeta[] = [
     order: 3,
     draft: true,
   },
+  {
+    slug: "api-security",
+    title: "API Security in Zig",
+    description:
+      "Learning API security by building it — a package registry written from scratch in Zig, one control at a time, each one introduced by the attack it closes.",
+    order: 4,
+    draft: false,
+  },
 ];
 
 export const visibleSeries = allSeries

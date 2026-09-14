@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 332" width="700" height="332" role="img">
+<rect x="0" y="0" width="700" height="332" fill="#ffffff"/>
+<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing="1.2">WHAT SIZES THE ALLOCATION</text>
+<rect x="24" y="40" width="652" height="1" rx="0" fill="#ccd4e4"/>
+<rect x="24" y="56" width="314" height="214" rx="5" fill="#eef1f7"/>
+<path d="M24 61 a5 5 0 0 1 5 -5 h3 v214 h-3 a5 5 0 0 1 -5 -5 z" fill="#c2410c"/>
+<text x="42" y="78" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#c2410c" text-anchor="start">Sized from the claim</text>
+<text x="42" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ad" text-anchor="start">alloc(content_length)</text>
+<rect x="42" y="110" width="278" height="26" rx="4" fill="#e4e9f3"/>
+<text x="52" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">Content-Length: 65535</text>
+<text x="310" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="middle">55 B sent</text>
+<rect x="180.0" y="142" width="2" height="19" rx="0" fill="#c2410c"/>
+<path d="M176.0 160 L181.0 168 L186.0 160 z" fill="#c2410c"/>
+<rect x="42" y="176" width="278" height="66" rx="4" fill="#fbe5da"/>
+<text x="181.0" y="213.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#c2410c" text-anchor="middle">64 KB held</text>
+<text x="181.0" y="286" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#c2410c" text-anchor="middle">amplification  1200 : 1</text>
+<rect x="362" y="56" width="314" height="214" rx="5" fill="#eef1f7"/>
+<path d="M362 61 a5 5 0 0 1 5 -5 h3 v214 h-3 a5 5 0 0 1 -5 -5 z" fill="#4338ca"/>
+<text x="380" y="78" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#4338ca" text-anchor="start">Grown by arrival</text>
+<text x="380" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ad" text-anchor="start">append what actually lands</text>
+<rect x="380" y="110" width="278" height="26" rx="4" fill="#e4e9f3"/>
+<text x="390" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">Content-Length: 65535</text>
+<text x="648" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="middle">55 B sent</text>
+<rect x="518.0" y="142" width="2" height="19" rx="0" fill="#4338ca"/>
+<path d="M514.0 160 L519.0 168 L524.0 160 z" fill="#4338ca"/>
+<rect x="380" y="226" width="278" height="16" rx="4" fill="#e6e4fb"/>
+<text x="519.0" y="238.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#4338ca" text-anchor="middle">0 B held</text>
+<text x="519.0" y="286" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#4338ca" text-anchor="middle">amplification  1 : 1</text>
+<text x="350.0" y="314" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="middle">A bound on the claim caps the damage. It does not change the shape.</text>
+</svg>

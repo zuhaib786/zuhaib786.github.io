@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 436" width="700" height="436" role="img">
+<rect x="0" y="0" width="700" height="436" fill="#ffffff"/>
+<text x="20" y="26" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing=".09em">AN ATTACKER-CONTROLLED NUMBER, TWO ORDERINGS</text>
+<text x="20" y="50" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#4d5670" text-anchor="start">Content-Length: 999999999, with no body attached.</text>
+<rect x="20" y="66" width="320" height="30" rx="4" fill="#fbe5da"/>
+<text x="34" y="86" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#c2410c" text-anchor="start">believe the claim</text>
+<rect x="20" y="106" width="320" height="52" rx="4" fill="#eef1f7"/>
+<text x="34" y="128" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#131824" text-anchor="start">parseInt(value)</text>
+<text x="34" y="146" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">the client's number</text>
+<rect x="45.0" y="162" width="2" height="11" rx="0" fill="#ccd4e4"/>
+<path d="M41 172 L46 180 L51 172 z" fill="#ccd4e4"/>
+<rect x="20" y="180" width="320" height="52" rx="4" fill="#fbe5da"/>
+<text x="34" y="202" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#c2410c" text-anchor="start">alloc(len)</text>
+<text x="34" y="220" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">~1 GB, before a byte arrives</text>
+<rect x="45.0" y="236" width="2" height="11" rx="0" fill="#ccd4e4"/>
+<path d="M41 246 L46 254 L51 246 z" fill="#ccd4e4"/>
+<rect x="20" y="254" width="320" height="52" rx="4" fill="#fbe5da"/>
+<text x="34" y="276" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#c2410c" text-anchor="start">readSliceAll</text>
+<text x="34" y="294" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">never reached; already paid</text>
+<rect x="45.0" y="310" width="2" height="11" rx="0" fill="#ccd4e4"/>
+<path d="M41 320 L46 328 L51 320 z" fill="#ccd4e4"/>
+<rect x="20" y="316" width="320" height="34" rx="4" fill="#fbe5da"/>
+<text x="34" y="338" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#c2410c" text-anchor="start">the declaration alone is the attack</text>
+<rect x="360" y="66" width="320" height="30" rx="4" fill="#e6e4fb"/>
+<text x="374" y="86" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#4338ca" text-anchor="start">bound, then read</text>
+<rect x="360" y="106" width="320" height="52" rx="4" fill="#eef1f7"/>
+<text x="374" y="128" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#131824" text-anchor="start">parseInt(u32, ..)</text>
+<text x="374" y="146" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">too large to fit is rejected</text>
+<rect x="385.0" y="162" width="2" height="11" rx="0" fill="#ccd4e4"/>
+<path d="M381 172 L386 180 L391 172 z" fill="#ccd4e4"/>
+<rect x="360" y="180" width="320" height="52" rx="4" fill="#e6e4fb"/>
+<text x="374" y="202" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#4338ca" text-anchor="start">if (len &gt; MAX_BODY)</text>
+<text x="374" y="220" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">-&gt; 413, MAX_BODY = 64 KiB</text>
+<rect x="385.0" y="236" width="2" height="11" rx="0" fill="#ccd4e4"/>
+<path d="M381 246 L386 254 L391 246 z" fill="#ccd4e4"/>
+<rect x="360" y="254" width="320" height="52" rx="4" fill="#e6e4fb"/>
+<text x="374" y="276" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#4338ca" text-anchor="start">alloc(len)</text>
+<text x="374" y="294" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">len is now server-bounded</text>
+<rect x="385.0" y="310" width="2" height="11" rx="0" fill="#ccd4e4"/>
+<path d="M381 320 L386 328 L391 320 z" fill="#ccd4e4"/>
+<rect x="360" y="316" width="320" height="34" rx="4" fill="#e6e4fb"/>
+<text x="374" y="338" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#4338ca" text-anchor="start">the allocator never sees it</text>
+<rect x="20" y="372" width="660" height="1" rx="0" fill="#ccd4e4"/>
+<text x="20" y="398" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="400" fill="#4d5670" text-anchor="start">Same three operations. The ordering is the control.</text>
+</svg>

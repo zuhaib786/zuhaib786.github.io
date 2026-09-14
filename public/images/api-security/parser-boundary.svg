@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 586" width="700" height="586" role="img">
+<rect x="0" y="0" width="700" height="586" fill="#ffffff"/>
+<text x="20" y="26" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing=".09em">ONE REQUEST, TOP TO BOTTOM</text>
+<text x="20" y="50" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#4d5670" text-anchor="start">Types narrow at every stage. Phase 0 stops narrowing before SQL and JSON.</text>
+<rect x="20" y="66" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 71 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#c2410c"/>
+<text x="36" y="86" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">accept</text>
+<text x="36" y="103" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">connection.serve</text>
+<rect x="230" y="79" width="43.28" height="18" rx="9" fill="#fbe5da"/>
+<text x="251.64" y="91.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#c2410c" text-anchor="middle">[]u8</text>
+<text x="664" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">attacker-chosen bytes</text>
+<rect x="20" y="118" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 123 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#4338ca"/>
+<text x="36" y="138" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">request line</text>
+<text x="36" y="155" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">parseRequestLine</text>
+<rect x="230" y="131" width="91.02" height="18" rx="9" fill="#e6e4fb"/>
+<text x="275.51" y="143.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">RequestLine</text>
+<text x="664" y="147" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">exactly 3 fields, origin-form</text>
+<rect x="20" y="170" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 175 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#4338ca"/>
+<text x="36" y="190" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">headers</text>
+<text x="36" y="207" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">parseHeader</text>
+<rect x="230" y="183" width="56.92" height="18" rx="9" fill="#e6e4fb"/>
+<text x="258.46" y="195.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">Header</text>
+<text x="664" y="199" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">tchar name, first colon</text>
+<rect x="20" y="222" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 227 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#4338ca"/>
+<text x="36" y="242" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">body</text>
+<text x="36" y="259" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">len &lt;= MAX_BODY</text>
+<rect x="230" y="235" width="97.84" height="18" rx="9" fill="#e6e4fb"/>
+<text x="278.92" y="247.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">[]u8 bounded</text>
+<text x="664" y="251" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">checked before the allocator</text>
+<rect x="20" y="274" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 279 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#4338ca"/>
+<text x="36" y="294" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">route</text>
+<text x="36" y="311" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">matches + extract</text>
+<rect x="230" y="287" width="56.92" height="18" rx="9" fill="#e6e4fb"/>
+<text x="258.46" y="299.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">Params</text>
+<text x="664" y="303" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">method AND path</text>
+<rect x="20" y="326" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 331 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#4338ca"/>
+<text x="36" y="346" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">payload</text>
+<text x="36" y="363" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">json.parseFromSlice</text>
+<rect x="230" y="339" width="104.66" height="18" rx="9" fill="#e6e4fb"/>
+<text x="282.33" y="351.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">CreatePackage</text>
+<text x="664" y="355" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">unknown fields rejected</text>
+<rect x="20" y="378" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 383 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#a16207"/>
+<text x="36" y="398" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">storage</text>
+<text x="36" y="415" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">bufPrintZ + exec</text>
+<rect x="230" y="391" width="70.56" height="18" rx="9" fill="#fbf0d5"/>
+<text x="265.28" y="403.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#a16207" text-anchor="middle">SQL text</text>
+<text x="664" y="407" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">interpolated -- finding F1</text>
+<rect x="20" y="430" width="660" height="46" rx="5" fill="#eef1f7"/>
+<path d="M20 435 a5 5 0 0 1 5 -5 h3 v46 h-3 a5 5 0 0 1 -5 -5 z" fill="#a16207"/>
+<text x="36" y="450" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#131824" text-anchor="start">response</text>
+<text x="36" y="467" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">respond(status, body)</text>
+<rect x="230" y="443" width="91.02" height="18" rx="9" fill="#fbf0d5"/>
+<text x="275.51" y="455.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#a16207" text-anchor="middle">one message</text>
+<text x="664" y="459" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#8b95ad" text-anchor="end">interpolated -- finding F2</text>
+<rect x="20" y="496" width="660" height="1" rx="0" fill="#ccd4e4"/>
+<text x="20" y="522" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="400" fill="#4d5670" text-anchor="start">The interface makes the mistake unrepresentable -- until it doesn't.</text>
+<rect x="20" y="541" width="9" height="9" rx="2" fill="#c2410c"/>
+<text x="34" y="548" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="start">client-controlled</text>
+<rect x="158.0" y="541" width="9" height="9" rx="2" fill="#4338ca"/>
+<text x="172.0" y="548" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="start">enforced</text>
+<rect x="242.0" y="541" width="9" height="9" rx="2" fill="#a16207"/>
+<text x="256.0" y="548" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="start">open in Phase 0</text>
+</svg>

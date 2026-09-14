@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="700" height="460" role="img">
+<rect x="0" y="0" width="700" height="460" fill="#ffffff"/>
+<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing="1.2">WHOSE FAULT WAS IT</text>
+<rect x="24" y="40" width="652" height="1" rx="0" fill="#ccd4e4"/>
+<text x="30" y="71" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing="1">FAILURE</text>
+<text x="400" y="71" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing="1">FAULT</text>
+<text x="660" y="71" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="700" fill="#8b95ad" text-anchor="end" letter-spacing="1">STATUS</text>
+<rect x="24" y="80" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="100" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">request target 8000 bytes</text>
+<text x="400" y="100" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">theirs</text>
+<rect x="614" y="86" width="46" height="18" rx="9" fill="#e6e4fb"/>
+<text x="637.0" y="98.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">414</text>
+<rect x="24" y="116" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="136" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">200 field lines</text>
+<text x="400" y="136" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">theirs</text>
+<rect x="614" y="122" width="46" height="18" rx="9" fill="#e6e4fb"/>
+<text x="637.0" y="134.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">431</text>
+<rect x="24" y="152" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="172" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">one 5000-byte field line</text>
+<text x="400" y="172" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">theirs</text>
+<rect x="614" y="158" width="46" height="18" rx="9" fill="#e6e4fb"/>
+<text x="637.0" y="170.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">431</text>
+<rect x="24" y="188" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="208" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">Content-Length: abc</text>
+<text x="400" y="208" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">theirs</text>
+<rect x="614" y="194" width="46" height="18" rx="9" fill="#e6e4fb"/>
+<text x="637.0" y="206.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">400</text>
+<rect x="24" y="224" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="244" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">declared 10, sent 3</text>
+<text x="400" y="244" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">theirs</text>
+<rect x="614" y="230" width="46" height="18" rx="9" fill="#e6e4fb"/>
+<text x="637.0" y="242.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">400</text>
+<rect x="24" y="260" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="280" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">declared 99999999</text>
+<text x="400" y="280" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">theirs</text>
+<rect x="614" y="266" width="46" height="18" rx="9" fill="#e6e4fb"/>
+<text x="637.0" y="278.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#4338ca" text-anchor="middle">413</text>
+<rect x="24" y="296" width="652" height="30" rx="3" fill="#eef1f7"/>
+<text x="38" y="316" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#131824" text-anchor="start">socket read failed</text>
+<text x="400" y="316" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">ours</text>
+<rect x="614" y="302" width="46" height="18" rx="9" fill="#fbf0d5"/>
+<text x="637.0" y="314.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#a16207" text-anchor="middle">500</text>
+<rect x="24" y="342" width="652" height="1" rx="0" fill="#ccd4e4"/>
+<text x="24" y="368" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#131824" text-anchor="start">The first six were all 500 before. The last one still is, and should be.</text>
+<text x="24" y="388" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">A 500 anyone can trigger with a malformed request is not a status code problem.</text>
+<text x="24" y="406" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">It is an alerting problem: the page that means "we are broken" now fires on demand,</text>
+<text x="24" y="424" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#4d5670" text-anchor="start">until nobody reads it and a real outage goes unnoticed.</text>
+</svg>

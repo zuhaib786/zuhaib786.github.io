@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 430" width="700" height="430" role="img">
+<rect x="0" y="0" width="700" height="430" fill="#ffffff"/>
+<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#8b95ad" text-anchor="start" letter-spacing="1.2">A DEADLINE NEEDS A SECOND TASK</text>
+<rect x="24" y="40" width="652" height="1" rx="0" fill="#ccd4e4"/>
+<text x="24" y="74" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#4338ca" text-anchor="start">request completes in time</text>
+<text x="24" y="107" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">serve</text>
+<rect x="92" y="88" width="568" height="28" rx="3" fill="#eef1f7"/>
+<rect x="92" y="88" width="193.12" height="28" rx="3" fill="#e6e4fb"/>
+<text x="102" y="106" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#4338ca" text-anchor="start">reads, dispatches, replies</text>
+<text x="24" y="147" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">reaper</text>
+<rect x="92" y="128" width="568" height="28" rx="3" fill="#eef1f7"/>
+<rect x="92" y="128" width="193.12" height="28" rx="3" fill="#e6e4fb"/>
+<text x="102" y="146" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#4338ca" text-anchor="start">sleeping ... canceled</text>
+<rect x="658" y="84" width="2" height="84" rx="0" fill="#8b95ad"/>
+<text x="654" y="180" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="end">5s</text>
+<text x="92" y="180" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#4d5670" text-anchor="start">cancel interrupts the sleep</text>
+<text x="24" y="216" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#c2410c" text-anchor="start">client stalls</text>
+<text x="24" y="249" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">serve</text>
+<rect x="92" y="230" width="568" height="28" rx="3" fill="#eef1f7"/>
+<rect x="92" y="230" width="568.0" height="28" rx="3" fill="#fbe5da"/>
+<text x="102" y="248" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#c2410c" text-anchor="start">blocked in read</text>
+<text x="24" y="289" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">reaper</text>
+<rect x="92" y="270" width="568" height="28" rx="3" fill="#eef1f7"/>
+<rect x="92" y="270" width="568.0" height="28" rx="3" fill="#fbe5da"/>
+<text x="102" y="288" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#c2410c" text-anchor="start">sleeping ......... 5s -&gt; shutdown(.recv)</text>
+<rect x="658" y="226" width="2" height="84" rx="0" fill="#8b95ad"/>
+<text x="654" y="322" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ad" text-anchor="end">5s</text>
+<text x="92" y="322" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#4d5670" text-anchor="start">blocked read returns EndOfStream</text>
+<rect x="24" y="348" width="652" height="1" rx="0" fill="#ccd4e4"/>
+<text x="24" y="372" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#131824" text-anchor="start">There is no socket-level read deadline available here.</text>
+<text x="24" y="392" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">SO_RCVTIMEO makes read() return EAGAIN, which the runtime treats as a bug and panics on:</text>
+<text x="24" y="410" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#4d5670" text-anchor="start">a slow-client hang becomes a remote crash. So the deadline is a task, and tasks need concurrency.</text>
+</svg>
