@@ -12,6 +12,8 @@ node_modules/
 # datasets (dataminingmtl782.zip is 280MB, past GitHub's file limit)
 *.zip
 !public/downloads/guarded-limiter-pilot.zip
+!public/downloads/rollout-limiter-v1.zip
+!public/downloads/stencil-transformer-experiments.zip
 
 # os
 .DS_Store

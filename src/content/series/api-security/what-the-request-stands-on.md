@@ -2,12 +2,12 @@
 title: "What the Request Stands On"
 description: "Phases 2 and 3 of barbican: the memory a request borrows and the transport it arrives on. A lifetime bug that lets a client choose its own route, and three mitigations that were worse than the gaps they closed."
 date: 2026-09-15
-order: 6
+order: 5
 tags: ["Security", "Memory Safety", "TLS", "Zig", "OpenSSL"]
 draft: false
 ---
 
-The controls so far act on a request's contents. [Bounding](/series/api-security/bounding-a-request) caps what it may consume; [encoding](/series/api-security/data-that-never-becomes-syntax) stops its values becoming syntax. Both assume the request itself is what the client sent.
+The controls so far act on a request's contents. [Phase 1](/series/api-security/bounding-a-request) caps what a request may consume and stops its values becoming syntax. Both assume the request itself is what the client sent.
 
 Two things underneath that assumption can break it: the memory the request borrows, and the transport it arrives over. Neither appears in a handler, and a defect in either invalidates every control above it.
 

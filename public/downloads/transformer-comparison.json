@@ -1,0 +1,264 @@
+{
+  "stencil-transformer-v1b": {
+    "complete": true,
+    "attempts": 99,
+    "failures": 2,
+    "models": [
+      {
+        "method": "attention-0",
+        "sharp_l1_improvement": -0.05108435387351706,
+        "worst_l1_ratio": 1.1517095241868887,
+        "improvement_over_best_classical_per_case": -0.14820475865688243,
+        "smooth_order": 1.8975138831690876,
+        "mean_runtime_ratio": 19.246575560335284,
+        "max_bound_violation": 6.47630097698008e-17,
+        "max_mass_residual": 6.288088632620359e-15,
+        "max_quadrature_change": 0.0015030327255912343,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "attention-1",
+        "accepted": false,
+        "checks": {
+          "execution": false
+        },
+        "reason": "A model case or the paired guard control failed. No partial mean is reported."
+      },
+      {
+        "method": "attention-2",
+        "accepted": false,
+        "checks": {
+          "execution": false
+        },
+        "reason": "A model case or the paired guard control failed. No partial mean is reported."
+      },
+      {
+        "method": "pool-0",
+        "sharp_l1_improvement": -0.007836092584149412,
+        "worst_l1_ratio": 1.1622206845864542,
+        "improvement_over_best_classical_per_case": -0.09796440157744724,
+        "smooth_order": 1.2975455155721403,
+        "mean_runtime_ratio": 12.030902058875455,
+        "max_bound_violation": 9.251858538542972e-17,
+        "max_mass_residual": 6.798375002545562e-15,
+        "max_quadrature_change": 0.0017983719113216288,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": false,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "pool-1",
+        "sharp_l1_improvement": 0.05123814386962433,
+        "worst_l1_ratio": 1.0670324021895732,
+        "improvement_over_best_classical_per_case": -0.0338132981125947,
+        "smooth_order": -0.09173480301939772,
+        "mean_runtime_ratio": 11.622982961246404,
+        "max_bound_violation": 1.0177044392397268e-16,
+        "max_mass_residual": 7.042796894448072e-15,
+        "max_quadrature_change": 0.0013010481954292906,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": false,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "pool-2",
+        "sharp_l1_improvement": -0.2347421018172935,
+        "worst_l1_ratio": 1.3584655217608737,
+        "improvement_over_best_classical_per_case": -0.3548284260503012,
+        "smooth_order": 1.8975138831690876,
+        "mean_runtime_ratio": 11.67921663064741,
+        "max_bound_violation": 6.938893903907228e-17,
+        "max_mass_residual": 5.9780596449695894e-15,
+        "max_quadrature_change": 0.0013203617680823403,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      }
+    ],
+    "adopt": false
+  },
+  "transport-transformer-v2": {
+    "complete": true,
+    "attempts": 99,
+    "failures": 0,
+    "models": [
+      {
+        "method": "attention-0",
+        "sharp_l1_improvement": -0.0008720413254015291,
+        "worst_l1_ratio": 1.108450868716531,
+        "improvement_over_best_classical_per_case": -0.10549061336734189,
+        "smooth_order": 1.9921535326671682,
+        "mean_runtime_ratio": 9.55912016318873,
+        "max_bound_violation": 1.4141510177245476e-18,
+        "max_mass_residual": 1.0298191884071615e-14,
+        "max_quadrature_change": 0.00038974492087693696,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "attention-1",
+        "sharp_l1_improvement": -0.24811678397892223,
+        "worst_l1_ratio": 1.448971254624837,
+        "improvement_over_best_classical_per_case": -0.3850359689062408,
+        "smooth_order": 1.9921535326671682,
+        "mean_runtime_ratio": 9.857112035951168,
+        "max_bound_violation": 1.4141510177245476e-18,
+        "max_mass_residual": 9.72325489064917e-15,
+        "max_quadrature_change": 0.0003283171223887509,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "attention-2",
+        "sharp_l1_improvement": -0.15910224480466284,
+        "worst_l1_ratio": 1.332570744926414,
+        "improvement_over_best_classical_per_case": -0.2853192356644241,
+        "smooth_order": 1.9921535326671682,
+        "mean_runtime_ratio": 10.043384313230591,
+        "max_bound_violation": 1.4141510177245467e-18,
+        "max_mass_residual": 9.801774977208542e-15,
+        "max_quadrature_change": 0.0002511982652256758,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": false,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "pool-0",
+        "sharp_l1_improvement": -0.016031851379269657,
+        "worst_l1_ratio": 1.0331352264806983,
+        "improvement_over_best_classical_per_case": -0.12371614309200818,
+        "smooth_order": 1.9921535326671682,
+        "mean_runtime_ratio": 8.712810382411895,
+        "max_bound_violation": 2.524167912531443e-18,
+        "max_mass_residual": 1.0287871012602448e-14,
+        "max_quadrature_change": 0.0004848447205239974,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": true,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "pool-1",
+        "sharp_l1_improvement": 0.016903364162388135,
+        "worst_l1_ratio": 1.0009510894141342,
+        "improvement_over_best_classical_per_case": -0.08724967640091297,
+        "smooth_order": 1.9921535326671682,
+        "mean_runtime_ratio": 8.775763273894201,
+        "max_bound_violation": 1.5408855184073699e-18,
+        "max_mass_residual": 1.0514503399432715e-14,
+        "max_quadrature_change": 0.00045072942789391813,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": true,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      },
+      {
+        "method": "pool-2",
+        "sharp_l1_improvement": 0.023531852897393568,
+        "worst_l1_ratio": 1.0375428850870454,
+        "improvement_over_best_classical_per_case": -0.0780734549316997,
+        "smooth_order": 1.9921535326671682,
+        "mean_runtime_ratio": 9.355825264730372,
+        "max_bound_violation": 2.341587513353263e-18,
+        "max_mass_residual": 1.0402214345962691e-14,
+        "max_quadrature_change": 0.0004479017770222557,
+        "checks": {
+          "improvement": false,
+          "controls": true,
+          "best_classical": false,
+          "regression": true,
+          "smooth": true,
+          "runtime": false,
+          "bounds": true,
+          "conservation": true,
+          "quadrature": true
+        },
+        "accepted": false
+      }
+    ],
+    "adopt": false
+  }
+}
