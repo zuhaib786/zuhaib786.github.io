@@ -1,79 +1,13 @@
 ---
-title: "Route Confusion, Truncation, and Plaintext Credentials"
-description: "Phases 2 and 3 of barbican: the attacks reachable underneath the API — a body that rewrites the request target, a parser bug turned into an exploit by a build flag, a message truncated by an attacker, and a credential spent before the response arrives."
+title: "Eavesdropping, Truncation, and Plaintext Credentials"
+description: "Phases 2 and 3 of barbican: attacks on the transport a request arrives over and the binary that parses it — a build flag that turns a parser bug into an exploit, a message an attacker cuts short, and a credential spent before any response is written."
 date: 2026-09-15
 order: 5
 tags: ["Security", "Memory Safety", "TLS", "Zig", "OpenSSL"]
 draft: false
 ---
 
-The controls in [Phase 1](/series/api-security/bounding-a-request) act on a request's cost and its contents. They assume the request the router sees is the request the client sent, and that nobody else read it on the way. These attacks break those assumptions without touching a handler.
-
-## Attack: a large body rewrites the request target
-
-Parsing a request line returns slices into the connection's receive buffer:
-
-```zig
-target: []const u8,   // points into recv_buffer
-```
-
-Bodies are read in 16 KiB chunks. A body needing a second chunk refills that buffer, and the target's bytes are replaced by body bytes at the same offset.
-
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/route-confusion.svg" alt="The receive buffer with a span marked as the request target. After a body larger than sixteen kibibytes is read, the buffer is full of body bytes and the same span now holds attacker data, which the router reads.">
-  <img class="plate-dark" src="/images/api-security/route-confusion-dark.svg" alt="The receive buffer with a span marked as the request target. After a body larger than sixteen kibibytes is read, the buffer is full of body bytes and the same span now holds attacker data, which the router reads.">
-</figure>
-
-The router dispatches on whatever the client placed at that offset:
-
-```
-body 16347  ->  400 Bad Request     one chunk
-body 16447  ->  404 Not Found       two chunks, target lost
-```
-
-A crafted body turns that 404 into a 400 — the target had become a *different valid path* that matched a route and failed name validation. The client chooses the route.
-
-With anonymous routes the damage is limited to reaching the wrong handler. With authentication it is an authorization bypass: the path an access check reads and the path the handler acts on are different strings, and the attacker picks the second. The check is not wrong; it is checking a value that no longer exists.
-
-## Fix: the parser owns every byte it returns
-
-Copying the target at the call site works and puts the invariant in the caller. Copying the whole line into storage the parser owns removes the invariant instead.
-
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/owned-request-line.svg" alt="The request line is copied out of the receive buffer into storage owned by the parser. The receive buffer is later refilled with body bytes, the owned copy is untouched, and the router reads the owned copy.">
-  <img class="plate-dark" src="/images/api-security/owned-request-line-dark.svg" alt="The request line is copied out of the receive buffer into storage owned by the parser. The receive buffer is later refilled with body bytes, the owned copy is untouched, and the router reads the owned copy.">
-</figure>
-
-```zig
-pub const RequestLine = struct {
-    method: Method,
-    storage: [MAX_REQUEST_LINE]u8,
-    target_off: u16,
-    target_len: u16,
-    version_off: u16,
-    version_len: u16,
-
-    pub fn target(self: *const RequestLine) []const u8 {
-        return self.storage[self.target_off..][0..self.target_len];
-    }
-};
-```
-
-Copying the line rather than the target means no per-field decision about which fields are safe to keep. `version` had the identical defect, latent only because nothing read it after the body.
-
-**The spans are offsets, not slices.** A struct holding slices into its own array is self-referential, and Zig moves structs by copying:
-
-```zig
-var b = a;                 // plain copy
-@memset(&a.storage, 'X');  // clobber the original
-
-b.slice    // garbage — still aimed at a.storage
-b.storage  // intact
-```
-
-Offsets are meaningless until combined with the storage they are read from, so they survive a move. Returning a struct of slices-into-self hands the caller dangling pointers into a dead stack frame.
-
-`MAX_TARGET` becomes an explicit 2048 returning `414`, rather than 4096 inherited from whatever size the read buffer happens to be.
+The controls in [Phase 1](/series/api-security/bounding-a-request) act on a request's cost and its contents. They assume the bytes arrived unread and unmodified, and that a parser bug stays a parser bug. Neither holds by default.
 
 ## Attack: a build flag turns a parser bug into an exploit
 

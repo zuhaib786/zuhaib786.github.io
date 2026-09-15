@@ -258,10 +258,9 @@ Validation closes what encoding never touches: traversal, typosquatting, homogra
 ## Attacks still open
 
 - Body growth reserves one chunk before that chunk arrives.
-- Request metadata borrows a receive buffer that later reads may rebase.
 - Deadline expiry is enforced but reported as `400`, because the reaper does not propagate timeout provenance.
 - `description` is stored exactly as sent, so a web UI must encode on output.
 - `checksum` is not validated against any hash format.
 - Nothing is redacted in logs — a third grammar, with no serializer in front of it.
 
-Next: [the layers underneath](/series/api-security/what-the-request-stands-on) — the memory a request borrows and the transport it arrives on.
+Next: [the transport it arrives over](/series/api-security/what-the-request-stands-on) — where every byte above is readable and rewritable until TLS terminates.
