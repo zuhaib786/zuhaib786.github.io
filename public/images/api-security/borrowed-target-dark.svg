@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 534" width="700" height="534" role="img">
+<rect x="0" y="0" width="700" height="534" fill="#0d1224"/>
+<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing="1.2">WHAT THE ROUTER READS</text>
+<rect x="24" y="40" width="652" height="1" rx="0" fill="#313a5c"/>
+<text x="24" y="72" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#ff9470" text-anchor="start">target borrows the read buffer</text>
+<rect x="24" y="84" width="652" height="34" rx="3" fill="#161d33"/>
+<rect x="24" y="84" width="4" height="34" rx="0" fill="#ff9470"/>
+<text x="40" y="105" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a3adc8" text-anchor="start">parse</text>
+<text x="112" y="105" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">target -&gt; recv_buffer[5..14]</text>
+<text x="662" y="105" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#ff9470" text-anchor="end">"/packages"</text>
+<rect x="24" y="124" width="652" height="34" rx="3" fill="#161d33"/>
+<rect x="24" y="124" width="4" height="34" rx="0" fill="#ff9470"/>
+<text x="40" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a3adc8" text-anchor="start">read body</text>
+<text x="112" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">recv_buffer refilled (body &gt; 16 KB)</text>
+<text x="662" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#ff9470" text-anchor="end">same address, new bytes</text>
+<rect x="24" y="164" width="652" height="34" rx="3" fill="#161d33"/>
+<rect x="24" y="164" width="4" height="34" rx="0" fill="#ff9470"/>
+<text x="40" y="185" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a3adc8" text-anchor="start">dispatch</text>
+<text x="112" y="185" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">reads recv_buffer[5..14]</text>
+<text x="662" y="185" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#ff9470" text-anchor="end">whatever the body put there</text>
+<text x="24" y="218" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#ff9470" text-anchor="start">the client chooses the route</text>
+<text x="24" y="268" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#93a4ff" text-anchor="start">the parser owns its bytes</text>
+<rect x="24" y="280" width="652" height="34" rx="3" fill="#161d33"/>
+<rect x="24" y="280" width="4" height="34" rx="0" fill="#93a4ff"/>
+<text x="40" y="301" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a3adc8" text-anchor="start">parse</text>
+<text x="112" y="301" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">whole line copied into RequestLine</text>
+<text x="662" y="301" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#93a4ff" text-anchor="end">"/packages"</text>
+<rect x="24" y="320" width="652" height="34" rx="3" fill="#161d33"/>
+<rect x="24" y="320" width="4" height="34" rx="0" fill="#93a4ff"/>
+<text x="40" y="341" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a3adc8" text-anchor="start">read body</text>
+<text x="112" y="341" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">recv_buffer refilled</text>
+<text x="662" y="341" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#93a4ff" text-anchor="end">storage untouched</text>
+<rect x="24" y="360" width="652" height="34" rx="3" fill="#161d33"/>
+<rect x="24" y="360" width="4" height="34" rx="0" fill="#93a4ff"/>
+<text x="40" y="381" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a3adc8" text-anchor="start">dispatch</text>
+<text x="112" y="381" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">reads RequestLine.storage</text>
+<text x="662" y="381" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#93a4ff" text-anchor="end">"/packages"</text>
+<text x="24" y="414" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#93a4ff" text-anchor="start">the route is what was sent</text>
+<rect x="24" y="452" width="652" height="1" rx="0" fill="#313a5c"/>
+<text x="24" y="476" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#e9edf8" text-anchor="start">Spans are offsets, not slices.</text>
+<text x="24" y="496" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">A struct holding slices into its own array is self-referential: returning it by value</text>
+<text x="24" y="514" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">leaves those slices aimed at the dead original.</text>
+</svg>

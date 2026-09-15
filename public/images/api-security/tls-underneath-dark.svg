@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" width="700" height="400" role="img">
+<rect x="0" y="0" width="700" height="400" fill="#0d1224"/>
+<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing="1.2">WHERE TLS GOES</text>
+<rect x="24" y="40" width="652" height="1" rx="0" fill="#313a5c"/>
+<rect x="24" y="58" width="652" height="36" rx="4" fill="#161d33"/>
+<rect x="24" y="58" width="4" height="36" rx="0" fill="#93a4ff"/>
+<text x="44" y="81" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#e9edf8" text-anchor="start">handlers</text>
+<text x="662" y="81" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#93a4ff" text-anchor="end">unchanged</text>
+<rect x="24" y="100" width="652" height="36" rx="4" fill="#161d33"/>
+<rect x="24" y="100" width="4" height="36" rx="0" fill="#93a4ff"/>
+<text x="44" y="123" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#e9edf8" text-anchor="start">router</text>
+<text x="662" y="123" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#93a4ff" text-anchor="end">unchanged</text>
+<rect x="24" y="142" width="652" height="36" rx="4" fill="#161d33"/>
+<rect x="24" y="142" width="4" height="36" rx="0" fill="#93a4ff"/>
+<text x="44" y="165" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#e9edf8" text-anchor="start">parser (handle)</text>
+<text x="662" y="165" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#93a4ff" text-anchor="end">unchanged</text>
+<rect x="24" y="184" width="652" height="36" rx="4" fill="#161d33"/>
+<rect x="24" y="184" width="4" height="36" rx="0" fill="#e8bc4e"/>
+<text x="44" y="207" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#e9edf8" text-anchor="start">std.Io.Reader / std.Io.Writer</text>
+<text x="662" y="207" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#e8bc4e" text-anchor="end">the seam</text>
+<rect x="24.0" y="232" width="316.0" height="46" rx="4" fill="#3b2118"/>
+<text x="182.0" y="253" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#ff9470" text-anchor="middle">net.Stream adapter</text>
+<text x="182.0" y="269" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#a3adc8" text-anchor="middle">was</text>
+<rect x="360.0" y="232" width="316.0" height="46" rx="4" fill="#232b56"/>
+<text x="518.0" y="253" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#93a4ff" text-anchor="middle">SSL adapter</text>
+<text x="518.0" y="269" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#a3adc8" text-anchor="middle">is</text>
+<rect x="24" y="300" width="652" height="1" rx="0" fill="#313a5c"/>
+<text x="24" y="324" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#e9edf8" text-anchor="start">The parser takes a Reader and a Writer, not a socket.</text>
+<text x="24" y="344" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">So the transport is replaceable, and adding TLS changed two lines.</text>
+</svg>

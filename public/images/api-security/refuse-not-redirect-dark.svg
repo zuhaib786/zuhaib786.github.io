@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 464" width="700" height="464" role="img">
+<rect x="0" y="0" width="700" height="464" fill="#0d1224"/>
+<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing="1.2">PLAINTEXT: REFUSE, NEVER REDIRECT</text>
+<rect x="24" y="40" width="652" height="1" rx="0" fill="#313a5c"/>
+<text x="24" y="72" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#ff9470" text-anchor="start">redirect</text>
+<rect x="24" y="84" width="652" height="30" rx="3" fill="#161d33"/>
+<rect x="24" y="84" width="4" height="30" rx="0" fill="#ff9470"/>
+<text x="40" y="103" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#6b748f" text-anchor="start">1</text>
+<text x="60" y="103" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">client sends POST /packages + Authorization: Bearer ...</text>
+<rect x="24" y="120" width="652" height="30" rx="3" fill="#161d33"/>
+<rect x="24" y="120" width="4" height="30" rx="0" fill="#ff9470"/>
+<text x="40" y="139" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#6b748f" text-anchor="start">2</text>
+<text x="60" y="139" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">server replies 301 Location: https://...</text>
+<rect x="24" y="156" width="652" height="30" rx="3" fill="#161d33"/>
+<rect x="24" y="156" width="4" height="30" rx="0" fill="#ff9470"/>
+<text x="40" y="175" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#6b748f" text-anchor="start">3</text>
+<text x="60" y="175" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">client retries over TLS</text>
+<text x="24" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#ff9470" text-anchor="start">the token crossed the network in step 1</text>
+<text x="24" y="242" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#93a4ff" text-anchor="start">refuse</text>
+<rect x="24" y="254" width="652" height="30" rx="3" fill="#161d33"/>
+<rect x="24" y="254" width="4" height="30" rx="0" fill="#93a4ff"/>
+<text x="40" y="273" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#6b748f" text-anchor="start">1</text>
+<text x="60" y="273" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">client sends POST /packages + Authorization: Bearer ...</text>
+<rect x="24" y="290" width="652" height="30" rx="3" fill="#161d33"/>
+<rect x="24" y="290" width="4" height="30" rx="0" fill="#93a4ff"/>
+<text x="40" y="309" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#6b748f" text-anchor="start">2</text>
+<text x="60" y="309" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">server replies 426 Upgrade Required</text>
+<rect x="24" y="326" width="652" height="30" rx="3" fill="#161d33"/>
+<rect x="24" y="326" width="4" height="30" rx="0" fill="#93a4ff"/>
+<text x="40" y="345" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#6b748f" text-anchor="start">3</text>
+<text x="60" y="345" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#e9edf8" text-anchor="start">the token is still burned -- but nobody was told it was fine</text>
+<text x="24" y="376" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#93a4ff" text-anchor="start">and now: nothing is bound on the plaintext port at all</text>
+<rect x="24" y="400" width="652" height="1" rx="0" fill="#313a5c"/>
+<text x="24" y="424" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#e9edf8" text-anchor="start">A browser is redirected because a human typed a bare hostname.</text>
+<text x="24" y="444" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">An API client has already sent the request. A redirect arrives after the secret does.</text>
+</svg>
