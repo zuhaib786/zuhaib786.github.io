@@ -1,40 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 568" width="700" height="568" role="img">
-<rect x="0" y="0" width="700" height="568" fill="#0d1224"/>
-<text x="20" y="26" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing=".09em">ONE REQUEST, TWO READINGS</text>
-<text x="20" y="50" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#a3adc8" text-anchor="start">The only unusual byte is a tab before a colon.</text>
-<rect x="20" y="66" width="660" height="78" rx="5" fill="#161d33"/>
-<text x="36" y="90" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="400" fill="#e9edf8" text-anchor="start">POST /publish HTTP/1.1</text>
-<text x="36" y="111" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="400" fill="#e9edf8" text-anchor="start">Content-Length</text>
-<rect x="141.0" y="98" width="18" height="18" rx="3" fill="#ff9470"/>
-<text x="150.0" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">\t</text>
-<text x="165.0" y="111" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="400" fill="#e9edf8" text-anchor="start">: 5</text>
-<text x="36" y="132" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#ff9470" text-anchor="start">GET /x</text>
-<rect x="20" y="160" width="660" height="66" rx="5" fill="#161d33"/>
-<path d="M20 165 a5 5 0 0 1 5 -5 h3 v66 h-3 a5 5 0 0 1 -5 -5 z" fill="#e8bc4e"/>
-<text x="36" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" font-weight="600" fill="#e9edf8" text-anchor="start">a normalising proxy</text>
-<rect x="550" y="172" width="116" height="18" rx="9" fill="#3a2f12"/>
-<text x="608.0" y="184.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#e8bc4e" text-anchor="middle">trims the tab</text>
-<text x="36" y="204" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">name = "Content-Length"   -&gt;   body is 5 bytes</text>
-<text x="36" y="220" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">forwards GET /x as that body</text>
-<rect x="20" y="236" width="660" height="66" rx="5" fill="#161d33"/>
-<path d="M20 241 a5 5 0 0 1 5 -5 h3 v66 h-3 a5 5 0 0 1 -5 -5 z" fill="#ff9470"/>
-<text x="36" y="260" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" font-weight="600" fill="#e9edf8" text-anchor="start">this server</text>
-<rect x="550" y="248" width="116" height="18" rx="9" fill="#3b2118"/>
-<text x="608.0" y="260.5" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="600" fill="#ff9470" text-anchor="middle">keeps the tab</text>
-<text x="36" y="280" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">name = "Content-Length\t"   -&gt;   no match</text>
-<text x="36" y="296" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">concludes the body is 0 bytes</text>
-<text x="20" y="334" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#e9edf8" text-anchor="start">what is left in the connection</text>
-<rect x="20" y="346" width="246" height="40" rx="4" fill="#1d2542"/>
-<text x="143.0" y="372" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#6b748f" text-anchor="middle">request 1 -- consumed</text>
-<rect x="270" y="346" width="106" height="40" rx="4" fill="#3b2118"/>
-<text x="323.0" y="372" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#ff9470" text-anchor="middle">GET /x</text>
-<rect x="380" y="346" width="296" height="40" rx="4" fill="#3a2f12"/>
-<text x="528.0" y="372" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#e8bc4e" text-anchor="middle">the victim's next request</text>
-<rect x="322.0" y="390" width="2" height="13" rx="0" fill="#ff9470"/>
-<path d="M318 402 L323 410 L328 402 z" fill="#ff9470"/>
-<text x="323" y="428" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" fill="#ff9470" text-anchor="middle">parsed as the start of request 2</text>
-<rect x="20" y="444" width="660" height="38" rx="5" fill="#232b56"/>
-<text x="34" y="468" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#93a4ff" text-anchor="start">isToken(name) refuses the field before anyone asks if it is Content-Length</text>
-<rect x="20" y="504" width="660" height="1" rx="0" fill="#313a5c"/>
-<text x="20" y="530" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="400" fill="#a3adc8" text-anchor="start">Neither hop is wrong. They are lenient in different directions.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 248" width="700" height="248" role="img">
+<rect x="0" y="0" width="700" height="248" fill="#0c101c"/>
+<text x="24" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#e8ecf6" text-anchor="start">Content-Length\t: 5</text>
+<rect x="24" y="44" width="652" height="1.2" rx="0" fill="#2c3448"/>
+<text x="24" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#ff8a62" text-anchor="start">proxy   trims the tab</text>
+<rect x="280" y="76" width="160" height="30" rx="3" fill="#39201a"/>
+<rect x="280" y="76" width="160" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="280" y="104.8" width="160" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="280" y="76" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<rect x="438.8" y="76" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<text x="360" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#ff8a62" text-anchor="middle">header seen</text>
+<rect x="444" y="90.4" width="22" height="1.2" rx="0" fill="#2c3448"/>
+<path d="M466 88.2 L470 91 L466 93.8 z" fill="#2c3448"/>
+<rect x="474" y="76" width="200" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="474" y="104.8" width="200" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="474" y="76" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<rect x="672.8" y="76" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<text x="574" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="middle">5 bytes are body</text>
+<text x="24" y="158" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#93a4ff" text-anchor="start">server  rejects the name</text>
+<rect x="280" y="138" width="160" height="30" rx="3" fill="#1e2547"/>
+<rect x="280" y="138" width="160" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="280" y="166.8" width="160" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="280" y="138" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<rect x="438.8" y="138" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<text x="360" y="157" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#93a4ff" text-anchor="middle">header not seen</text>
+<rect x="444" y="152.4" width="22" height="1.2" rx="0" fill="#2c3448"/>
+<path d="M466 150.2 L470 153 L466 155.8 z" fill="#2c3448"/>
+<rect x="474" y="138" width="200" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="474" y="166.8" width="200" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="474" y="138" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<rect x="672.8" y="138" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<text x="574" y="157" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="middle">0 bytes are body</text>
+<rect x="24" y="208" width="652" height="1.2" rx="0" fill="#2c3448"/>
+<text x="24" y="230" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ab" text-anchor="start">the disagreement is the attack: the next request begins inside this one</text>
 </svg>

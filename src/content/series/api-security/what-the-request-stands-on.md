@@ -1,52 +1,48 @@
 ---
-title: "What the Request Stands On"
-description: "Phases 2 and 3 of barbican: the memory a request borrows and the transport it arrives on. A lifetime bug that lets a client choose its own route, and three mitigations that were worse than the gaps they closed."
+title: "Route Confusion, Truncation, and Plaintext Credentials"
+description: "Phases 2 and 3 of barbican: the attacks reachable underneath the API — a body that rewrites the request target, a parser bug turned into an exploit by a build flag, a message truncated by an attacker, and a credential spent before the response arrives."
 date: 2026-09-15
 order: 5
 tags: ["Security", "Memory Safety", "TLS", "Zig", "OpenSSL"]
 draft: false
 ---
 
-The controls so far act on a request's contents. [Phase 1](/series/api-security/bounding-a-request) caps what a request may consume and stops its values becoming syntax. Both assume the request itself is what the client sent.
+The controls in [Phase 1](/series/api-security/bounding-a-request) act on a request's cost and its contents. They assume the request the router sees is the request the client sent, and that nobody else read it on the way. These attacks break those assumptions without touching a handler.
 
-Two things underneath that assumption can break it: the memory the request borrows, and the transport it arrives over. Neither appears in a handler, and a defect in either invalidates every control above it.
+## Attack: a large body rewrites the request target
 
-## A slice is a promise about a lifetime
-
-Parsing a request line produced slices into the connection's receive buffer:
+Parsing a request line returns slices into the connection's receive buffer:
 
 ```zig
-pub const RequestLine = struct {
-    method: Method,
-    target: []const u8,   // points into recv_buffer
-    version: []const u8,
-};
+target: []const u8,   // points into recv_buffer
 ```
 
-Cheap, and correct while nothing else touches that buffer. Reading a body touches that buffer.
+Bodies are read in 16 KiB chunks. A body needing a second chunk refills that buffer, and the target's bytes are replaced by body bytes at the same offset.
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/borrowed-target.svg" alt="Two versions of the same three steps. When the target borrows the receive buffer, reading a body larger than one chunk refills that buffer and dispatch reads whatever the body placed there. When the parser copies the line into its own storage, the buffer is refilled but the target still reads as sent.">
-  <img class="plate-dark" src="/images/api-security/borrowed-target-dark.svg" alt="Two versions of the same three steps. When the target borrows the receive buffer, reading a body larger than one chunk refills that buffer and dispatch reads whatever the body placed there. When the parser copies the line into its own storage, the buffer is refilled but the target still reads as sent.">
-  <figcaption>The bug is not in the parser or the router. It is in the gap between them.</figcaption>
+  <img class="plate-light" src="/images/api-security/route-confusion.svg" alt="The receive buffer with a span marked as the request target. After a body larger than sixteen kibibytes is read, the buffer is full of body bytes and the same span now holds attacker data, which the router reads.">
+  <img class="plate-dark" src="/images/api-security/route-confusion-dark.svg" alt="The receive buffer with a span marked as the request target. After a body larger than sixteen kibibytes is read, the buffer is full of body bytes and the same span now holds attacker data, which the router reads.">
 </figure>
 
-The failure has a precise threshold. Bodies are read in 16 KiB chunks, and a body needing a second chunk refills the buffer the target points into:
+The router dispatches on whatever the client placed at that offset:
 
 ```
-body 16347  ->  400 Bad Request     (one chunk)
-body 16447  ->  404 Not Found       (two chunks -- route lost)
+body 16347  ->  400 Bad Request     one chunk
+body 16447  ->  404 Not Found       two chunks, target lost
 ```
 
-A 404 understates it. The target is not merely invalid; it is **whatever the client put in the body at that offset**. Sending a crafted payload turned the 404 into a 400 — the target had become a different path, one that matched a route and then failed name validation.
+A crafted body turns that 404 into a 400 — the target had become a *different valid path* that matched a route and failed name validation. The client chooses the route.
 
-Today this is close to harmless, because every route is anonymous. From the next phase it is an authorization bypass: the path an authorization check reads and the path the handler acts on would be different strings, with the client choosing the second. That is a time-of-check-to-time-of-use bug where the "value" being checked is the request itself.
+With anonymous routes the damage is limited to reaching the wrong handler. With authentication it is an authorization bypass: the path an access check reads and the path the handler acts on are different strings, and the attacker picks the second. The check is not wrong; it is checking a value that no longer exists.
 
-### The fix belongs in the parser
+## Fix: the parser owns every byte it returns
 
-The narrow repair is to copy the target before reading the body. It works, and it is the wrong shape: it puts the invariant in the caller, where every future caller has to know about it.
+Copying the target at the call site works and puts the invariant in the caller. Copying the whole line into storage the parser owns removes the invariant instead.
 
-Copying the whole line into storage the parser owns removes the question instead:
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/api-security/owned-request-line.svg" alt="The request line is copied out of the receive buffer into storage owned by the parser. The receive buffer is later refilled with body bytes, the owned copy is untouched, and the router reads the owned copy.">
+  <img class="plate-dark" src="/images/api-security/owned-request-line-dark.svg" alt="The request line is copied out of the receive buffer into storage owned by the parser. The receive buffer is later refilled with body bytes, the owned copy is untouched, and the router reads the owned copy.">
+</figure>
 
 ```zig
 pub const RequestLine = struct {
@@ -63,123 +59,114 @@ pub const RequestLine = struct {
 };
 ```
 
-Every field is owned, so there is no per-field judgement about which ones are safe to keep — `version` was a latent instance of the identical bug waiting for someone to use it.
+Copying the line rather than the target means no per-field decision about which fields are safe to keep. `version` had the identical defect, latent only because nothing read it after the body.
 
-**The spans are offsets rather than slices, and that is not stylistic.** A struct holding slices into its own array is self-referential, and Zig moves structs by copying:
+**The spans are offsets, not slices.** A struct holding slices into its own array is self-referential, and Zig moves structs by copying:
 
 ```zig
-var a = S.make();          // s.slice points into s.storage
 var b = a;                 // plain copy
-@memset(&a.storage, 'X');  // clobber the ORIGINAL
+@memset(&a.storage, 'X');  // clobber the original
 
-b.slice    // garbage -- still aimed at a.storage
-b.storage  // "hello" -- the copy itself is fine
+b.slice    // garbage — still aimed at a.storage
+b.storage  // intact
 ```
 
-Offsets mean nothing until combined with the storage they are read from, so they survive a move. This is a Zig-shaped hazard with no equivalent in the managed-runtime material most API security writing assumes.
+Offsets are meaningless until combined with the storage they are read from, so they survive a move. Returning a struct of slices-into-self hands the caller dangling pointers into a dead stack frame.
 
-While the bound was being written down, it also became a real one: `MAX_TARGET` is 2048 and returns `414`, rather than 4096 inherited by accident from the read buffer's size.
+`MAX_TARGET` becomes an explicit 2048 returning `414`, rather than 4096 inherited from whatever size the read buffer happens to be.
 
-## The transport is a layer, not a feature
+## Attack: a build flag turns a parser bug into an exploit
 
-Terminating TLS before authentication is deliberate: it means no line of code ever sends a credential in the clear, not even temporarily during development.
+`ReleaseFast` removes bounds checking, integer-overflow detection, and the `unreachable` check. In a process parsing attacker-controlled bytes, an out-of-bounds index stops being a panic and becomes an out-of-bounds write.
 
-Zig's standard library ships `std.crypto.tls.Client` and no server, so the server side is OpenSSL through `@cImport` — the third C boundary in this project, after SQLite and POSIX regex.
+## Fix: ReleaseSafe for anything on a socket
 
-The integration was two lines:
+```zig
+const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .ReleaseSafe });
+```
+
+The safety checks are the control. They convert memory-corruption bugs — the class that produces remote code execution — into crashes, which are a denial of service and nothing worse. `ReleaseFast` stays reachable and stays a decision that has to be argued for.
+
+The same phase adds an arena per request, so every allocation a handler makes has one lifetime and is released in one move, and allocation-failure paths are exercised with `FailingAllocator` under a leak-checking allocator. An attacker chooses the input sizes, which makes `OutOfMemory` a reachable path rather than a theoretical one.
+
+## Attack: everything on the wire is readable and rewritable
+
+Without transport security, a network attacker reads every credential sent in Phase 4 onward, and rewrites any checksum in a package response — which is a supply-chain compromise, not an integrity nit. There is also no way for a client to verify it is talking to the real registry.
+
+## Fix: terminate TLS before authentication exists
+
+Doing this before the first credential is written means no code path ever sends one in the clear, not even temporarily.
+
+`std.crypto.tls` ships a client and no server, so the server side is OpenSSL through `@cImport`. The integration is two lines, because the parser takes a `std.Io.Reader` and a `std.Io.Writer` rather than a socket:
+
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/api-security/tls-seam.svg" alt="Handlers, router and parser stacked above a horizontal line marked std.Io.Reader and std.Io.Writer. Below the line, either a socket adapter or a TLS adapter feeds the same interfaces.">
+  <img class="plate-dark" src="/images/api-security/tls-seam-dark.svg" alt="Handlers, router and parser stacked above a horizontal line marked std.Io.Reader and std.Io.Writer. Below the line, either a socket adapter or a TLS adapter feeds the same interfaces.">
+</figure>
 
 ```zig
 var reader = tls_conn.reader(&recv_buffer);
 var writer = tls_conn.writer(&send_buffer);
 ```
 
+Writing the adapter is two functions: `stream` on the Reader, `drain` on the Writer. Everything else in both interfaces is built on those.
+
+Four calls set up the context, and the fourth is the one usually omitted:
+
+```zig
+if (c.SSL_CTX_set_min_proto_version(ctx, c.TLS1_2_VERSION) != 1) return error.TlsInitFailed;
+if (c.SSL_CTX_use_certificate_chain_file(ctx, cert.ptr) != 1) return error.CertLoadFailed;
+if (c.SSL_CTX_use_PrivateKey_file(ctx, key.ptr, c.SSL_FILETYPE_PEM) != 1) return error.KeyLoadFailed;
+if (c.SSL_CTX_check_private_key(ctx) != 1) return error.KeyMismatch;
+```
+
+Loading a key that does not match the certificate **succeeds** in the two calls above the last one. Without `check_private_key`, the mismatch surfaces as a handshake failure on every connection and is diagnosed as a client problem. The minimum protocol version is set explicitly because the default depends on how the library was built.
+
+## Attack: an abrupt close is accepted as a complete message
+
+`SSL_read` returning a non-success value is not end of stream. An active attacker who injects a TCP FIN cuts a response short at a point of their choosing, and a server that treats an abrupt close as a clean end accepts the truncated version as complete.
+
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/tls-underneath.svg" alt="A layer diagram. Handlers, router and parser are unchanged. The seam is the std.Io.Reader and std.Io.Writer interfaces, below which the net.Stream adapter is replaced by an SSL-backed adapter.">
-  <img class="plate-dark" src="/images/api-security/tls-underneath-dark.svg" alt="A layer diagram. Handlers, router and parser are unchanged. The seam is the std.Io.Reader and std.Io.Writer interfaces, below which the net.Stream adapter is replaced by an SSL-backed adapter.">
-  <figcaption>The parser takes a Reader and a Writer, not a socket. That is what made the transport replaceable.</figcaption>
+  <img class="plate-light" src="/images/api-security/close-notify.svg" alt="Two exchanges. In one the client ends with close_notify and the message is complete. In the other only a TCP FIN arrives and the message is truncated. Both look identical at the socket.">
+  <img class="plate-dark" src="/images/api-security/close-notify-dark.svg" alt="Two exchanges. In one the client ends with close_notify and the message is complete. In the other only a TCP FIN arrives and the message is truncated. Both look identical at the socket.">
 </figure>
 
-The interface split was introduced two phases earlier for an unrelated reason — routing every failure through one error-response point. Designing to an interface pays in places the interface was not designed for.
-
-Writing the adapter means implementing two functions: `stream` on the Reader and `drain` on the Writer. Everything else in both interfaces is built on those.
-
-### close_notify is not a formality
-
-The security-relevant decision in the whole adapter is four lines:
+## Fix: only close_notify ends a stream
 
 ```zig
 switch (c.SSL_get_error(self.ssl, 0)) {
-    c.SSL_ERROR_ZERO_RETURN => return error.EndOfStream,   // peer sent close_notify
+    c.SSL_ERROR_ZERO_RETURN => return error.EndOfStream,   // close_notify
     c.SSL_ERROR_SYSCALL => { self.err = error.Truncated; return error.ReadFailed; },
     c.SSL_ERROR_SSL     => { self.err = error.Protocol;  return error.ReadFailed; },
     else                => { self.err = error.Syscall;   return error.ReadFailed; },
 }
 ```
 
-`SSL_read` returning a non-success value is not end of stream. Exactly one of those cases is a clean end: the peer sent `close_notify`. An abrupt close is different, and an active attacker can produce one by injecting a TCP FIN. A server that treats the two alike accepts a response cut short at a point the attacker chose — a **truncation attack**, and the reason TLS has an explicit end-of-stream marker at all.
+Exactly one case is a clean end. `close_notify` exists so that completion is distinguishable from interruption; collapsing the first two cases into "EOF" discards the only signal that separates them.
 
-The `err` field beside the return is not decoration either. The vtable's error set is fixed and narrow — `stream` may return only `ReadFailed` or `EndOfStream` — so every specific cause collapses on the way out. Stashing it means a truncation attack, a client hanging up, a version mismatch and a broken socket produce four distinguishable log lines instead of one useless one.
+The `err` field carries the specific cause out of band. The vtable's error set is fixed — `stream` may return only `ReadFailed` or `EndOfStream` — so without it a truncation attack, a client hanging up, a version mismatch and a broken socket produce one indistinguishable log line, and none can be acted on differently.
 
-### Refuse, do not redirect
+## Attack: a credential sent to a plaintext port is already spent
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/refuse-not-redirect.svg" alt="Two sequences. Redirecting: the client sends its request with an Authorization header, the server replies 301, the client retries over TLS — but the token already crossed the network in the first step. Refusing: the same first step, then a 426 Upgrade Required.">
-  <img class="plate-dark" src="/images/api-security/refuse-not-redirect-dark.svg" alt="Two sequences. Redirecting: the client sends its request with an Authorization header, the server replies 301, the client retries over TLS — but the token already crossed the network in the first step. Refusing: the same first step, then a 426 Upgrade Required.">
-  <figcaption>A redirect is advice that arrives after the secret does.</figcaption>
+  <img class="plate-light" src="/images/api-security/plaintext-credential.svg" alt="A client sends a POST carrying an Authorization header in the clear; the server answers with a 301 redirect to HTTPS, which arrives after the credential has already crossed the network.">
+  <img class="plate-dark" src="/images/api-security/plaintext-credential-dark.svg" alt="A client sends a POST carrying an Authorization header in the clear; the server answers with a 301 redirect to HTTPS, which arrives after the credential has already crossed the network.">
 </figure>
 
-A browser is redirected to HTTPS because a human typed a bare hostname and the alternative is a broken page. An API client has **already sent its request**, credential included. By the time a `301 Location: https://…` can be written, the token has crossed the network in plaintext. The redirect tells the client to retry securely and says nothing about the secret it just burned.
+A browser is redirected to HTTPS because a human typed a bare hostname. An API client has already sent its request, credential included, before any response can be written. A `301` tells it to retry securely and says nothing about the secret it just burned.
 
-So the plaintext listener refused with `426`, never routed anything, and never held a reference to the database — a plaintext request could not reach storage regardless of later edits.
+## Fix: refuse, then stop listening
 
-Then it was removed entirely. A refusing socket is still a socket accepting unauthenticated connections, still code running before any handshake, and still something a future change can be tempted to make useful. Nothing binds the plaintext port now; the kernel refuses the connection.
+The plaintext listener refused with `426`, routed nothing, and held no reference to the database, so no plaintext request could reach storage regardless of later edits.
 
-HSTS is sent on every response, and it is worth being precise about what it does: it instructs a browser never to speak plaintext to this origin again. It cannot protect the *first* visit, because that instruction has to arrive somehow. Closing that gap requires preloading, which is a decision about a public domain rather than about this code.
+It was then removed. A refusing socket still accepts unauthenticated connections, still runs code before any handshake, and is still something a later change can be tempted to make useful. Nothing binds the plaintext port; the kernel refuses the connection.
 
-## Three mitigations that were worse than the gaps
+HSTS goes on every response, and its limit is worth being exact about: it instructs a browser never to use plaintext for this origin again, which cannot protect the *first* visit, because the instruction has to arrive somehow. Preloading closes that gap and is a decision about a public domain rather than about this code.
 
-This is the pattern these two phases kept producing, and it is the transferable part.
+## Attacks still open
 
-**`SO_RCVTIMEO` panicked the process.** The textbook read deadline makes `read()` return `EAGAIN`. The I/O runtime assumes blocking sockets, treats `EAGAIN` as impossible, and panics. A slow-client hang became a remote crash — strictly worse, and it compiled, and it is the standard answer.
+- A reaped connection receives no response. Unblocking a stalled read requires tearing down the socket, which destroys the SSL session, so a `408` written afterwards reaches the client as a TLS alert. Correct delivery needs non-blocking I/O.
+- `Truncated` is detected and recorded but drives no policy. A peer producing it repeatedly is a signal nothing acts on.
+- Certificate and key are loaded once at startup, so rotation is a restart.
 
-**One SQLite handle across tasks was memory corruption.** Making the server concurrent introduced a defect in a file that did not change: the system library is built in multi-thread mode, where a single connection used by two threads at once is undefined behaviour. Reduced to eight threads, it segfaults. No signature changed, no test failed, and the type system has no opinion about how many threads reach a pointer.
-
-**A `408` for a timed-out TLS connection arrives as a protocol error.** The deadline is enforced by a second task that tears down the socket's read side to unblock a stalled read. Underneath OpenSSL that destroys the session, so the status written next is not decodable and the client receives `TLSV1_ALERT_DECODE_ERROR` — worse than silence, because a timeout now looks like a broken server. The mapping is correct and undeliverable until the transport uses non-blocking I/O. That limitation is recorded in the code rather than papered over.
-
-None of the three is visible in a diff. All three required running the mitigation against a live process, which makes *"has this control been executed?"* a different question from *"has this control been written?"*.
-
-## Fault ownership applies to logs too
-
-Status codes were made to follow fault in Phase 1: a malformed request is `4xx`, a broken socket is `5xx`, because an attacker-triggerable `5xx` fires the alert that is supposed to mean the server is broken.
-
-The same argument applies one channel over. Clients that stalled or hung up mid-body were writing `error:` lines — the identical problem relocated from the response into the log, where it degrades the signal just as effectively. Those are warnings now. A client abandoning a request is not a server error.
-
-## The tests keep being wrong in the same way
-
-Two more smoke checks turned out to assert something other than what they claimed.
-
-`Content-Length:  5` — extra whitespace after the colon — was in a list of headers that "must be refused". RFC 9112 permits that whitespace, so accepting it is correct. The check passed because `nc` closed the connection, the server hit end-of-stream and returned `400`. It was testing the harness.
-
-The truncated-body check had the same dependency, and both broke the moment the transport changed. That makes six checks across this project found to pass for a reason unrelated to the property under test. The recurring shape is a test that observes a *symptom* reachable by more than one path.
-
-And one failure was mine alone: the TLS 1.0 check reported "accepted" for half an hour because the suite runs with `set -o pipefail`, `grep -q` exits on its first match, `openssl` takes `SIGPIPE`, and the pipeline reports failure. The assertion was inverted by a shell option, not by anything about TLS.
-
-## Where this leaves the boundary
-
-```text
-memory      request metadata is owned, not borrowed from a reusable buffer
-            spans are offsets, so a struct survives being moved
-            one arena per request; allocation failure and leaks covered in tests
-build       ReleaseSafe preferred -- bounds checks are what keep a parser bug a panic
-transport   TLS 1.2 minimum, verified against a local CA, HSTS on every response
-            no plaintext port is bound at all
-            close_notify distinguished from an abrupt close
-```
-
-Still open, stated rather than implied:
-
-- a reaped connection gets no response, because the deadline destroys the transport it would answer over;
-- `Truncated` is detected and recorded but drives no policy — a peer producing it repeatedly is a signal nothing acts on;
-- the certificate and key are loaded once at startup, so rotation is a restart.
-
-Next: authentication. Every phase so far has treated a request as anonymous and asked only what it may cost and what it may say. The next question is who sent it — and the useful property inherited here is that there is no longer any code path capable of receiving a credential in the clear.
+Next: authentication, and the property inherited here — no code path can receive a credential in the clear.

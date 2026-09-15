@@ -1,169 +1,83 @@
 ---
-title: "Building the HTTP Boundary"
-description: "Phase 0 of barbican, implemented: follow one request from a raw TCP stream through a strict HTTP parser and router into SQLite, then back out as exactly one response."
+title: "Request Smuggling, Remote OOM, and Response Splitting"
+description: "Phase 0 of barbican: the attacks a server is exposed to before authentication exists, and the parser decisions that close them — framing disagreements between hops, unbounded allocation from a declared length, and two responses on one connection."
 date: 2026-09-14
 order: 3
 tags: ["Security", "API", "HTTP", "Zig", "SQLite"]
 draft: false
 ---
 
-Phase 0 of barbican is a package registry with five routes, SQLite persistence, and deliberately no authentication. An anonymous caller can publish a package or yank somebody else's version. That is the control group; later phases need something genuinely vulnerable to improve.
+Barbican is a package registry with five routes, SQLite persistence, and deliberately no authentication — a control group for later phases to improve on.
 
-But "no authentication" cannot mean "no boundaries." Before an authorization check can run, the server has already decided where the request ends, which method it names, which resource the path identifies, how much memory its body may consume, and whether an error has already produced a response. If any decision is ambiguous, a perfect authorization function will receive the wrong inputs.
-
-So this is a walk through one request as the code handles it: `accept` → request line → headers → bounded body → route → typed JSON → SQLite → response. The point is not a list of rules. It is where each rule lives, what its interface makes impossible, and which holes Phase 0 intentionally leaves open.
+No authentication does not mean no attacks. Before any authorization check can run, the server has already decided where the request ends, which method it names, which resource the path identifies, and how much memory the body may consume. Each of those decisions is attackable on its own, and a perfect authorization function fed the wrong inputs is not a control.
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/parser-boundary.svg" alt="The request path through barbican: a TCP stream enters connection.serve, becomes a parsed request line and headers, is bounded before allocation, matched by method and path, parsed into a concrete body type, handled through SQLite, and returned through one response writer. Red marks client-controlled bytes, indigo marks enforced invariants, and amber marks deliberately open Phase 0 boundaries.">
-  <img class="plate-dark" src="/images/api-security/parser-boundary-dark.svg" alt="The request path through barbican: a TCP stream enters connection.serve, becomes a parsed request line and headers, is bounded before allocation, matched by method and path, parsed into a concrete body type, handled through SQLite, and returned through one response writer. Red marks client-controlled bytes, indigo marks enforced invariants, and amber marks deliberately open Phase 0 boundaries.">
-  <figcaption>The implementation narrows types as the request moves right. Phase 0 deliberately stops narrowing before SQL and JSON output.</figcaption>
+  <img class="plate-light" src="/images/api-security/parser-boundary.svg" alt="A left-to-right pipeline from untrusted bytes through request line, headers, body, route, typed body and row to response. Each stage narrows the type and may reject.">
+  <img class="plate-dark" src="/images/api-security/parser-boundary-dark.svg" alt="A left-to-right pipeline from untrusted bytes through request line, headers, body, route, typed body and row to response. Each stage narrows the type and may reject.">
 </figure>
 
-## Contain failure to one connection
+## Attack: a length that costs memory before a body arrives
 
-The outer loop owns process lifetime. A parser error belongs to the connection that caused it, not to the listener:
-
-```zig
-while (true) {
-    const conn = try server.accept(io);
-    http.connection.serve(io, &ctx, conn) catch |err| {
-        std.log.err("serving request: {t}", .{err});
-    };
-}
-```
-
-`accept` is allowed to escape because the listener itself has failed. Everything after it is caught. Inside `serve`, `defer conn.close(io)` makes the connection's owner explicit even when parsing, allocation, routing, or writing returns early.
-
-This first version handles exactly one request per connection. That is inefficient, and currently useful. If the parser reads fewer body bytes than the sender intended, closing the socket discards the remainder. With keep-alive, those bytes would be waiting where the next request line is expected. Adding connection reuse later is therefore not just a performance change; it changes the exploitability of every framing mistake in this post.
-
-The simple loop also has a cost: no concurrency, connection limit, or read deadline. One client can connect and send a request one byte at a time while the only accept loop waits. The body is bounded; time is not. That remains an availability finding for a later phase.
-
-The state a handler may use is passed explicitly:
-
-```zig
-pub const Ctx = struct {
-    db: *SQLDatabase,
-    allocator: std.mem.Allocator,
-    io: std.Io,
-};
-```
-
-There is no module-global database handle. Later, the authenticated principal and request ID can join this context without turning request-scoped state into a global. `io` is present because Zig 0.16 makes the clock an explicit capability; the server, not the request body, generates `created_at`.
-
-## Read the claim before paying for it
-
-On the wire, HTTP/1.1 is a sequence of delimiters. The blank line ends the headers; `Content-Length` says how many bytes follow; on a persistent connection, the byte after that belongs to the next request. The parser's first job is therefore not JSON. It is deciding which bytes are this request at all.
+`Content-Length: 999999999` is 25 bytes on the wire. If the declared length reaches the allocator before it is checked, those 25 bytes request a gigabyte, and no body ever has to be sent.
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/http-wire-format.svg" alt="An annotated HTTP request as a byte stream. The request line has exactly three fields. Header names, the colon boundary, optional value whitespace, the blank line, the bounded body, and the start of a possible next request are distinct regions.">
-  <img class="plate-dark" src="/images/api-security/http-wire-format-dark.svg" alt="An annotated HTTP request as a byte stream. The request line has exactly three fields. Header names, the colon boundary, optional value whitespace, the blank line, the bounded body, and the start of a possible next request are distinct regions.">
-  <figcaption>`connection.serve` consumes the stream in wire order. It does not allocate the body until the header block is parsed and the declared length passes the server's bound.</figcaption>
+  <img class="plate-light" src="/images/api-security/bound-before-read.svg" alt="Two control flows for an oversized Content-Length. Allocating first reaches a four-gibibyte allocation. Checking first returns 413 and never reaches the allocator.">
+  <img class="plate-dark" src="/images/api-security/bound-before-read-dark.svg" alt="Two control flows for an oversized Content-Length. Allocating first reaches a four-gibibyte allocation. Checking first returns 413 and never reaches the allocator.">
 </figure>
 
-The relevant part of `serve` is short enough to keep in one view:
+## Fix: compare against a server-chosen bound first
 
 ```zig
-var content_length: ?u32 = null;
-while (true) {
-    const raw = syntax.trimLineEnd(
-        try reader.interface.takeDelimiterInclusive('\n'),
-    );
-    if (raw.len == 0) break;
-
-    const header = try request.parseHeader(raw);
-    if (std.ascii.eqlIgnoreCase(header.name, "Content-Length")) {
-        if (content_length != null) return error.BadRequest;
-        content_length = try std.fmt.parseInt(u32, header.value, 10);
-    }
-}
-
 const len = content_length orelse 0;
 if (len > MAX_BODY) {
-    return response.respond(w, .content_too_large,
-        "{\"error\":\"body too large\"}");
+    return response.respond(w, .content_too_large, "{\"error\":\"body too large\"}");
 }
 
 const body = try ctx.allocator.alloc(u8, len);
-defer ctx.allocator.free(body);
-try reader.interface.readSliceAll(body);
 ```
 
-There are three separate decisions here.
+The ordering is the control, not the constant. Parsing into `u32` also rejects a decimal that does not fit rather than truncating it on a later cast — a truncating cast on a length is how bounds checks get bypassed.
 
-First, header names are compared case-insensitively because HTTP field names are case-insensitive. `content-length` must not become an invisible second spelling.
+## Attack: two hops disagree about where the request ends
 
-Second, a repeated `Content-Length` is rejected even when both values agree. Accepting the first, accepting the last, and requiring equality are three plausible policies—and three chances for a proxy and this server to choose differently. Refusing the shape removes the choice.
+HTTP/1.1 is delimiters. The blank line ends the headers, `Content-Length` says how many bytes follow, and the next byte belongs to the next request. Any disagreement about those boundaries between a proxy and this server lets the attacker decide which hop sees what.
 
-Third, `len` is checked **before** it reaches the allocator. With the opposite ordering, a header declaring `Content-Length: 999999999` needs no body to be expensive. The declaration alone would request almost a gigabyte. Here it receives `413` before allocation and before a body read.
+Three shapes produce the disagreement. **A repeated `Content-Length`** — accept-first, accept-last and require-equal are three plausible policies and three chances to differ from whatever sits in front of you. **A case-varied name**, because HTTP field names are case-insensitive and `content-length` must not become an invisible second spelling. And **whitespace before the colon**, which is the sharpest of the three:
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/bound-before-read.svg" alt="Two control flows for an oversized Content-Length. The unsafe path allocates from the client value before any body arrives. Barbican's path parses into u32, compares against a 64 KiB maximum, returns 413, and never reaches allocation or read.">
-  <img class="plate-dark" src="/images/api-security/bound-before-read-dark.svg" alt="Two control flows for an oversized Content-Length. The unsafe path allocates from the client value before any body arrives. Barbican's path parses into u32, compares against a 64 KiB maximum, returns 413, and never reaches allocation or read.">
-  <figcaption>An attacker-controlled length cannot reach `alloc` until a server-controlled maximum has narrowed it.</figcaption>
+  <img class="plate-light" src="/images/api-security/request-smuggling-tab.svg" alt="The same header with a tab before the colon. A proxy that trims the name sees a Content-Length and treats five following bytes as a body; a server that preserves it sees no such header and treats those bytes as a new request.">
+  <img class="plate-dark" src="/images/api-security/request-smuggling-tab-dark.svg" alt="The same header with a tab before the colon. A proxy that trims the name sees a Content-Length and treats five following bytes as a body; a server that preserves it sees no such header and treats those bytes as a new request.">
 </figure>
 
-The current bound is `64 * 1024`. Parsing into `u32` also rejects a decimal value that does not fit rather than truncating it on a later cast. This is not a complete availability design: the total number of headers and the time spent reading them still need explicit limits. It is one complete data-flow path, from an untrusted number to the allocation it could influence.
+A proxy that trims the name sees `Content-Length` and consumes five bytes as a body. A server that preserves it sees a field named `Content-Length\t`, concludes there is no body, and reads those same five bytes as the start of the next request. The attacker has written the beginning of someone else's request.
 
-## Make the request line have one meaning
-
-The request-line parser produces a typed `Method` plus borrowed slices for the target and version:
-
-```zig
-pub fn parseRequestLine(line: []const u8) Error!RequestLine {
-    var splits = std.mem.splitScalar(u8, line, ' ');
-
-    const method = try Method.parse(
-        splits.next() orelse return error.MalformedLine,
-    );
-    const target = splits.next() orelse return error.MalformedLine;
-    const version = splits.next() orelse return error.MalformedLine;
-
-    if (splits.next() != null) return error.MalformedLine;
-    if (version.len == 0 or target.len == 0) return error.MalformedLine;
-    if (target[0] != '/') return error.MalformedLine;
-
-    return .{ .method = method, .target = target, .version = version };
-}
-```
-
-`splitScalar`, rather than a whitespace tokenizer, is deliberate. `GET  /x HTTP/1.1` contains an empty second field and fails; it is not silently normalised. The extra `splits.next()` proves there are exactly three fields without a counter whose meaning changes after an early `break`.
-
-`Method.parse` uses `std.mem.eql`, not `eqlIgnoreCase`. HTTP methods are case-sensitive, and the method will later become an authorization input: a policy for `DELETE` must not disagree with a router that also accepts `delete`.
-
-The leading slash restricts the target to origin-form, the only form this origin server implements. Absolute-form and authority-form do not drift into routing code that was never designed to assign them a resource.
-
-One missing check is visible in the snippet: `version` only has to be non-empty. `HTTP/9.9` currently passes. Phase 1 needs to require the protocol version the connection code actually implements instead of carrying an unvalidated string deeper into the server.
-
-## Parse a header asymmetrically
-
-A header is not `trim(line).split(':')`. The name and value have different grammars, so the implementation treats them differently:
+## Fix: reject the shape rather than pick an interpretation
 
 ```zig
 pub fn parseHeader(line: []const u8) Error!Header {
-    const idx = std.mem.indexOfScalar(u8, line, ':') orelse
-        return error.MalformedHeader;
+    const idx = std.mem.indexOfScalar(u8, line, ':') orelse return error.MalformedHeader;
 
     const name = line[0..idx];
     if (!syntax.isToken(name)) return error.MalformedHeader;
 
-    return .{
-        .name = name,
-        .value = std.mem.trim(u8, line[idx + 1 ..], syntax.OWS),
-    };
+    return .{ .name = name, .value = std.mem.trim(u8, line[idx + 1 ..], syntax.OWS) };
 }
 ```
 
-The first colon is the boundary because values may contain colons: `Host: localhost:8080` must keep `localhost:8080`. The value permits optional space or tab around its content. The name permits neither.
+Name and value have different grammars and are treated differently. Splitting at the **first** colon keeps `Host: localhost:8080` intact. The value permits surrounding space or tab; the name permits neither, so the tab is rejected before anything asks whether the field is `Content-Length`.
 
-That asymmetry closes a real framing disagreement. Given `Content-Length\t: 5`, a proxy that trims the name sees `Content-Length`; a server that preserves it sees an unrelated field named `Content-Length\t` and concludes there is no body. The five bytes one hop consumed as a body become the next request at the other hop.
+A duplicate `Content-Length` is refused even when both values agree, and names compare case-insensitively. Refusing the shape removes the choice that two hops could make differently.
+
+## Attack: every byte nobody listed is accepted
+
+A check written as "reject a leading space, reject a trailing tab" grows one case per discovered attack and silently accepts everything unlisted — NUL, bare CR, bytes above ASCII.
 
 <figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/request-smuggling-tab.svg" alt="A two-lane request-smuggling trace. The same Content-Length-with-tab reaches a normalising proxy and a literal server. The proxy treats five following bytes as a body; the server sees no Content-Length and treats them as the next request. A rejection gate before either interpretation is the implemented fix.">
-  <img class="plate-dark" src="/images/api-security/request-smuggling-tab-dark.svg" alt="A two-lane request-smuggling trace. The same Content-Length-with-tab reaches a normalising proxy and a literal server. The proxy treats five following bytes as a body; the server sees no Content-Length and treats them as the next request. A rejection gate before either interpretation is the implemented fix.">
-  <figcaption>`isToken(name)` rejects the request before barbican asks whether the field is `Content-Length`. The malformed name never gets to become an invisible header.</figcaption>
+  <img class="plate-light" src="/images/api-security/allowlist-vs-denylist.svg" alt="The 128 ASCII bytes shown twice. A denylist marks two refused bytes and leaves the rest accepted. An allowlist marks the 77 bytes it accepts and refuses everything else.">
+  <img class="plate-dark" src="/images/api-security/allowlist-vs-denylist-dark.svg" alt="The 128 ASCII bytes shown twice. A denylist marks two refused bytes and leaves the rest accepted. An allowlist marks the 77 bytes it accepts and refuses everything else.">
 </figure>
 
-The first version of this check grew as a denylist: reject a leading space; reject a trailing tab; add another case when a test finds it. A header name is already defined as one or more `tchar` bytes, so the code implements that alphabet once:
+## Fix: implement the alphabet the grammar defines
 
 ```zig
 fn isTchar(c: u8) bool {
@@ -178,84 +92,60 @@ fn isToken(text: []const u8) bool {
 }
 ```
 
-Now internal space, NUL, carriage return, and bytes above ASCII fail without appearing in four separate conditionals.
+A field name is one or more `tchar` bytes. Stating that once rejects internal space, NUL, carriage return and high bytes in the same loop — including the cases nobody has enumerated yet.
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/allowlist-vs-denylist.svg" alt="A byte-alphabet comparison. A denylist removes a few remembered bad bytes but leaves a large unknown accepted region. The implemented token allowlist admits only letters, digits, and RFC tchar punctuation; every other byte is rejected by the same loop.">
-  <img class="plate-dark" src="/images/api-security/allowlist-vs-denylist-dark.svg" alt="A byte-alphabet comparison. A denylist removes a few remembered bad bytes but leaves a large unknown accepted region. The implemented token allowlist admits only letters, digits, and RFC tchar punctuation; every other byte is rejected by the same loop.">
-  <figcaption>The allowlist describes the language the parser accepts, not an expanding history of attacks it remembers.</figcaption>
-</figure>
+## Attack: an ambiguous request line
 
-There is still a loose edge one layer above `parseHeader`: `trimLineEnd` removes a set of carriage-return and line-feed bytes, so a bare LF and repeated terminators are accepted. It must become an exact CRLF check. The connection code also needs an explicit policy for `Transfer-Encoding` rather than ignoring the field. Strictness is useful only when it covers the whole framing grammar; these are recorded gaps, not details hidden by calling the parser "strict."
+`GET  /x HTTP/1.1` has an empty second field: a parser that normalises runs of whitespace accepts it, one that does not rejects it, and that is another two-hop disagreement.
 
-Malformed request-line and header errors currently close the connection without an HTTP error response. Handler errors get structured JSON later in the pipeline. That difference is visible in the smoke suite and should remain deliberate until a parser-error response can itself be written safely.
+A lowercase `delete` reaching a `DELETE` handler matters because the method becomes an authorization input later — a policy for `DELETE` must not disagree with a router that also accepts `delete`.
 
-## Route with the method and the path
+An absolute-form target (`GET http://evil.example/x`) makes an origin server into a forward proxy; authority-form makes it an open one.
 
-The route table describes five operations:
-
-```text
-POST    /packages
-GET     /packages/{name}
-POST    /packages/{name}/versions
-GET     /packages/{name}/versions/{semver}
-DELETE  /packages/{name}/versions/{semver}
-```
-
-`Route.matches` compares both method and path. If routing were keyed only by path, `DELETE /packages/p/versions/1.0.0` could reach a `GET` handler written under the assumption that reads are public. The router would have changed an authorization input before authorization even ran.
-
-Matching and capture extraction share one segment walker:
+## Fix: exactly three fields, case-sensitive method, origin-form only
 
 ```zig
-fn matches(self: *const Route, method: Method, target: []const u8) bool {
-    if (self.method != method) return false;
-    var walk: Walk = .init(self.path, target);
-    while (true) switch (walk.next()) {
-        .done => return true,
-        .mismatch => return false,
-        .literal, .capture => {},
-    };
-}
+var splits = std.mem.splitScalar(u8, line, ' ');
 
-fn extract(self: *const Route, target: []const u8) Params {
-    var out: Params = .{};
-    var walk: Walk = .init(self.path, target);
-    while (true) switch (walk.next()) {
-        .done, .mismatch => return out,
-        .literal => {},
-        .capture => |param| {
-            out.items[out.len] = param;
-            out.len += 1;
-        },
-    };
-}
+const method = try Method.parse(splits.next() orelse return error.MalformedLine);
+const target = splits.next() orelse return error.MalformedLine;
+const version = splits.next() orelse return error.MalformedLine;
+
+if (splits.next() != null) return error.MalformedLine;
+if (version.len == 0 or target.len == 0) return error.MalformedLine;
+if (target[0] != '/') return error.MalformedLine;
 ```
 
-This looks like duplicated work, but it avoids duplicated rules. `matches` is a pure predicate and cannot leave behind half-valid captures from a route that failed on its final segment. `extract` runs only after a winner exists, using the same `Walk`, so it cannot disagree about doubled slashes, trailing slashes, literal case, or empty captures.
+`splitScalar` rather than a whitespace tokenizer: a doubled space produces an empty field and fails instead of being silently normalised. The extra `splits.next()` proves there are exactly three fields without a counter whose meaning changes after an early `break`. `Method.parse` uses `std.mem.eql`, not `eqlIgnoreCase`.
 
-The query string is stripped before matching, which prevents `{name}` from capturing `barbican?admin=true`. Paths are compared case-sensitively, and trailing or doubled slashes are rejected rather than normalised into a second spelling of the same resource. Route patterns are validated when registered; a pattern with more than four placeholders cannot overflow `Params` because the server refuses to start with it.
+## Attack: a path that means two things to the router
 
-Matching does **not** percent-decode. If `%2f` became `/` before splitting, one client-chosen segment could become several after the router had decided the path's shape. The intended order is:
+`%2f` decoded before splitting turns one client-chosen segment into several *after* the router has decided the path's shape. A query string left attached lets `{name}` capture `barbican?admin=true`. Trailing and doubled slashes create second spellings of one resource, and a policy attached to one spelling does not cover the other.
+
+Routing on the path alone is its own attack: `DELETE /packages/p/versions/1.0.0` reaching a `GET` handler written on the assumption that reads are public means the router changed an authorization input before authorization ran.
+
+## Fix: match on method and path, and never decode before splitting
+
+The order is fixed:
 
 ```text
 split into segments → decode each segment → normalise once → validate
 ```
 
-Phase 0 currently stops after the first step. Captured names and versions are neither decoded nor semantically validated, and that is exactly where the live injection finding enters.
+Phase 0 stops after the first step, so captures are neither decoded nor validated — which is where the live injection finding enters. What is enforced: the query string is stripped before matching, paths compare case-sensitively, trailing and doubled slashes are rejected rather than normalised, and route patterns are validated at registration so a pattern with too many placeholders cannot overflow the capture array — the server refuses to start instead.
 
-## Parse JSON into a capability, not a bag of fields
+Matching and capture extraction share one segment walker. `matches` is a pure predicate, so a route failing on its last segment cannot leave half-valid captures behind; `extract` runs only after a winner exists and so cannot disagree about slashes, case, or empty captures.
 
-The body parser exposes concrete request shapes rather than `std.json.Value`:
+## Attack: a client sets a field the server owns
+
+A body parsed into a dynamic tree lets a client supply `created_at`, `yanked`, or `owner`. Silently ignoring unknown fields is what makes mass assignment quiet. Duplicate keys reintroduce the first/last disagreement inside JSON.
+
+## Fix: parse into a concrete type with strict options
 
 ```zig
 pub const CreatePackage = struct {
     name: []const u8,
     description: []const u8,
-};
-
-pub const PublishVersion = struct {
-    version: []const u8,
-    checksum: []const u8,
 };
 
 return std.json.parseFromSlice(T, gpa, body, .{
@@ -264,55 +154,28 @@ return std.json.parseFromSlice(T, gpa, body, .{
 }) catch return error.BadJson;
 ```
 
-There is no `created_at` in `CreatePackage` and no `yanked` in `PublishVersion`. The client cannot assign either because the parser has no place to put them. An unknown `owner` field is rejected instead of being silently ignored, and duplicate `name` keys are rejected instead of choosing first-wins or last-wins.
+There is no `created_at` in `CreatePackage` and no `yanked` in `PublishVersion`. The client cannot assign either because the parser has no field to put them in — the server generates the timestamp, and yanking is an operation with its own route and its own authorization question, not a field.
 
-Parsing into a concrete struct also rejects a deeply nested array at the first token; there is no dynamic JSON tree whose depth the attacker controls. But this is only **shape validation**. A 10 KB package name is valid JSON and reaches the handler. Phase 1 must add value validation—length, alphabet, and semver—after decoding and before the data reaches any output grammar.
+Parsing into a concrete struct also refuses a deeply nested document at the first token: there is no dynamic tree whose depth an attacker controls. This is shape validation only. A 10 KiB package name is valid JSON and reaches the handler.
 
-## The handler exposes the remaining boundary
+## Attack: a storage error becomes a wrong answer
 
-Every handler follows the same success path:
+Collapsing "no rows" with "the query failed" lets a locked database masquerade as `404`. Returning `sqlite3_errmsg` to the client leaks the schema: `UNIQUE constraint failed: packages.name`.
 
-```zig
-const parsed = try body_parser.parse(CreatePackage, ctx.allocator, body);
-defer parsed.deinit();
-
-var sql_buf: [2048]u8 = undefined;
-const sql = try std.fmt.bufPrintZ(&sql_buf, commands.insert_package, .{
-    parsed.value.name,
-    parsed.value.description,
-    try now(ctx.io, &ts_buf),
-});
-try ctx.db.run(sql);
-
-var json_buf: [4096]u8 = undefined;
-const out = try std.fmt.bufPrint(&json_buf,
-    \\{{"name":"{s}","description":"{s}"}}
-, .{ parsed.value.name, parsed.value.description });
-try response.respond(w, .created, out);
-```
-
-This is where narrowing stops. `name` and `description` are data while JSON is parsed, then become SQL syntax through `bufPrintZ`, then become JSON syntax through `bufPrint`. The fixed buffers prevent those operations from allocating without limit, but `error.NoSpaceLeft` becoming a `500` is not input validation, and a short malicious value fits easily.
-
-The database wrapper does three pieces of C-boundary work that are easy to miss:
-
-- Every SQLite return code becomes a Zig error instead of an ignored integer.
-- `sqlite3_column_text` is paired with `sqlite3_column_bytes` to recover a bounded slice from a C pointer.
-- Row text is duplicated before the next `step` or `finalize` invalidates SQLite's borrowed memory.
-
-It also classifies extended constraint codes:
+## Fix: classify extended codes, keep the detail server-side
 
 ```zig
 return switch (sqlite3_extended_errcode(handle)) {
     SQLITE_CONSTRAINT_PRIMARYKEY,
-    SQLITE_CONSTRAINT_UNIQUE     => error.Duplicate,
-    SQLITE_CONSTRAINT_FOREIGNKEY => error.MissingParent,
-    else                         => error.ExecFailed,
+    SQLITE_CONSTRAINT_UNIQUE     => error.Duplicate,      // 409
+    SQLITE_CONSTRAINT_FOREIGNKEY => error.MissingParent,  // 404
+    else                         => error.ExecFailed,     // 500
 };
 ```
 
-That distinction survives to the response: duplicate package or version → `409`; missing parent package → `404`; an unrecognised storage failure → `500`. `SQLITE_DONE` is kept separate from a failed `step`, so a locked database cannot masquerade as "not found."
+The plain `SQLITE_CONSTRAINT` code cannot separate a duplicate key — the client's problem — from a NOT NULL violation, which is a server bug. `SQLITE_DONE` stays distinct from a failed `step`. The client receives a fixed message; the underlying text goes to the log.
 
-The schema contributes a security property of its own:
+The schema carries two guarantees of its own:
 
 ```sql
 CREATE TABLE versions (
@@ -324,95 +187,76 @@ CREATE TABLE versions (
 );
 ```
 
-The composite primary key makes an already-published version immutable on every write path. SQLite foreign keys, however, are disabled by default on every connection, so `open` executes `PRAGMA foreign_keys = ON` before applying the schema. The test does not assert that the pragma ran. It attempts to insert a version for a nonexistent package and expects `error.MissingParent`. SQLite silently ignores an unknown pragma; testing the resulting behaviour is what catches a typo in the setting.
+The composite primary key makes a published version immutable on every write path — without it, anyone able to publish can retroactively swap the contents of a version others have pinned. Foreign keys are **disabled by default on every SQLite connection**, so `open` runs `PRAGMA foreign_keys = ON` before applying the schema. SQLite silently ignores an unknown pragma, so the test inserts a version for a nonexistent package and expects `error.MissingParent` rather than asserting the setting was applied.
 
-## Make one response the only possible response
+## Attack: two responses on one connection
 
-All success and error responses pass through `respond`, where `Content-Length` is computed from `body.len`; callers cannot supply it. The guarantee is in the function signature, not in a comment asking every handler to count correctly.
+A handler that writes an error response and then falls through to its success response sends two complete messages. The client parses the second as the response to the *next* request.
 
-The first error-handling shape still allowed a different desynchronization bug: a handler could write an error response, forget `return`, and then write its success response. The fix was to remove error responses from handlers entirely:
+<figure class="plate-scroll">
+  <img class="plate-light" src="/images/api-security/response-splitting-error-path.svg" alt="A handler that responds and forgets to return emits both a 404 and a 201; the second is read as the next response. A handler that returns an error emits one response through a single mapper.">
+  <img class="plate-dark" src="/images/api-security/response-splitting-error-path-dark.svg" alt="A handler that responds and forgets to return emits both a 404 and a 201; the second is read as the next response. A handler that returns an error emits one response through a single mapper.">
+</figure>
+
+The same desynchronization arrives from a declared `Content-Length` that disagrees with the bytes written — the recipient reads the wrong number and parses the remainder as the start of the next message.
+
+## Fix: remove the ability to write an error response
 
 ```zig
-if (route.matches(method, target)) {
-    const params = route.extract(target);
-    route.handler(ctx, w, &params, body) catch |err| {
-        std.log.err("{t} {s}: {t}", .{ method, target, err });
-        try response.fail(w, err);
+route.handler(ctx, w, &params, body) catch |err| {
+    std.log.err("{t} {s}: {t}", .{ method, target, err });
+    try response.fail(w, err);
+};
+```
+
+A handler either reaches its single success `respond` or returns an error before it, and `dispatch` maps that error once. There is no handler API for writing an error response, so the fall-through shape cannot be expressed rather than merely being discouraged.
+
+`Content-Length` is computed inside `respond` from `body.len` and is not a parameter, so a declared length cannot disagree with what was written. `X-Content-Type-Options: nosniff` goes on every response, because without it a browser may ignore the declared type and guess from the bytes — a JSON body beginning with `<` becomes HTML.
+
+One request per connection, then close, is currently load-bearing: unread body bytes are discarded by the close rather than left where the next request line is expected. Adding keep-alive later changes the exploitability of every framing mistake above.
+
+## Attack: a failure that reaches the listener
+
+An error propagating out of the accept loop exits the process, which turns any parse bug into a way to take the whole service down with one request.
+
+## Fix: the connection owns its failures
+
+```zig
+while (true) {
+    const conn = try server.accept(io);
+    http.connection.serve(io, &ctx, conn) catch |err| {
+        std.log.err("serving request: {t}", .{err});
     };
-    return;
 }
 ```
 
-A handler either reaches its one success `respond`, or returns an error before it. `dispatch` catches that error and calls `response.fail` once. The underlying SQLite error is logged, while the client gets a fixed message such as `{"error":"internal error"}` rather than `UNIQUE constraint failed: packages.name`.
+`accept` is allowed to escape, because the listener itself has failed. Everything after it is caught. Handler state is passed explicitly rather than held in a module global, so request-scoped values — an authenticated principal, a request ID — have somewhere to live later that is not global.
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/response-splitting-error-path.svg" alt="Before and after control-flow diagrams for handler errors. In the unsafe version an error branch writes 404 and falls through to a 201 response. In the implemented version the handler returns an error value to dispatch, which alone maps it through response.fail, while only the success path may write 201.">
-  <img class="plate-dark" src="/images/api-security/response-splitting-error-path-dark.svg" alt="Before and after control-flow diagrams for handler errors. In the unsafe version an error branch writes 404 and falls through to a 201 response. In the implemented version the handler returns an error value to dispatch, which alone maps it through response.fail, while only the success path may write 201.">
-  <figcaption>The invariant is not "remember to return." No handler API exists for writing an error response, so the fall-through shape cannot be expressed.</figcaption>
-</figure>
+## Attacks left open on purpose
 
-With one request per connection, the extra response would currently be junk before close. With keep-alive or an intermediary pooling connections, it can be mistaken for the response to the next request. Fixing the control flow now means connection reuse does not inherit a known response-queue desynchronization.
+Three attacks are executable against this branch on purpose.
 
-## What Phase 0 leaves live
-
-The parser and response writer close ambiguities needed to give later controls stable inputs. They do not make the API secure. Three attacks are deliberately executable against the current branch.
-
-### SQL injection
-
-`sqlite3_exec` accepts multiple statements, and the handler interpolates the description into one of them:
+**SQL injection.** `sqlite3_exec` accepts multiple statements and the handler interpolates the description into one:
 
 ```sh
 curl -X POST "$BASE/packages" \
   -d $'{"name":"pwn","description":"x\', \'ts\'); DROP TABLE versions;--"}'
 ```
 
-This returns `201`, and `versions` is gone. The common `x'); DROP...` payload fails because it leaves the original three-column `INSERT` with only two values; `sqlite3_exec` stops at that first error. The working payload supplies the missing value before closing the statement. One failed canned payload would have looked like protection if the test had not inspected the SQL being produced.
+Returns `201`; `versions` is gone. The usual `x'); DROP...` payload fails here because it leaves the three-column `INSERT` with two values and `exec` stops at that error — the working payload supplies the missing value before closing the statement.
 
-### JSON injection
-
-The same mistake exists in a second grammar:
+**JSON injection**, the same defect in a second grammar:
 
 ```sh
-curl -X POST "$BASE/packages" \
-  -d '{"name":"evil\",\"admin\":\"true","description":"d"}'
+curl -X POST "$BASE/packages" -d '{"name":"evil\",\"admin\":\"true","description":"d"}'
 ```
-
-Because the response is assembled with string interpolation, the quote in `name` ends the string and forges a sibling field:
 
 ```json
 {"name":"evil","admin":"true","description":"d"}
 ```
 
-Phase 1 will replace SQL interpolation with prepare/bind and JSON interpolation with the standard serializer. The fixes look different at the API level and share one property: values travel to the grammar through a data channel, never by concatenation into its source text.
+**No identity, no ownership.** `DELETE /packages/zig-toml/versions/0.1.0` returns `200` for anyone. The yank semantics are right — the row is marked, not removed, so existing lockfiles still resolve — but the handler has no principal to compare against an owner.
 
-### No identity, no ownership
+Also open and recorded: `version` is only checked non-empty, so `HTTP/9.9` passes; `trimLineEnd` accepts a bare LF instead of requiring exact CRLF; there is no `Transfer-Encoding` policy; and there is no header count limit, no connection limit and no read deadline, so one client sending a byte at a time occupies the only accept loop indefinitely.
 
-The `DELETE` route is intentionally public:
-
-```sh
-curl -X DELETE \
-  "$BASE/packages/zig-toml/versions/0.1.0"
-# 200 OK
-```
-
-It performs a yank rather than deleting the row, so existing lockfiles can still resolve the version. That package-registry invariant works. The authorization invariant does not exist: the handler has no principal to compare with an owner.
-
-The smoke suite has a `VERIFY` half for ordinary behaviour and an `ATTACK` half that expects all three findings to succeed. As controls land, each attack moves from an expected success to an expected failure. That transition—not the existence of a validation function—is the evidence that a phase changed the system.
-
-The honest state at the end of Phase 0 is:
-
-| Implemented now | Deliberately open | Deferred parser and availability gaps |
-|---|---|---|
-| Body bound before allocation | SQL values become syntax | Exact CRLF enforcement |
-| Token-only header names | JSON values become syntax | `Transfer-Encoding` policy |
-| Duplicate `Content-Length` rejected | Anonymous publish and yank | Exact HTTP version check |
-| Method + path routing | No ownership model | Header-count and time limits |
-| Concrete JSON body types | No audit identity | Concurrency and connection caps |
-| Schema-enforced version immutability | Plaintext transport | Percent-decode + value validation |
-| One error-to-response boundary | | |
-
-That is enough structure to build on without pretending the phase is finished. Authentication will eventually answer *who*. Authorization will answer *may they do this to that package*. Both will depend on the less glamorous work here: turning one byte stream into one request, one route, and one response.
-
----
-
-*Next: the injection boundary—parameterised queries, output encoding, and the validators between decoding and use.*
+Next: [what a request may cost, and what its values may mean](/series/api-security/bounding-a-request).

@@ -1,30 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 332" width="700" height="332" role="img">
-<rect x="0" y="0" width="700" height="332" fill="#0d1224"/>
-<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing="1.2">WHAT SIZES THE ALLOCATION</text>
-<rect x="24" y="40" width="652" height="1" rx="0" fill="#313a5c"/>
-<rect x="24" y="56" width="314" height="214" rx="5" fill="#161d33"/>
-<path d="M24 61 a5 5 0 0 1 5 -5 h3 v214 h-3 a5 5 0 0 1 -5 -5 z" fill="#ff9470"/>
-<text x="42" y="78" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#ff9470" text-anchor="start">Sized from the claim</text>
-<text x="42" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#6b748f" text-anchor="start">alloc(content_length)</text>
-<rect x="42" y="110" width="278" height="26" rx="4" fill="#1d2542"/>
-<text x="52" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">Content-Length: 65535</text>
-<text x="310" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#6b748f" text-anchor="middle">55 B sent</text>
-<rect x="180.0" y="142" width="2" height="19" rx="0" fill="#ff9470"/>
-<path d="M176.0 160 L181.0 168 L186.0 160 z" fill="#ff9470"/>
-<rect x="42" y="176" width="278" height="66" rx="4" fill="#3b2118"/>
-<text x="181.0" y="213.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#ff9470" text-anchor="middle">64 KB held</text>
-<text x="181.0" y="286" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#ff9470" text-anchor="middle">amplification  1200 : 1</text>
-<rect x="362" y="56" width="314" height="214" rx="5" fill="#161d33"/>
-<path d="M362 61 a5 5 0 0 1 5 -5 h3 v214 h-3 a5 5 0 0 1 -5 -5 z" fill="#93a4ff"/>
-<text x="380" y="78" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#93a4ff" text-anchor="start">Grown by arrival</text>
-<text x="380" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#6b748f" text-anchor="start">append what actually lands</text>
-<rect x="380" y="110" width="278" height="26" rx="4" fill="#1d2542"/>
-<text x="390" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">Content-Length: 65535</text>
-<text x="648" y="127" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#6b748f" text-anchor="middle">55 B sent</text>
-<rect x="518.0" y="142" width="2" height="19" rx="0" fill="#93a4ff"/>
-<path d="M514.0 160 L519.0 168 L524.0 160 z" fill="#93a4ff"/>
-<rect x="380" y="226" width="278" height="16" rx="4" fill="#232b56"/>
-<text x="519.0" y="238.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#93a4ff" text-anchor="middle">0 B held</text>
-<text x="519.0" y="286" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#93a4ff" text-anchor="middle">amplification  1 : 1</text>
-<text x="350.0" y="314" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="middle">A bound on the claim caps the damage. It does not change the shape.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 176" width="700" height="176" role="img">
+<rect x="0" y="0" width="700" height="176" fill="#0c101c"/>
+<text x="24" y="60" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#ff8a62" text-anchor="start">sized from the claim</text>
+<text x="24" y="78" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ab" text-anchor="start">55 B  -&gt;  64 KiB</text>
+<rect x="228" y="40" width="22" height="30" rx="3" fill="#39201a"/>
+<rect x="228" y="40" width="22" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="228" y="68.8" width="22" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="228" y="40" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<rect x="248.8" y="40" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<text x="239.0" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="middle">sent</text>
+<rect x="258" y="54.3" width="16" height="1.4" rx="0" fill="#ff8a62"/>
+<path d="M274 50.8 L280 55 L274 59.2 z" fill="#ff8a62"/>
+<rect x="288" y="40" width="372" height="30" rx="3" fill="#39201a"/>
+<rect x="288" y="40" width="372" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="288" y="68.8" width="372" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="288" y="40" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<rect x="658.8" y="40" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<text x="474.0" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="middle">held</text>
+<text x="24" y="152" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#93a4ff" text-anchor="start">sized from arrival</text>
+<text x="24" y="170" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ab" text-anchor="start">55 B  -&gt;  55 B</text>
+<rect x="228" y="132" width="22" height="30" rx="3" fill="#1e2547"/>
+<rect x="228" y="132" width="22" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="228" y="160.8" width="22" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="228" y="132" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<rect x="248.8" y="132" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<text x="239.0" y="124" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="middle">sent</text>
+<rect x="258" y="146.3" width="16" height="1.4" rx="0" fill="#93a4ff"/>
+<path d="M274 142.8 L280 147 L274 151.2 z" fill="#93a4ff"/>
+<rect x="288" y="132" width="22" height="30" rx="3" fill="#1e2547"/>
+<rect x="288" y="132" width="22" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="288" y="160.8" width="22" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="288" y="132" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<rect x="308.8" y="132" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<text x="299.0" y="124" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="middle">held</text>
 </svg>

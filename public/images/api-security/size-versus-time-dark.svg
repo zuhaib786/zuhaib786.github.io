@@ -1,43 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 352" width="700" height="352" role="img">
-<rect x="0" y="0" width="700" height="352" fill="#0d1224"/>
-<text x="24" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing="1.2">TWO WAYS TO SPEND A CONNECTION</text>
-<rect x="24" y="40" width="652" height="1" rx="0" fill="#313a5c"/>
-<text x="24" y="94" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#e9edf8" text-anchor="start">all at once</text>
-<text x="24" y="111" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#93a4ff" text-anchor="start">MAX_BODY  -&gt;  413</text>
-<rect x="186" y="74" width="474" height="46" rx="4" fill="#161d33"/>
-<rect x="194" y="82" width="150" height="30" rx="3" fill="#232b56"/>
-<text x="269" y="101" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#93a4ff" text-anchor="middle">100 MB</text>
-<rect x="352" y="80" width="3" height="34" rx="0" fill="#93a4ff"/>
-<text x="366" y="101" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">stopped here</text>
-<text x="24" y="190" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#e9edf8" text-anchor="start">one byte at a time</text>
-<text x="24" y="207" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#ff9470" text-anchor="start">every size check passes</text>
-<rect x="186" y="170" width="474" height="46" rx="4" fill="#161d33"/>
-<rect x="194" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="215" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="236" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="257" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="278" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="299" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="320" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="341" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="362" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="383" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="404" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="425" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="446" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="467" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="488" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="509" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="530" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="551" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="572" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="593" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="614" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<rect x="635" y="189" width="5" height="8" rx="1" fill="#ff9470"/>
-<text x="194" y="185" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#a3adc8" text-anchor="start"></text>
-<text x="652" y="211" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#a3adc8" text-anchor="end">... forever</text>
-<text x="186" y="268" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#6b748f" text-anchor="start">time  -&gt;</text>
-<rect x="24" y="288" width="652" height="1" rx="0" fill="#313a5c"/>
-<text x="24" y="312" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="700" fill="#e9edf8" text-anchor="start">MAX_BODY bounds how much. Nothing in it bounds how long.</text>
-<text x="24" y="332" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="400" fill="#a3adc8" text-anchor="start">The second client never trips a size limit, because it never asks for size.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 232" width="700" height="232" role="img">
+<rect x="0" y="0" width="700" height="232" fill="#0c101c"/>
+<text x="24" y="63" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ab" text-anchor="start">100 MiB at once</text>
+<rect x="150" y="44" width="470" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="150" y="72.8" width="470" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="150" y="44" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<rect x="618.8" y="44" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<rect x="152" y="46" width="150" height="26" rx="0" fill="#1e2547"/>
+<rect x="304" y="46" width="2.5" height="26" rx="0" fill="#93a4ff"/>
+<text x="318" y="63" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#93a4ff" text-anchor="start">413</text>
+<text x="24" y="137" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ab" text-anchor="start">1 byte at a time</text>
+<rect x="150" y="118" width="470" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="150" y="146.8" width="470" height="1.2" rx="0" fill="#2c3448"/>
+<rect x="150" y="118" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<rect x="618.8" y="118" width="1.2" height="30" rx="0" fill="#2c3448"/>
+<rect x="160" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="183" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="206" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="229" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="252" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="275" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="298" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="321" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="344" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="367" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="390" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="413" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="436" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="459" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="482" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="505" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="528" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="551" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="574" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<rect x="597" y="130" width="4" height="7" rx="0" fill="#ff8a62"/>
+<text x="612" y="137" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#ff8a62" text-anchor="end">...</text>
+<rect x="150" y="195.3" width="464" height="1.4" rx="0" fill="#2c3448"/>
+<path d="M614 191.8 L620 196 L614 200.2 z" fill="#2c3448"/>
+<text x="620" y="214" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#8b95ab" text-anchor="end">time</text>
 </svg>

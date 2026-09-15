@@ -1,35 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 512" width="700" height="512" role="img">
-<rect x="0" y="0" width="700" height="512" fill="#0d1224"/>
-<text x="20" y="26" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#6b748f" text-anchor="start" letter-spacing=".09em">HOW MANY RESPONSES DID THAT WRITE?</text>
-<text x="20" y="50" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#a3adc8" text-anchor="start">Content-Length from body.len cannot help: both messages are well-formed.</text>
-<rect x="20" y="66" width="660" height="30" rx="4" fill="#3b2118"/>
-<text x="34" y="86" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" font-weight="600" fill="#ff9470" text-anchor="start">each handler decides its own errors</text>
-<rect x="20" y="104" width="660" height="34" rx="4" fill="#232b56"/>
-<text x="34" y="126" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#e9edf8" text-anchor="start">error.Duplicate</text>
-<text x="240" y="126" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#a3adc8" text-anchor="start">respond(409)</text>
-<text x="666" y="126" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#93a4ff" text-anchor="end">return</text>
-<rect x="20" y="144" width="660" height="34" rx="4" fill="#3b2118"/>
-<text x="34" y="166" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#e9edf8" text-anchor="start">error.MissingParent</text>
-<text x="240" y="166" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#a3adc8" text-anchor="start">respond(404)</text>
-<text x="666" y="166" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#ff9470" text-anchor="end">falls through</text>
-<rect x="20" y="184" width="660" height="34" rx="4" fill="#3b2118"/>
-<text x="34" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#e9edf8" text-anchor="start">else</text>
-<text x="240" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#a3adc8" text-anchor="start">respond(500)</text>
-<text x="666" y="206" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#ff9470" text-anchor="end">falls through</text>
-<rect x="20" y="228" width="660" height="34" rx="4" fill="#1d2542"/>
-<text x="34" y="250" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#e9edf8" text-anchor="start">respond(201, body)</text>
-<text x="666" y="250" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#ff9470" text-anchor="end">reached anyway</text>
-<rect x="20" y="280" width="320" height="66" rx="4" fill="#3b2118"/>
-<text x="34" y="302" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#ff9470" text-anchor="start">HTTP/1.1 404 Not Found</text>
-<text x="34" y="320" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">Content-Length: 21</text>
-<text x="34" y="337" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">{"error":"not found"}</text>
-<rect x="360" y="280" width="320" height="66" rx="4" fill="#1d2542"/>
-<text x="374" y="302" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#e9edf8" text-anchor="start">HTTP/1.1 201 Created</text>
-<text x="374" y="320" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">Content-Length: 44</text>
-<text x="374" y="337" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="400" fill="#a3adc8" text-anchor="start">{"name":"zig-toml", ...}</text>
-<text x="350.0" y="370" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#ff9470" text-anchor="middle">the second is read as the start of the next response</text>
-<rect x="20" y="388" width="660" height="38" rx="5" fill="#232b56"/>
-<text x="34" y="412" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" font-weight="600" fill="#93a4ff" text-anchor="start">handlers return errors; one catch in dispatch maps them</text>
-<rect x="20" y="448" width="660" height="1" rx="0" fill="#313a5c"/>
-<text x="20" y="474" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="400" fill="#a3adc8" text-anchor="start">The first fix made the length impossible to get wrong. This makes the count impossible to get wrong.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 222" width="700" height="222" role="img">
+<rect x="0" y="0" width="700" height="222" fill="#0c101c"/>
+<text x="24" y="64" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#ff8a62" text-anchor="start">handler responds, forgets to return</text>
+<rect x="400" y="44" width="88" height="30" rx="3" fill="#39201a"/>
+<rect x="400" y="44" width="88" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="400" y="72.8" width="88" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="400" y="44" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<rect x="486.8" y="44" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<text x="444" y="63" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#ff8a62" text-anchor="middle">404</text>
+<rect x="500" y="44" width="88" height="30" rx="3" fill="#39201a"/>
+<rect x="500" y="44" width="88" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="500" y="72.8" width="88" height="1.2" rx="0" fill="#ff8a62"/>
+<rect x="500" y="44" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<rect x="586.8" y="44" width="1.2" height="30" rx="0" fill="#ff8a62"/>
+<text x="544" y="63" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#ff8a62" text-anchor="middle">201</text>
+<text x="600" y="63" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#ff8a62" text-anchor="start">read as the next response</text>
+<text x="24" y="142" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#93a4ff" text-anchor="start">handler returns an error; one mapper responds</text>
+<rect x="400" y="122" width="88" height="30" rx="3" fill="#1e2547"/>
+<rect x="400" y="122" width="88" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="400" y="150.8" width="88" height="1.2" rx="0" fill="#93a4ff"/>
+<rect x="400" y="122" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<rect x="486.8" y="122" width="1.2" height="30" rx="0" fill="#93a4ff"/>
+<text x="444" y="141" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#93a4ff" text-anchor="middle">404</text>
+<rect x="24" y="182" width="652" height="1.2" rx="0" fill="#2c3448"/>
+<text x="24" y="204" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#8b95ab" text-anchor="start">response splitting, arriving from the error path</text>
 </svg>
