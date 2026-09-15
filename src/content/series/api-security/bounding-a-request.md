@@ -208,7 +208,7 @@ const s = "abc\x00'; DROP TABLE packages;--";   // 29 bytes
 c.regexec(&name_re, s.ptr, 0, null, 0) == 0     // VALID
 ```
 
-`regexec` takes a `char *`. A Zig slice carries its length; a C string ends at the first NUL. Everything after it is never examined, so the matcher approves `abc` and the caller approves 29 bytes — and `std.json` decodes a ` ` escape into a real NUL, so this arrives in a request body. **Crossing into C loses the length, and anything past the first NUL goes unread**; the check belongs before the crossing.
+`regexec` takes a `char *`. A Zig slice carries its length; a C string ends at the first NUL. Everything after it is never examined, so the matcher approves `abc` and the caller approves 29 bytes — and `std.json` decodes a `` escape into a real NUL, so this arrives in a request body. **Crossing into C loses the length, and anything past the first NUL goes unread**; the check belongs before the crossing.
 
 And `regexec` matches a *substring*. Unanchored, `[a-z0-9-]+` accepts `x'; DROP TABLE packages;--` because `DROP` matches in the middle. A missing `^` or `$` is the most common validation defect there is, so the test for it asserts a case whose only failure mode is a missing anchor:
 
