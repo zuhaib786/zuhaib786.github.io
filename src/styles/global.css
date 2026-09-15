@@ -63,7 +63,8 @@ html[data-theme="dark"] {
   --accent-2: #e0bd78;
   --accent-soft: #34416d;
   --interact: #c8d1ff;
-  --code-wash: #1c243b;
+  /* the editor background these posts are written against */
+  --code-wash: #0f1e2d;
   --glass: rgba(36, 45, 73, 0.8);
   --glass-strong: rgba(22, 28, 48, 0.95);
   --glass-border: var(--rule);
