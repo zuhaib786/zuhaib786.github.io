@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 272" width="700" height="272" role="img">
+<rect x="0" y="0" width="700" height="272" fill="#ffffff"/>
+<text x="40" y="30" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#cf4520" text-anchor="start">WITHOUT a dummy hash</text>
+<text x="40" y="160" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#1f7a4d" text-anchor="start">WITH a dummy hash</text>
+<text x="150" y="62" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#737b8c" text-anchor="end">no such user</text>
+<rect x="162" y="50" width="118" height="16" rx="2" fill="#cf4520"/>
+<text x="288" y="62" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">returns early</text>
+<text x="150" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#737b8c" text-anchor="end">wrong password</text>
+<rect x="162" y="100" width="400" height="16" rx="2" fill="#3b4fd6"/>
+<text x="570" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">hashes</text>
+<text x="150" y="192" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#737b8c" text-anchor="end">no such user</text>
+<rect x="162" y="180" width="400" height="16" rx="2" fill="#1f7a4d"/>
+<text x="570" y="192" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">hashes a dummy</text>
+<text x="150" y="242" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#737b8c" text-anchor="end">wrong password</text>
+<rect x="162" y="230" width="400" height="16" rx="2" fill="#1f7a4d"/>
+<text x="570" y="242" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">hashes</text>
+<rect x="280" y="46" width="1.2" height="76" rx="0" fill="#cf4520"/>
+<rect x="562" y="46" width="1.2" height="76" rx="0" fill="#cf4520"/>
+<rect x="284" y="137.3" width="270" height="1.4" rx="0" fill="#cf4520"/>
+<path d="M554 133.8 L560 138 L554 142.2 z" fill="#cf4520"/>
+<text x="421" y="152" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#cf4520" text-anchor="middle">this gap is the answer</text>
+</svg>
