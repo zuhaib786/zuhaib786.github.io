@@ -82,32 +82,42 @@ Identical bodies are not enough. A server that looks up the user, finds nothing,
 
 ## Fix: hash a password nobody has
 
-When the username does not resolve to a row, verify the supplied password against a fixed hash instead of returning:
+When the username does not resolve to a row, verify the supplied password against a fixed hash instead of returning. Written as a fallback rather than a branch, so there is one verification and not two:
 
 ```zig
-const username = validate.Username.parse(basic.username) catch {
-    burn(ctx, basic.password);
-    return .invalid;
-};
-
-const phc = stored orelse {
-    burn(ctx, basic.password);
-    return .invalid;
-};
+std.crypto.pwhash.argon2.strVerify(
+    stored orelse DUMMY_PHC,
+    basic.password,
+    .{ .allocator = ctx.arena },
+    ctx.app.io,
+) catch return .invalid;
 ```
 
-The dummy must be generated with the **same parameters** the server hashes with. One at a different cost takes a different amount of time and reopens the oracle it exists to close. Measured across twelve requests each:
+One call site matters more than it looks. Equal cost is then a property of the control flow rather than a rule that has to be applied identically at every early return.
+
+The dummy must be generated with the **same parameters** the server hashes with. One at a different cost takes a different amount of time and reopens the oracle it exists to close. Medians over twenty requests each, after a warm-up:
 
 ```
-existing user, wrong password    149.4 ms
-no such user                     147.1 ms
-invalid username syntax          148.6 ms
-existing user, wrong password    148.2 ms   <- repeat of the first
+existing user, wrong password    148.2 ms
+no such user                     148.7 ms
+existing user, wrong password    151.2 ms
+no such user                     151.5 ms
 ```
 
-The spread between the three cases is smaller than the spread between two runs of the same input.
+The drift between rounds is larger than the difference between the two cases inside either round.
 
-One path deliberately does *not* hash: a header that fails to base64-decode is rejected immediately. It leaks nothing, because the caller wrote the header and already knows it is malformed, and the answer depends on no stored secret. Hashing it anyway would sell a 64 MiB, 68 ms operation for the price of sending `Authorization: Basic x`.
+## Fix: but only for the answers a secret decides
+
+Not every rejection should be slow. A header that fails to base64-decode, or a username the allowlist refuses, is rejected in milliseconds:
+
+```zig
+const basic = decode(ctx.cred.value(), &decoded) catch return .invalid;
+const username = validate.Username.parse(basic.username) catch return .invalid;
+```
+
+Both answers are pure functions of the input. The syntax rules are deterministic and the caller wrote the header, so an attacker can compute either result offline without sending anything — there is no secret in the answer to leak. The line is not "make every failure slow", it is **make every failure that consults stored state cost the same**.
+
+Hashing them anyway would cost something real: it sells a 64 MiB, 68 ms operation for the price of sending `Authorization: Basic x`.
 
 ## Attack: a new route defaults to anonymous
 
