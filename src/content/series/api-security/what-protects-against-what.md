@@ -1,92 +1,115 @@
 ---
-title: "API Security: What Each Control Actually Protects Against"
-description: "Starting a series on API security by building one in Zig. The first thing I needed was a map — every control I kept reading about, the specific attack it closes, and, more usefully, the attack it does not."
+title: "A Threat Model for a Small Package Registry"
+description: "Starting an API security project by defining the assets, callers, trust boundaries, and failure cases that its controls need to address."
 date: 2026-09-13
 order: 1
 tags: ["Security", "API", "Zig", "OAuth"]
 draft: true
 ---
 
-I've started working through API security properly, and the plan for this series is the same one that worked for [lzdb](/series/lzdb): pick the smallest real thing that exercises the problem, build it from scratch, and write down what surprised me.
+Suppose a package registry accepts this request from anyone:
 
-The thing I'm building is **barbican** — a small package registry, the kind of service that hosts library versions and lets you publish to them. Written in Zig, standard library wherever it's reasonable. I picked a registry rather than a typical CRUD app because its security problems are unusually varied: humans log in through a browser, but CI robots authenticate with long-lived tokens; publishing is irreversible and affects everyone downstream; downloads are anonymous and are the obvious target for exhaustion. One codebase, several genuinely different threat profiles.
+```http
+DELETE /packages/zig-toml/versions/0.1.0 HTTP/1.1
+Host: registry.example
+```
 
-Zig is a deliberate choice too. There's no framework quietly parsing my request body, no ORM quietly parameterising my queries. Every byte crossing a trust boundary is one I have to read, bound, and validate myself. That's slower, and it's the point — you cannot take a control for granted when nothing provides it for you.
+The handler marks that version as yanked so it will no longer be selected for new installations. The SQL can be parameterized, the request can arrive over TLS, and the body can pass every validation rule. The operation is still a security failure if the caller has no relationship to the package.
 
-## The problem with how this gets taught
+This is the starting point for Barbican, a small package-registry API I am building in Zig. The project is a way to study how API security controls fit together. The articles use small examples and explain the relevant design locally; no access to the implementation is needed.
 
-The first few days were frustrating in a specific way. Every resource gives you a *list*: use HTTPS, hash your passwords, set `HttpOnly`, configure CORS, validate input, add rate limiting. All true. None of it told me *why each item was on the list*, so the whole thing stayed a pile of unrelated incantations rather than a system.
+A registry is a useful subject because its security requirements are concrete. Publishing changes what other people install. Package ownership determines who may make that change. Public reads must remain available even when callers behave badly. Human maintainers and CI jobs need different credentials and recovery procedures.
 
-What eventually fixed it was reframing every control as an answer to a question:
+Before choosing a token format or authentication protocol, I need to decide which failures the system must prevent and which assumptions those guarantees depend on.
 
-> **What specific attack does this close, and what does it leave open?**
+## Start with assets and allowed operations
 
-The second half turned out to matter more than the first. A control you think is total is more dangerous than one whose limits you know, because you stop looking past it. `HttpOnly` is the clean example — I'd absorbed it as "stops XSS," which is wrong in a way that would have led me to build the wrong thing. It stops an attacker *exfiltrating* your session token. Script running in your page can still make requests as you. The credential doesn't leave the browser; the damage does.
+The obvious assets are passwords and tokens, but a registry also holds package names, ownership relationships, immutable release identities, artifact bytes, and availability. Losing any one of those can affect downstream users.
 
-So before writing any code I built a map. This post is that map.
+For the initial design, I want the following properties:
 
-## The map
+| Operation | Required property |
+|---|---|
+| Claim a package name | One canonical name identifies one package |
+| Publish a version | The caller has publish authority for that package |
+| Fetch a version | Metadata and artifact bytes identify the intended release |
+| Publish the same version again | Existing release content cannot be silently replaced |
+| Yank a version | Only an authorized caller can change resolution policy |
+| Read public metadata | One caller cannot consume an unbounded share of capacity |
 
-I'll expand each row into its own post as I implement it. Read the right-hand column first — it's the one that changed how I think.
+Yanking needs a precise meaning. Here it marks a release as unsuitable for future selection while preserving its identity. Whether an existing lockfile may still fetch it is a registry policy, not an automatic consequence of setting a boolean column.
 
-| Control | Protects against | Does **not** protect against |
+The immutability requirement also needs more than a unique database key. Uniqueness prevents duplicate rows; it does not prevent an update to a checksum or replacement of an artifact. The guarantee must cover the complete write path and the storage system that serves the bytes.
+
+## Name the attacker capabilities
+
+The first attacker can connect to the public API and send arbitrary bytes. They can choose lengths, duplicate fields, malformed encodings, request timing, and connection counts. They do not need an account to exercise the HTTP parser, TLS handshake, or registration endpoint.
+
+The second attacker has a valid low-privilege account. They can send correctly authenticated requests for somebody else's package. This is where object-level authorization matters: checking a token's validity cannot answer whether its subject owns the package named in the URL.
+
+The third attacker has stolen something: a database snapshot, an API token, or a client session. Those are different capabilities. A password hash allows offline guessing. A usable bearer token permits requests until its authority is rejected or expires. A browser session may let an attacker act through the browser even when they cannot read its cookie.
+
+A network attacker adds another case: observing or modifying traffic between the client and the registry. TLS addresses that path when certificate verification is correct. It does not protect secrets in application logs or a compromised endpoint.
+
+Writing these capabilities separately avoids assuming that one successful defense covers all of them. A registration rate limit has no effect on offline password guessing after a database leak.
+
+## Follow one request through its boundaries
+
+A publish request passes through several representations:
+
+```text
+network bytes → HTTP message → route and identity
+              → validated publish input → database and artifact storage
+```
+
+Each transition introduces a question. Does the body length mean the same thing to the proxy and server? Is the captured package name still valid after decoding? Does the identity outlive the buffer used to decode it? Is this identity authorized for this package? Does a description remain a bound SQL value and a JSON string?
+
+Zig makes ownership and allocation decisions explicit, which is useful for this exercise. It also makes them the application's responsibility. Runtime safety checks help with some illegal operations, but they do not automatically prevent dangling slices, races, or unsafe C interop. Writing the server without a framework expands what I must verify; it does not inherently produce a safer server.
+
+The first implementation supports metadata operations with SQLite. Artifact verification, scoped credentials, browser sessions, delegated login, and ownership policy are separate steps. A design goal in this introduction should not be read as a claim that all of those features already exist.
+
+## Match a control to a failure
+
+A useful control description includes both what it changes and the assumption it leaves behind:
+
+| Control | Failure it addresses | Remaining requirement |
 |---|---|---|
-| Input validation (allowlist) | Injection, path traversal, malformed input | Logic flaws, authorization bugs |
-| Bounded reads | Memory exhaustion, decompression bombs | Distributed volumetric attacks |
-| Checked arithmetic | Integer overflow defeating a length check | Errors in the check itself |
-| `ReleaseSafe` build | Bounds/overflow bugs becoming exploitable UB | The bug — it turns RCE into a crash |
-| `secureZero` | Keys recovered from freed memory or a core dump | Keys while legitimately in use |
-| Parameterised queries | SQL injection | Injection anywhere you didn't parameterise |
-| Output encoding | XSS | Malicious stored data being *used* elsewhere |
-| TLS | Eavesdropping, tampering, server impersonation | Anything after the bytes arrive |
-| HSTS | Protocol downgrade, after the first visit | The first visit (needs preloading) |
-| Argon2id | Offline cracking of a stolen password table | Phishing, weak passwords, reuse |
-| Constant-time compare | Timing side channels | Everything else |
-| Identical auth failures | Username enumeration | Credential stuffing |
-| CSPRNG tokens | Prediction and forgery | Theft of a real token |
-| Hashing tokens at rest | A database leak yielding usable credentials | Theft in transit or at the client |
-| Token expiry | A leak being useful indefinitely | Misuse inside the window |
-| `HttpOnly` | Token exfiltration via XSS | XSS acting as the user, in the page |
-| `Secure` | The cookie being sent over plaintext | Anything, once you're on HTTPS |
-| `SameSite` | Most CSRF, as a browser-side default | Older clients, same-site attackers |
-| CSRF token | CSRF | XSS — which can simply read the token |
-| CORS | **Nothing.** It *relaxes* the same-origin policy | Non-browser clients, entirely |
-| Same-origin policy | Cross-origin reads of the user's data | Your server, approached directly |
-| Ownership checks | BOLA / IDOR | Compromised legitimate accounts |
-| Roles (RBAC) | Privilege escalation | Over-broad role design |
-| ABAC | Role explosion; context-dependent rules | Static analysis — rules become un-auditable |
-| ReBAC (Zanzibar) | Transitive-access bugs; "who can access this?" | Latency — a graph query per request |
-| Scoped tokens | The blast radius of a leaked credential | The leak itself |
-| Rate limiting | Brute force, exhaustion, cheap enumeration | Network-layer DDoS |
-| Audit logging | Repudiation, undetected compromise | The breach — this is detection, not prevention |
-| Signed tokens (JWT) | Forgery and tampering | Theft; and it *costs* you easy revocation |
-| `aud` / `iss` claims | A token replayed against a different service | Misuse at the correct audience |
-| ID token (OIDC) | Identity confusion — access ≠ authentication | Anything, if you send it to an API |
-| DPoP / bound tokens | Token theft and replay; nosy intermediaries | Compromise of the client's key |
-| PKCE | Authorization code interception | A fully compromised client |
-| `state` | CSRF on the OAuth redirect | Code interception — that's PKCE's job |
-| mTLS | Service impersonation, lateral movement | A compromised service's own authority |
-| Content addressing | Artifact tampering at rest or in transit | A malicious artifact published legitimately |
-| Version immutability | Retroactive tampering; invalidated checksums | The first publish being malicious |
-| Fuzzing | Parser bugs — the classic RCE source | Logic and authorization flaws |
-| Secret rotation | How long a leaked secret stays useful | The leak |
+| Framing validation | Two parsers assign different request boundaries | Test the actual proxy and origin combination |
+| Body and header limits | Unbounded input buffering | Bound concurrency, execution time, and outputs too |
+| Prepared SQL parameters | A value changes SQL structure | Map dynamic identifiers and enforce authorization |
+| Context-specific output encoding | Data changes the surrounding output syntax | Apply it again when data enters another context |
+| TLS with certificate validation | Traffic interception and network impersonation | Protect endpoints and any post-termination hop |
+| Password hashing | Cheap offline guesses against a stolen table | Control online attempts and hashing concurrency |
+| Resource ownership checks | A valid caller modifies another account's objects | Define and maintain ownership correctly |
+| Scoped, revocable tokens | A credential grants excessive or lasting authority | Protect the token and check its current validity |
+| Audit records | Security-relevant actions leave no usable evidence | Protect logs and arrange detection and response |
 
-## Four things that fell out of writing it
+Some controls change probability or cost rather than forbidding an operation. Password hashing raises the price of a guess. A rate limit reduces how many attempts a caller can make through one identity or network path. Neither guarantees that a weak password will remain unknown.
 
-**CORS is not a security control.** This one genuinely reoriented me. I had it filed as "the thing that stops other sites calling my API," which is backwards. The protection is the **same-origin policy**, it's enforced by the browser, and it protects *the user*, not my server. CORS is me deliberately punching a hole in it for origins I trust. A permissive CORS policy isn't a missing protection — it's a vulnerability I introduced. And none of it applies to `curl`, or a Zig client, or an attacker's script. If an endpoint is "protected" by CORS, it is not protected.
+Other controls establish a narrower structural property. Binding a string parameter prevents that string from becoming SQL syntax in that statement. It says nothing about whether the statement should have been executed for this caller.
 
-**Authentication and authorization are not a spectrum.** I'd been treating them as one gradient of "how logged in are you." They answer disjoint questions — *who are you* versus *what may you do* — and the second needs the resource in hand, not just the credential. This is why Broken Object Level Authorization is the top item on the OWASP API list: the code checks you have *a* valid token, then acts on an object ID from the URL without ever asking whether your token's subject has any relationship to that object. Valid token, someone else's package.
+## Browser controls have a different scope
 
-**Every control trades something.** Signed tokens buy you a stateless request path and pay for it with revocation — a JWT is valid until it expires, full stop, and everything you bolt on to fix that (denylists, short expiry plus refresh) is you rebuilding the database lookup you were trying to avoid. Argon2id buys resistance to offline cracking and pays with 100ms and 64MB per attempt, which is a gift to an attacker who can trigger it unauthenticated. That's not an argument against either. It's an argument for knowing which bill you signed.
+CORS is often described as though it were an API access list. Its actual scope is browser enforcement of cross-origin interactions. A server's CORS policy can allow another origin's JavaScript to read a response that would otherwise be unavailable to it. It does not authenticate a `curl` client or prevent all cross-origin requests from being sent. The protocol is defined in the [Fetch standard](https://fetch.spec.whatwg.org/#http-cors-protocol).
 
-**Defence in depth means independence, not redundancy.** Two controls that fail for the same reason are one control wearing a disguise. `SameSite` plus a CSRF token is genuine depth: one is a browser default I don't control, the other is my own logic. TLS plus HSTS is much less so — HSTS is worthless if TLS is broken.
+That distinction matters when an API uses cookies. A browser can attach a credential to some cross-site requests even when the initiating page cannot read the response. A state-changing endpoint therefore needs a CSRF policy based on its actual credential and request behavior. An unreadable response does not undo a successful write.
 
-## How the build is structured
+Cookie attributes solve narrower problems too. `HttpOnly` prevents ordinary page JavaScript from reading the cookie, but injected script can still issue same-origin requests with it. `Secure` restricts cookie transmission to secure transport. `SameSite` influences cross-site sending, with behavior that depends on its setting and the request context. These settings complement application checks rather than establishing package ownership.
 
-Nineteen phases in five parts, each one opening with a `curl` that exploits the previous phase. Phase 0 is a deliberately unauthenticated API, so the first thing I get to do is delete someone else's package as an anonymous stranger and watch it return `200`. Then transport, then identity, then permissions, then limits, then proof of what happened.
+The registry's CLI and CI clients do not inherit those browser protections. Their tokens need direct authentication, scope checks, and revocation behavior at the API.
 
-Identity is built out completely — passwords, tokens, cookies, CORS — before authorization begins. Most tutorials interleave them, which hides the interesting failure: people build an identity layer structurally incapable of answering "may *this* principal touch *this* object," and find out far too late.
+## Credential format does not decide authorization
 
-Two phases exist because of choices specific to this project. One is memory safety, which most API security material skips entirely because it assumes a managed runtime — in Zig, an integer overflow on a `Content-Length` is a memory-corruption bug, so it gets a phase. The other is supply chain security, which a package registry cannot honestly omit: the thing being built *is* a supply chain.
+An opaque token usually leads to a server-side lookup. A signed token can carry claims that the API validates locally. Either can represent excessive authority, and either can be stolen.
 
-The next post is the one I found hardest and needed most: [front channel and back channel](/series/api-security/front-channel-back-channel) — what the trust boundary in OAuth actually is, why the authorization code grant is shaped the way it is, and why PKCE exists.
+For a locally validated signed token, early revocation requires additional state or a change to what the API accepts. Short expiry limits the duration of exposure but does not stop misuse during the accepted interval. An opaque token makes centralized revocation straightforward, at the cost of a lookup and a dependency on that store. These are architecture choices, not a ranking where the more elaborate format is more secure.
+
+The same applies to permission models. A package may initially need only an owner relation and a publish permission. Roles can simplify a larger organization, but adding roles before defining object-level rules does not solve the central question: may this principal perform this action on this package now?
+
+## Make each claim testable
+
+For each control, I want an example that failed before the change and a regression that exercises the resulting guarantee. A duplicate length should be rejected without invoking a handler. A quote in a description should survive storage and retrieval as data. A non-owner should be denied even when their credential is valid. A failed allocation should unwind without leaking a socket or database statement.
+
+Tests also need to preserve legitimate behavior. Rejecting every publish request would prevent unauthorized publishing but would not implement a registry. A useful regression pairs the denied case with the authorized operation that must still work.
+
+The implementation articles begin with [the HTTP boundary](/series/api-security/the-http-layer), then add [resource limits and injection defenses](/series/api-security/bounding-a-request), [memory ownership and TLS](/series/api-security/what-the-request-stands-on), and [password authentication](/series/api-security/who-are-you). A separate article explains [OAuth's front and back channels](/series/api-security/front-channel-back-channel), because delegated authorization introduces another set of actors and transaction-binding requirements.

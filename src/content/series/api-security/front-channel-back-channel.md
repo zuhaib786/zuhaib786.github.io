@@ -1,165 +1,127 @@
 ---
-title: "Front Channel, Back Channel"
-description: "The OAuth2 authorization code grant made no sense to me until I stopped asking what the steps were and started asking which of them the attacker can see. A walk through the trust boundary, built up by breaking it four times."
+title: "OAuth's Front Channel, Back Channel, and PKCE"
+description: "Following an authorization code from browser redirect to token exchange, with the checks that bind it to the right client, browser session, and authorization server."
 date: 2026-09-13
 order: 2
 tags: ["Security", "OAuth", "PKCE", "Cookies", "CORS"]
 draft: true
 ---
 
-I could recite the authorization code grant before I understood it. Client builds an authorization URL with scopes and a redirect URI; user authenticates and consents; the authorization server redirects back with a code; the client exchanges the code for an access token and a refresh token. Fine. I could draw the arrows.
+Suppose a developer wants a release-management service to publish packages on their behalf. Giving that service the registry password would give it a reusable credential with whatever authority the password carries. OAuth allows the developer to grant narrower access through an authorization server instead.
 
-What I couldn't answer was **why**. Why a code and then a token, instead of just a token? Why does the client send its secret on the second call and not the first? What is the attacker in this story actually able to do, such that this specific shape defeats them?
+There are four roles in this example. The developer is the resource owner. The release-management service is the client. The authorization server authenticates the developer and issues credentials. The registry API is the resource server that accepts an access token and decides whether the requested operation is permitted.
 
-The thing that unlocked it was learning that "front channel" and "back channel" — which I'd skimmed past as spec jargon — are the entire point.
+Those roles can share infrastructure, but their responsibilities remain different. In particular, a client identifier is not a user identity, and an access token is not automatically evidence that the holder owns every package.
 
-## The founding constraint
+The authorization code flow is easiest to understand by following where its messages travel and what each recipient must verify.
 
-Start further back than the flow. OAuth exists to satisfy one requirement:
+## One flow, two communication paths
 
-> **The client must never see the user's credentials.**
+The browser carries the authorization request to the authorization server and carries the result back to the client. That is the front channel. The client then calls the token endpoint directly to exchange the code. That is commonly called the back channel.
 
-If a third-party tool could just collect your registry password and use it, none of this machinery would be needed. That design exists — it's the deprecated `password` grant — and it's deprecated because it hands your password, with unlimited scope and unlimited lifetime, to software you don't control.
-
-So the password must reach the authorization server and nothing else. But the client is the thing you're interacting with. Getting you from the client over to the AS and back, using nothing but ordinary web plumbing, means a **browser redirect**.
-
-That single decision creates every subsequent problem. The browser is now carrying messages between the AS and the client — and the browser is not a trusted party.
-
-## Courier or endpoint
-
-This is the distinction, and it has nothing to do with servers versus JavaScript. I assumed "back channel" meant "a backend." It doesn't.
-
-**Front channel — the browser is a courier.**
-
-```js
-window.location = 'https://as.example.com/authorize?client_id=barbican-cli'
-                + '&redirect_uri=https://registry.example/cb&code_challenge=xYz&state=abc'
+```text
+Client → browser → authorization endpoint
+Client ← browser ← callback containing code
+Client ──────────→ token endpoint: code + verifier
+Client ←────────── token response
 ```
 
-You aren't talking to the AS. You're handing the browser a URL and telling it to go there. The data *is* the URL. Which means the message lands in the address bar, in browser history permanently, in the `Referer` header sent to every third-party script on the destination page, in the access log of every server the URL touches, and on mobile, in whatever app claimed that URL scheme. The redirect back is a URL too, so `?code=...` inherits all of it.
+Both paths normally use HTTPS. The distinction is message delivery, not whether one path is encrypted. Browser navigation exposes values to the user agent and callback handling. A direct token request avoids placing tokens in a navigation URL. The basic exchange is defined in [RFC 6749, section 4.1](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1).
 
-**Back channel — the browser is an endpoint.**
+For a server-side client, the token call originates on the server and the resulting tokens can stay there. A single-page application can also call a token endpoint directly if that endpoint supports the necessary CORS behavior. The protocol still has a separate exchange, but JavaScript and tokens remain in the browser's execution environment. Calling it a back channel does not make that environment equivalent to a backend.
 
-```js
-fetch('https://as.example.com/token', {
-  method: 'POST',
-  body: 'grant_type=authorization_code&code=abc123&code_verifier=<secret>'
-})
+## What a redirect can expose
+
+A callback URL might look like this:
+
+```text
+https://client.example/callback?code=<authorization-code>&state=<transaction-id>
 ```
 
-That is JavaScript, running in a browser, and it is still a back channel. There's no courier. It's a direct TLS connection to the AS, the secret is in a POST body rather than a URL, and nothing navigated — so no history entry, no `Referer`, no intermediate logs.
+The browser sees the URL, the callback server receives it, and an access log may record its query. Page scripts and browser extensions can create additional exposure depending on their privileges. The client should therefore avoid third-party content on the callback page, consume the response promptly, and avoid logging sensitive query parameters.
 
-```
-FRONT:  you ──[ the URL is the message ]──> 🌐 navigates ──> AS
-BACK:   you ─────────────── TLS ──────────────────────────> AS
-```
+Referrer leakage needs more precision than “every URL is sent to every other site.” It depends on the active referrer policy and destination. URL fragments are excluded from the `Referer` header, and `strict-origin-when-cross-origin` strips the path and query on cross-origin requests. Those rules do not remove all browser-side exposure. See the [Referrer Policy specification](https://www.w3.org/TR/referrer-policy/).
 
-Same machine, same language, completely different exposure. The rule I now apply:
+A POST body also is not automatically secret from its endpoints. A token endpoint, reverse proxy, debugger, or application log can expose one. The benefit of the token exchange is a controlled recipient and additional validation, not immunity from logging or a compromised client.
 
-> Assume everything that crosses the front channel is **public**.
+## Why return a code instead of an access token?
 
-## Building it by breaking it
+An access token is used at the API. If it is a bearer token, someone who possesses it can present it without proving possession of a separate key. This makes accidental disclosure operationally significant. [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750.html) defines bearer-token use and its security requirements.
 
-With that framing, the grant stops being arbitrary. Here's the design arrived at by attacking each version.
+An authorization code has a more constrained purpose. It is short-lived, single-use, and redeemed at the token endpoint. The authorization server associates it with the client and redirect URI, along with the authorization transaction. Before issuing tokens, the token endpoint can check information that the browser redirect did not carry.
 
-### v0 — send the token in the redirect
+These restrictions reduce exposure but do not make a stolen code harmless on their own. If a public client can redeem a code using only values visible in the redirect, an attacker who obtains the code may redeem it first. PKCE adds the missing proof that the redeemer holds a secret established for that transaction.
 
-This was the implicit grant:
+For confidential clients, the token endpoint also authenticates the client. That answers which registered client is making the call. It is separate from proving that this particular code belongs to this particular in-progress authorization flow.
 
-```
-https://registry.example/cb#access_token=eyJhbGci...
-```
+## PKCE binds the exchange to a fresh secret
 
-An access token is a *bearer* credential — possession is authorization, no further proof required. We just put one on the public bulletin board. It's in history. Any injected script reads it. It leaks via `Referer`. And the AS has no idea who ended up holding it.
+Before navigation, the client generates a cryptographically random verifier and derives a challenge:
 
-Implicit existed because before CORS was universal, browser apps physically couldn't make the cross-origin POST that the next version requires. That constraint is gone, so implicit is now discouraged and OAuth 2.1 drops it.
-
-### v1 — send a code, exchange it over the back channel
-
-Now the front channel carries a claim ticket rather than the goods, and the token only ever exists on the direct connection.
-
-But a stolen claim ticket still works. The attacker lifts `code` from the URL exactly as they'd have lifted the token, and POSTs it themselves. The problem moved; it didn't go away.
-
-### v2 — require something the front channel never saw
-
-Authenticate at the token endpoint:
-
-```
-POST /token
-Authorization: Basic <base64(client_id:client_secret)>
-grant_type=authorization_code&code=abc123
+```text
+verifier  = base64url_without_padding(32 random bytes)
+challenge = base64url_without_padding(SHA256(ASCII(verifier)))
 ```
 
-Here's the whole mitigation in one table:
+The hash input is the encoded verifier string, not the original random bytes. Thirty-two random bytes encode to 43 base64url characters, fitting PKCE's verifier grammar. The verifier stays with the client; the authorization request carries the challenge and `code_challenge_method=S256`.
 
-| | crosses the front channel | required to get a token |
-|---|---|---|
-| `code` | yes | yes |
-| `client_secret` | **never** | yes |
+At the token endpoint, the client supplies the code and verifier. The authorization server recomputes the challenge and compares it with the value associated with that code. An interceptor who has only the code and challenge cannot feasibly recover a sufficiently random verifier. The transformation and exchange are specified in [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636.html).
 
-An attacker who completely owns the front channel still cannot finish the exchange, because one required input was never there. That's what "the code is useless on its own" means — not that it's encrypted or clever, just that it's insufficient.
+A shortened authorization request has these fields:
 
-Single use and a sixty-second lifetime are layered on top, but they're defence in depth. The structural property is the table.
-
-Except: a CLI tool, a mobile app, or a single-page app has no secret. Anything shipped to a user's device can be extracted — `unzip` the APK, open DevTools, run `strings` on the binary. A secret distributed to a million devices is a published secret, and registering the client as "confidential" doesn't change that, it just means the AS is trusting a factor everyone already has.
-
-### v3 — PKCE, an ephemeral secret per flow
-
-If you can't hold a *persistent* secret, generate a fresh one each time:
-
-```
-before starting:  verifier  = 32 random bytes, base64url    ← stays in memory
-                  challenge = base64url(SHA-256(verifier))
-
-→ front channel (public):   code_challenge=<challenge>&code_challenge_method=S256
-← front channel (public):   code=abc123
-→ back  channel (private):  code=abc123 & code_verifier=<verifier>
-
-AS checks: SHA-256(code_verifier) == the challenge I stored at the start?
+```text
+response_type=code
+client_id=release-client
+redirect_uri=https://client.example/callback
+code_challenge=<challenge>
+code_challenge_method=S256
+state=<random-transaction-id>
 ```
 
-Structurally identical to v2. The public channel sees the challenge and the code; the verifier never goes there, and a hash can't be run backwards to produce it. A stolen code is still unredeemable.
+These are shown one per line for readability; the real request encodes them as query parameters. The token exchange uses form encoding and includes `grant_type=authorization_code`, the code, redirect URI when required, and verifier. Confidential clients also use their configured client-authentication method.
 
-On mobile this isn't hypothetical — a malicious app can register the same custom URL scheme and receive your redirect. PKCE is what makes that theft worthless. And because PKCE also defeats code injection, current guidance is to use it for *every* client, confidential ones included. OAuth 2.1 makes it mandatory.
+Current OAuth security guidance requires PKCE for public clients and recommends it for confidential clients. It also requires the challenge to be specific to the transaction and securely bound to the initiating client and user agent. Reusing one verifier for every login defeats that binding. [RFC 9700, section 2.1.1](https://www.rfc-editor.org/rfc/rfc9700.html#section-2.1.1) is the relevant guidance.
 
-### v4 — the two remaining holes
+## Store a transaction, not just a verifier
 
-**Redirect URI manipulation.** If an attacker can get the AS to deliver the code to `https://evil.example/cb`, they don't need to steal anything. The AS must only redirect to URIs pre-registered for that `client_id`, matched *exactly* — no wildcards, no prefix matching. (Prefix matching is a recurring real-world bug: `localhost:3000` also matches `localhost:3000.evil.example`.)
+A server-side client needs enough temporary state to recognize the callback:
 
-**CSRF on the redirect.** The attacker starts a flow with *their* account, then tricks your browser into visiting `https://registry.example/cb?code=<their code>`. Your client now holds a token for the attacker's account and writes your data into it. The `state` parameter — random, tied to your session, verified on return — closes it. PKCE covers it too, since their code won't match your verifier.
-
-## Where the honesty is
-
-For a server-side client, the back channel is genuinely strong: the call originates on a machine the user doesn't control, and the secret never enters a browser.
-
-For a single-page app it's weaker, and the spec authors say so plainly. The `code_verifier` lives in JavaScript memory. **XSS in your own origin defeats it** — hostile script can run the same `fetch` or read the token afterwards. PKCE protects the code in transit; it does nothing about code executing inside your page.
-
-| Threat | SPA back channel |
-|---|---|
-| Code stolen from URL, history, `Referer` | ✅ closed |
-| Network attacker, malicious app on the device | ✅ closed |
-| Rogue browser extension | ⚠️ partial |
-| XSS in your own app | ❌ **open** |
-
-Which is why the current recommendation for browser apps isn't "SPA with PKCE" — it's the **backend-for-frontend** pattern. A small server of yours performs the exchange, holds the tokens, and hands the browser an `HttpOnly` `SameSite` session cookie. Then the browser never touches a token, and XSS is reduced from "steal a portable credential and use it from anywhere, later" to "make requests as the user, right now, from this page." Still bad. Considerably less bad.
-
-## The second boundary, which I nearly missed
-
-There's a trust boundary inside the token pair itself:
-
-```
-access token   ──> shown to EVERY resource server you call
-refresh token  ──> shown ONLY to the authorization server
+```text
+pending transaction:
+  browser session
+  state value
+  PKCE verifier
+  expected authorization server
+  redirect URI
+  expiry
 ```
 
-Different audiences, so different exposure, so different lifetimes. The access token gets passed around widely — hence short-lived and narrowly scoped, so a compromised or simply nosy resource server gains ten minutes of limited access rather than permanent access. The refresh token has exactly one recipient, so it can afford to be long-lived.
+The client stores this before redirecting the browser. On return, it checks that the transaction exists, belongs to this browser session, has not expired, and has the expected `state`. It consumes the transaction so another callback cannot reuse it. Multiple simultaneous login attempts need separate entries; a single global “current verifier” is incorrect even before considering attacks.
 
-I'd assumed the split was about not re-prompting the user. Convenience is a side effect. The design reason is blast radius.
+This is the application part of the protocol. A library can compute the challenge correctly while the surrounding application attaches the callback to the wrong browser session.
 
-## The one sentence
+Consider login CSRF: an attacker starts authorization for their own account, then causes another person's browser to visit the resulting callback. If the application accepts that callback without matching an initiating transaction, the victim can end up using the attacker's account and putting data into it. A session-bound `state` value provides correlation. Correctly bound PKCE can also supply CSRF protection under the conditions described in the security guidance; merely including the parameter is insufficient.
 
-Everything above collapses into this, and once I had it the rest stopped needing memorisation:
+## Redirect URIs and issuers are independent checks
 
-> **The front channel is a public bulletin board; the back channel is a private line. Only ever post a claim ticket on the board, and require something from the private line to redeem it.**
+The authorization server must deliver the code only to a registered redirect URI under the applicable matching rules. Prefix matching is dangerous: allowing a URL because it starts with a trusted string can admit a different host or path. Native applications have a specific exception for variable ports on loopback redirects; that is not permission for broad wildcard matching.
 
-Next: Phase 0 of [barbican](/series/api-security/what-protects-against-what) — an API with no authentication at all, a written threat model, and the satisfaction of deleting a stranger's package with a single anonymous `curl`.
+Native apps also illustrate why a shipped client secret is not confidential. A static secret included in every copy can be extracted. PKCE instead creates a secret for each authorization attempt. Custom URI schemes can be claimed by another app, while claimed HTTPS redirects and loopback redirects have different platform properties. These considerations are covered by [RFC 8252](https://www.rfc-editor.org/rfc/rfc8252.html).
+
+A client that supports multiple authorization servers needs another binding: which server started this transaction? It must not send a code or verifier to an endpoint chosen from untrusted callback data. Store the expected issuer and use trusted configuration to choose endpoints. Where supported, validate the authorization response's `iss` value against that issuer. [RFC 9207](https://www.rfc-editor.org/rfc/rfc9207.html) specifies the issuer parameter as a defense against authorization-server mix-up.
+
+PKCE, redirect validation, and issuer validation answer different questions. Passing one check does not make the others redundant.
+
+## PKCE ends at the token exchange
+
+PKCE protects code redemption. It does not stop hostile JavaScript running inside a browser client from using that client's verifier or stealing tokens after the exchange. It also does not protect a bearer access token once that token has been copied elsewhere.
+
+A backend-for-frontend design changes where those credentials live. The server performs the exchange and holds the OAuth tokens; the browser receives a session cookie. An `HttpOnly` cookie reduces direct credential extraction through page JavaScript, but injected script may still issue authorized requests through the application. Cookie-backed actions need CSRF protections as well.
+
+That architecture can reduce token exposure, but it creates a session store and a server that acts on the browser's behalf. The choice depends on what the application can operate and which client-side threats it needs to contain. It is not a property that PKCE alone can provide.
+
+Access tokens should go only to their intended resource servers. Refresh tokens go to the authorization server's token endpoint, not to the registry API. Their longer potential lifetime creates a separate need for expiry, revocation, rotation or sender constraints, and protected storage.
+
+If the application also needs to sign a user in, OpenID Connect adds an ID token with authentication information for the client. That token has its own validation requirements, including issuer, audience, signature, expiry, and a nonce when one was sent. It is not interchangeable with the access token presented to an API. The distinction is defined in [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+
+For the registry, the eventual result is a credential that represents delegated authority. The API must still validate it and enforce package-level permissions. A successful OAuth exchange establishes how the client obtained a token; it does not decide whether the next publish request is allowed.

@@ -48,7 +48,7 @@ export const allSeries: SeriesMeta[] = [
     slug: "api-security",
     title: "Barbican: API Security in Zig",
     description:
-      "Learning API security by building it — a package registry written from scratch in Zig, one control at a time, each one introduced by the attack it closes.",
+      "API security through a package registry in Zig: HTTP parsing, resource limits, TLS, authentication, and authorization, with small examples and explicit tradeoffs.",
     order: 4,
     draft: false,
   },

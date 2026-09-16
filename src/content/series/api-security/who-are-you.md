@@ -1,183 +1,145 @@
 ---
-title: "Offline Cracking, User Enumeration, and a Timing Oracle"
-description: "Phase 4 of barbican: attacks on the credential itself — a stolen password table cracked on a GPU farm, an error message that confirms which usernames exist, and the absence of hashing time saying the same thing out loud."
+title: "Password Authentication: Hashing, Timing, and Request Identity"
+description: "Adding Argon2id and HTTP Basic authentication to a Zig API, with explicit hashing budgets, uniform failures, and a clear separation between identity and permission."
 date: 2026-09-16
 order: 6
 tags: ["Security", "Authentication", "Argon2", "Zig", "Timing Attacks"]
 draft: false
 ---
 
-Every write in [Phase 3](/series/api-security/what-the-request-stands-on) is anonymous: a stranger can publish a package and yank someone else's version. Closing that means storing a credential, checking it, and refusing without saying anything useful — three separate attack surfaces.
+Until this point, anyone who could reach Barbican could publish or yank a package version. The registry could parse a request, validate its fields, and store it safely, but it had no identity to attach to the operation.
 
-## Attack: a stolen password table is cracked offline
+This stage adds registration and HTTP Basic authentication. Basic sends a base64 encoding of `username:password` on each authenticated request. Base64 provides no secrecy, so it depends on the [TLS connection established previously](/series/api-security/what-the-request-stands-on). It is an intermediate design: verifying a password on every request is expensive, and a password is a poor credential for an unattended publishing job.
 
-A database breach hands an attacker every hash at once, with unlimited time and no rate limit. Against SHA-256 a modern GPU tries billions of candidates per second; salting changes the order of the work, not its cost. The whole defence is making each guess expensive.
+Authentication also leaves an important question unresolved. Knowing that Alice sent a request does not establish that Alice may modify Bob's package. The first access rule distinguishes public routes from routes requiring an authenticated user. Package ownership still needs its own authorization model.
 
-## Fix: Argon2id, chosen by measurement
+## The password table is an offline attack surface
 
-```zig
-const ARGON2_PARAMS = std.crypto.pwhash.argon2.Params.interactive_2id;
+If an attacker obtains stored password hashes, the API's rate limit no longer controls their guesses. They can test candidates on their own hardware. A fast general-purpose hash makes each test cheap; a unique salt prevents reuse of precomputed work across accounts but does not make a single guess expensive enough.
+
+Barbican uses Argon2id, which takes memory and time parameters as well as the password and salt. Memory hardness makes large numbers of parallel guesses more expensive. Iteration count and parallelism still matter; memory is not the only meaningful parameter. [RFC 9106](https://www.rfc-editor.org/rfc/rfc9106.html) describes the algorithm and the tradeoffs in choosing its parameters.
+
+The selected Zig preset uses 64 MiB, two passes, and one lane. Development notes record approximately 68 ms for a verification in `ReleaseSafe` on the development machine. That is a local observation, not a throughput promise. Hardware, allocator behavior, concurrent load, and build configuration all affect it.
+
+The practical budget is concurrent hashing:
+
+```text
+64 MiB per verification × 32 active verifications = 2 GiB
+64 MiB per verification × 128 active verifications = 8 GiB
 ```
 
-Three presets, measured in the mode that ships. A build with safety checks disabled is roughly ten times faster, so timing this in a debug build would understate the cost by an order of magnitude and pick something far too weak.
+Those are working-memory estimates before the rest of the process. A connection limit alone can leave an unauthenticated caller able to trigger far too much hashing. A dedicated limit on active verifications, a bounded queue or immediate rejection, and rate limits are distinct controls. Registration needs the same protection because it also computes a password hash.
 
-| preset | memory | passes | verify |
-|---|---|---|---|
-| `owasp_2id` | 19 MiB | 2 | 17 ms |
-| `interactive_2id` | 64 MiB | 2 | **68 ms** |
-| `moderate_2id` | 256 MiB | 3 | 421 ms |
+The implementation does not yet provide that complete admission policy. Raising hash cost without measuring aggregate demand would improve offline resistance while making the live service easier to exhaust.
 
-**Memory is the parameter that matters, not iterations.** Iterations slow the defender and the attacker by the same factor. Memory does not: a GPU has thousands of cores and nowhere near 64 MiB of fast memory for each of them, so a memory-hard function collapses the parallelism advantage that makes offline cracking cheap.
+## Store enough information to verify and migrate
 
-It is not set higher because 64 MiB is allocated per hash *by an unauthenticated caller*. At a 128-connection limit that is 8 GiB available on demand. Password hashing is a deliberate self-inflicted denial of service, and rate limiting is what buys the headroom to raise the cost later.
+A stored Argon2 value uses PHC string encoding:
 
-What gets stored is the full PHC string, not a digest:
-
-```
-$argon2id$v=19$m=65536,t=2,p=1$3GIW2iW13rqRuMnj0nzZAorBQ99TYBhLXD2D8O7D2H0$oBodLvr2D8srVARQj2bOdh1cd8WkLUK4HSdbueyli6o
+```text
+$argon2id$v=19$m=65536,t=2,p=1$<salt>$<digest>
 ```
 
-The salt is in there, so two users who pick the same password store different rows and no precomputed table applies to either. The cost parameters are in there too, so raising them later leaves existing rows verifiable against their own parameters — the alternative is a migration that has to be got exactly right while people are logging in.
+The angle-bracketed fields are placeholders. The real value carries the algorithm, version, memory cost, pass count, parallelism, salt, and result. Two registrations with the same password receive different salts and therefore different stored strings.
 
-## Attack: a password rule shrinks the search space
+Including parameters makes gradual upgrades possible. On successful login, the server can verify with the row's existing parameters, compare them with the current policy, and rehash if needed. Raising the default does not require knowing everyone's plaintext password or invalidating all existing rows. [OWASP's password-storage guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) discusses work-factor upgrades and benchmarking.
 
-"One uppercase, one digit, one symbol" is a rule an attacker reads as a hint. `Password1!` satisfies every one of them, and so do the few thousand variants that users actually produce when forced. The rule eliminates candidates the attacker was never going to try and concentrates the rest.
+The hash itself remains sensitive: it is the material an offline attacker needs. Neither the plaintext password nor its PHC string belongs in response objects or logs. Releasing the request arena ends allocation lifetime but does not securely erase every copy of a password from memory.
 
-## Fix: length, and nothing else
+## Length limits are a policy, not a strength measurement
 
-```zig
-pub fn password(s: []const u8) Error!void {
-    if (s.len < MIN_PASSWORD) return error.PasswordTooShort;  // 12
-    if (s.len > MAX_PASSWORD) return error.PasswordTooLong;   // 128
-}
-```
+The current registration rule accepts passwords from 12 to 128 bytes and does not require a particular mixture of uppercase letters, digits, and symbols. That avoids encouraging predictable transformations such as appending `1!` to a familiar word.
 
-Length is the only property that reliably costs an offline attacker anything. The maximum is a resource bound rather than a security claim — Argon2 does not truncate, so a long passphrase is genuinely stronger and the cap should be generous; it exists because every byte is fed to a deliberately expensive function by an anonymous caller.
+It does not establish that every accepted password is strong. Twelve repeated letters pass this rule. Length helps when it represents additional unpredictability; a long, common phrase can still be guessed early.
 
-## Attack: the error message says which usernames exist
+There are two limitations to state explicitly. First, the code measures bytes, so non-ASCII characters may consume several units of the limit. Second, the policy does not yet check a blocklist of common or compromised passwords. As a reference point, current NIST guidance requires a minimum of 15 characters for a password used as a single authentication factor, permits a lower minimum when it is part of MFA, and requires blocklist checking. This implementation's 12-byte rule is therefore not a claim of conformance. See [NIST SP 800-63B's password requirements](https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver).
 
-`401 unknown user` and `401 wrong password` are two different answers, and the first one is worth far more. Finding a valid username costs an attacker nothing and turns a two-dimensional guess into a one-dimensional one.
+The upper bound is a resource policy. It should be generous enough for passphrases, enforced without silent truncation, and consistent between registration and authentication.
 
-## Fix: one response, byte for byte
+## Parse Basic credentials without changing their meaning
 
-A malformed header, an unknown user, a syntactically impossible username and a wrong password all produce the same status, the same challenge and the same body:
+Basic authentication has several small parsing rules. The scheme name compares case-insensitively. The value must decode as base64 within a fixed buffer. The decoded string is split at its first colon, because a password can itself contain colons.
 
-```
+The server copies the header into owned, bounded storage before later reads can reuse the receive buffer. It also rejects duplicate `Authorization` fields instead of arbitrarily choosing one. Otherwise, the application and an intermediary could authenticate different credentials from the same request.
+
+The lifetime requirement extends beyond the raw header. A decoded username may be a slice into a temporary decoding buffer. If it becomes the request's authenticated identity, it must be copied into request-lifetime storage before that buffer disappears. A small parser returning a valid slice is not enough if its caller retains the slice too long.
+
+These rules follow from the wire format and memory model, not from password hashing. [RFC 7617](https://www.rfc-editor.org/rfc/rfc7617.html) defines the Basic scheme.
+
+## Uniform responses still leave timing differences
+
+On a protected route, an unknown username and a wrong password produce the same authentication response:
+
+```http
 HTTP/1.1 401 Unauthorized
 WWW-Authenticate: Basic realm="barbican"
+Content-Type: application/json
 
 {"error":"authentication required"}
 ```
 
-The challenge header is not decoration. Without it, `401` says the request failed and not what would make it succeed, and a client cannot tell "you are not authenticated" from "you are authenticated and refused".
+This is a response excerpt; framing headers are omitted. The challenge identifies the supported authentication scheme. The body does not reveal whether the username exists.
 
-## Attack: the absence of hashing time says it anyway
+But identical bytes do not imply identical observations. If a missing user returns immediately while an existing user runs Argon2, the difference is roughly one hash computation. Repeated measurements can make that difference useful even across a noisy network.
 
-Identical bodies are not enough. A server that looks up the user, finds nothing, and returns immediately is measurably faster than one that found a row and verified against it. The gap is one hash — here, 68 milliseconds, which is enormous over a network.
+The usual mitigation verifies against a fixed dummy PHC value when no account exists. That puts both paths through the same expensive operation. The dummy must use parameters comparable to current real hashes.
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/timing-oracle.svg" alt="Four latency bars. Without a dummy hash, 'no such user' returns early and 'wrong password' runs long, and the gap between them is marked as the answer. With a dummy hash, both run to the same length.">
-  <img class="plate-dark" src="/images/api-security/timing-oracle-dark.svg" alt="Four latency bars. Without a dummy hash, 'no such user' returns early and 'wrong password' runs long, and the gap between them is marked as the answer. With a dummy hash, both run to the same length.">
-</figure>
+The intended control flow can be expressed as pseudocode:
 
-## Fix: hash a password nobody has
+```text
+stored = lookup(username)
+verification = verify(stored or dummy_hash, supplied_password)
 
-When the username does not resolve to a row, verify the supplied password against a fixed hash instead of returning. Written as a fallback rather than a branch, so there is one verification and not two:
+if stored is missing or verification failed:
+    return invalid
+return authenticated(username)
+```
+
+The existence check after verification is essential. Dummy verification performs work; it must never create an identity, even if someone supplies a password that matches the dummy. The current fallback design needs that explicit guard rather than relying on the dummy password being unknown. Similarly, a storage failure must not fall through to successful authentication after dummy work.
+
+This is a good example of a property a regression test should assert directly: no missing account can authenticate, independently of the dummy value used in the test.
+
+## Which failures should be cheap?
+
+A malformed base64 string can be rejected before hashing. So can a username outside the published grammar. These outcomes depend only on input the caller already knows. Making them expensive does not conceal account state.
+
+| Input or lookup result | Appropriate work |
+|---|---|
+| No credential | Return an anonymous caller |
+| Malformed encoding or invalid username syntax | Reject before hashing |
+| Valid username syntax, no account | Verify against the dummy, then reject |
+| Existing account, wrong password | Verify against the stored hash, then reject |
+| Existing account, correct password | Verify, then construct an owned identity |
+
+This policy removes the largest intentional timing difference; it does not make the whole endpoint constant-time. Database lookup, scheduling, caches, and mixed historical hash parameters can still produce differences. A single dummy cost cannot exactly match every account during a work-factor migration.
+
+Timing tests should therefore compare distributions under realistic load, not declare success because two sample medians happen to be close. Password verification should use the library's comparison logic rather than adding a second ad hoc comparison around it.
+
+## Make access a required route decision
+
+Each route must explicitly say whether it is public or requires authentication:
 
 ```zig
-std.crypto.pwhash.argon2.strVerify(
-    stored orelse DUMMY_PHC,
-    basic.password,
-    .{ .allocator = ctx.arena },
-    ctx.app.io,
-) catch return .invalid;
-```
+const Access = enum { public, authenticated };
 
-One call site matters more than it looks. Equal cost is then a property of the control flow rather than a rule that has to be applied identically at every early return.
-
-The dummy must be generated with the **same parameters** the server hashes with. One at a different cost takes a different amount of time and reopens the oracle it exists to close. Medians over twenty requests each, after a warm-up:
-
-```
-existing user, wrong password    148.2 ms
-no such user                     148.7 ms
-existing user, wrong password    151.2 ms
-no such user                     151.5 ms
-```
-
-The drift between rounds is larger than the difference between the two cases inside either round.
-
-## Fix: but only for the answers a secret decides
-
-Not every rejection should be slow. A header that fails to base64-decode, or a username the allowlist refuses, is rejected in milliseconds:
-
-```zig
-const basic = decode(ctx.cred.value(), &decoded) catch return .invalid;
-const username = validate.Username.parse(basic.username) catch return .invalid;
-```
-
-Both answers are pure functions of the input. The syntax rules are deterministic and the caller wrote the header, so an attacker can compute either result offline without sending anything — there is no secret in the answer to leak. The line is not "make every failure slow", it is **make every failure that consults stored state cost the same**.
-
-Hashing them anyway would cost something real: it sells a 64 MiB, 68 ms operation for the price of sending `Authorization: Basic x`.
-
-## Attack: a new route defaults to anonymous
-
-Access declared as an opt-in flag fails open. A route added without it is unauthenticated, it compiles, it works, and nothing in review draws the eye to a line that is not there.
-
-## Fix: make the absence of a decision unrepresentable
-
-```zig
-pub const Access = union(enum) { public, authenticated };
-
-pub const Route = struct {
+const Route = struct {
     method: Method,
     path: []const u8,
-    access: Access,        // no default
+    access: Access,
     handler: Handler,
 };
 ```
 
-No default value, so registering a route without deciding is `error: missing struct field: access`. Opt-out would not have fixed it — it moves which mistake is silent. The question is never opt-in versus opt-out, it is whether a missing decision can exist at all.
+This simplified type has no default for `access`. Omitting the field is a compile error. That prevents a newly registered route from silently inheriting an accidental access policy, although choosing the wrong explicit policy is still possible.
 
-Declaring access on the route also beats matching a path prefix. Prefix rules are where bypasses live: `/admin` guarded while `/admin/` or `/Admin` is not. On the route, the routing decision and the access decision are the same lookup and cannot disagree.
+The request identity distinguishes three states: no credential, invalid credential, and authenticated user. On a protected route, the first two become the same `401`. On public routes, the application must deliberately decide whether a bad supplied credential is rejected or treated as an unauthenticated view; carrying the distinction makes that decision possible.
 
-## Attack: checking after a lookup is an existence oracle
+In the current pipeline, identity resolution happens after the body has been read and before route dispatch. It is not an early header-only check. This means even a public route or unmatched URL can trigger verification when a caller supplies a well-formed credential. That gives every handler consistent identity information but increases unauthenticated work. Admission checks must run before expensive resolution.
 
-A handler that fetches the resource, returns `404` when it is missing, and *then* checks the credential answers two different statuses to an anonymous caller — `404` for a version that does not exist, `401` for one that does. That enumerates private resources without ever authenticating.
+For protected routes, the access gate runs before the handler's resource lookup. That prevents a `404` versus `401` difference from exposing resource existence to an anonymous caller. Whether authenticated callers should be able to distinguish forbidden from nonexistent objects is a separate authorization policy.
 
-## Fix: resolve identity before routing, enforce before any lookup
+## What authentication has established
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/identity-before-route.svg" alt="A left-to-right chain: headers with the credential copied, resolve producing one hash or none, match route on method and path, then an access gate marked public or authenticated. An arrow underneath spans the whole chain, noting the caller is known on every route including a 404.">
-  <img class="plate-dark" src="/images/api-security/identity-before-route-dark.svg" alt="A left-to-right chain: headers with the credential copied, resolve producing one hash or none, match route on method and path, then an access gate marked public or authenticated. An arrow underneath spans the whole chain, noting the caller is known on every route including a 404.">
-</figure>
+This stage identifies callers and can require identity before a write. It does not check package ownership. Any authenticated user can still reach operations that eventually need a per-package permission check.
 
-Resolution runs once, as soon as the headers are complete, before the route is known. Identity becomes a property of the request rather than of which route matched — so a public route still knows who is calling, which is what audit logging and per-principal rate limiting need, and what any route that varies its response by caller needs.
-
-Resolution never fails. It returns a caller, and refusal belongs to the route's access rule:
-
-```zig
-pub const Caller = union(enum) {
-    anonymous,   // no credential presented
-    invalid,     // presented and rejected
-    user: Username,
-};
-```
-
-Three states, not two. Collapsing `invalid` into `anonymous` loses the difference between a client that never meant to authenticate and one whose credential is broken, and a public route that silently serves the anonymous view to the second is how a caller who believes they are authenticated is quietly not. Both return the same error to `require`, so the distinction never reaches the client.
-
-## Attack: the credential is overwritten before it is checked
-
-A parsed header value is a slice into the connection's receive buffer. The body is read into that same buffer. A body larger than one read chunk therefore rewrites the bytes the header points at — so the credential *verified* and the credential *sent* are different strings, chosen by whoever wrote the body.
-
-## Fix: whatever holds a credential owns its bytes
-
-Copied at parse time, into storage the credential itself owns. The same defect one level down produced request-target confusion in an earlier phase; here it is an authentication bypass, which is why the fix cannot be a copy the caller has to remember to make.
-
-Two `Authorization` headers are refused rather than merged. If this server reads one and a proxy ahead of it reads the other, they disagree about who is making the request — the same class as a duplicate `Content-Length`, where they disagree about where the request ends.
-
-## Attacks still open
-
-- **Identity is not permission.** Any authenticated user can yank any package. The anonymous half of that finding is closed; the rest is an ownership model.
-- **A password crosses the wire on every request.** Basic sends the credential itself, base64-encoded, which is encoding and not encryption. It is survivable only because nothing is reachable without TLS, and it is why the next step is a token that can be scoped and revoked.
-- **Hashing is unauthenticated work.** Any caller who presents a well-formed credential buys 64 MiB and 68 ms. Rate limiting is the control, and it does not exist yet.
-- **A duplicate registration still discloses that a username is taken.** Accepted deliberately: a registry publishes usernames on every package page, so the read API already gives this away. The same status code on a bank is a customer list — the verdict belongs to the system, not to the status code.
+It also sends a password and computes a password hash on every authenticated request. A later token design should let a client use a random, revocable credential with restricted authority while keeping the password out of normal API traffic. Before that transition, hashing admission, identity lifetimes, and the dummy-verification guard are concrete correctness requirements, not details that token support can retroactively fix.

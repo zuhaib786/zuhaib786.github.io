@@ -1,106 +1,148 @@
 ---
-title: "Eavesdropping, Truncation, and Plaintext Credentials"
-description: "Phases 2 and 3 of barbican: attacks on the transport a request arrives over and the binary that parses it — a build flag that turns a parser bug into an exploit, a message an attacker cuts short, and a credential spent before any response is written."
+title: "Memory Ownership and TLS in a Zig HTTP Server"
+description: "Keeping parsed bytes valid, retaining runtime safety checks, and adapting OpenSSL to Zig's I/O interfaces without confusing transport closure with message completion."
 date: 2026-09-15
 order: 5
 tags: ["Security", "Memory Safety", "TLS", "Zig", "OpenSSL"]
 draft: false
 ---
 
-The controls in [Phase 1](/series/api-security/bounding-a-request) act on a request's cost and its contents. They assume the bytes arrived unread and unmodified, and that a parser bug stays a parser bug. Neither holds by default.
+A parser can validate a request correctly and still hand the router the wrong path. That happened in Barbican, the package-registry API in this series: the parsed target was a slice into the receive buffer, and a later body read reused that buffer. The slice remained in bounds while its contents changed underneath it.
 
-## Attack: a build flag turns a parser bug into an exploit
+This is a useful place to begin transport security because it separates two guarantees that an API needs. TLS protects bytes while they travel between endpoints. Memory ownership determines whether the application continues to use those same bytes after receiving them. Neither guarantee supplies the other.
 
-`ReleaseFast` removes bounds checking, integer-overflow detection, and the `unreachable` check. In a process parsing attacker-controlled bytes, an out-of-bounds index stops being a panic and becomes an out-of-bounds write.
+The [previous article](/series/api-security/bounding-a-request) added request limits and parameterized database access. This stage uses Zig 0.16's reader and writer interfaces, retains runtime safety checks in release builds, and adds OpenSSL on the connection side of those interfaces.
 
-## Fix: ReleaseSafe for anything on a socket
+## A slice does not own its contents
+
+In Zig, a slice is a pointer and length. Returning a slice from a parser does not copy the bytes it names:
 
 ```zig
-const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .ReleaseSafe });
+const raw = try reader.takeDelimiterInclusive('\n');
+const target = raw[start..end];
+// A later refill may overwrite the storage behind target.
 ```
 
-The safety checks are the control. They convert memory-corruption bugs — the class that produces remote code execution — into crashes, which are a denial of service and nothing worse. `ReleaseFast` stays reachable and stays a decision that has to be argued for.
+The lifetime of the array is not the only issue. Even if the array remains on the stack for the whole request, a refill can replace its contents. If routing happens after body reading, the path used for dispatch may no longer be the path that was validated.
 
-The same phase adds an arena per request, so every allocation a handler makes has one lifetime and is released in one move, and allocation-failure paths are exercised with `FailingAllocator` under a leak-checking allocator. An attacker chooses the input sizes, which makes `OutOfMemory` a reachable path rather than a theoretical one.
+Increasing the buffer or relying on a particular read size is fragile. The parser instead copies the request line into bounded storage and records offsets:
 
-## Attack: everything on the wire is readable and rewritable
+```zig
+const RequestLine = struct {
+    storage: [4096]u8,
+    target_start: u16,
+    target_len: u16,
 
-Without transport security, a network attacker reads every credential sent in Phase 4 onward, and rewrites any checksum in a package response — which is a supply-chain compromise, not an integrity nit. There is also no way for a client to verify it is talking to the real registry.
+    fn target(self: *const RequestLine) []const u8 {
+        return self.storage[self.target_start..][0..self.target_len];
+    }
+};
+```
 
-## Fix: terminate TLS before authentication exists
+This is the relevant shape, with the method and version omitted. Parsing checks the line length before copying and ensures both offsets describe a valid range. The accessor creates a slice from the current object's storage only when it is needed.
 
-Doing this before the first credential is written means no code path ever sends one in the clear, not even temporarily.
+Offsets matter because a struct containing a slice into its own array is self-referential. Returning or copying it can leave the slice pointing into the old instance. Offsets survive the copy; previously obtained slices still do not. Code must not retain a borrowed slice after moving or destroying its owner.
 
-`std.crypto.tls` ships a client and no server, so the server side is OpenSSL through `@cImport`. The integration is two lines, because the parser takes a `std.Io.Reader` and a `std.Io.Writer` rather than a socket:
+The same rule applies to an `Authorization` header needed later in the request. Consume it before the reader can invalidate it, or copy it into storage whose lifetime is explicit. An in-bounds pointer to overwritten bytes is enough to corrupt a security decision; no out-of-bounds access is necessary.
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/tls-seam.svg" alt="Handlers, router and parser stacked above a horizontal line marked std.Io.Reader and std.Io.Writer. Below the line, either a socket adapter or a TLS adapter feeds the same interfaces.">
-  <img class="plate-dark" src="/images/api-security/tls-seam-dark.svg" alt="Handlers, router and parser stacked above a horizontal line marked std.Io.Reader and std.Io.Writer. Below the line, either a socket adapter or a TLS adapter feeds the same interfaces.">
-</figure>
+## What ReleaseSafe buys
+
+Zig's `ReleaseSafe` mode combines optimization with runtime safety checks. Checked integer overflow, out-of-bounds indexing, and other detected illegal operations terminate rather than silently continuing. `ReleaseFast` omits many of those checks. The build-mode distinction is documented in the [Zig language reference](https://ziglang.org/documentation/0.16.0/#Build-Mode).
+
+For a network parser, those checks are valuable. An overflow in length arithmetic should be rejected through checked parsing or arithmetic where possible. A remaining invalid operation should not be allowed to proceed as unchecked memory access.
+
+But `ReleaseSafe` is not a memory-safety proof. It does not automatically detect all use-after-free errors, data races, C-library bugs, or misuse of a valid slice. The overwritten request target above can pass bounds checks because the address and length remain valid. A panic may also take down the process, so catching the mistake still leaves an availability problem.
+
+The project selects `ReleaseSafe` as its preferred release mode. That preference is not evidence of how every binary was built: deployment has to use and verify the intended mode, and local safety overrides remain relevant.
+
+A request arena simplifies allocation lifetimes by freeing request-owned memory together. It does not enforce a quota, allow pointers to escape safely, or erase secrets when released. Allocation-failure tests remain useful because partial construction can leak non-arena resources such as prepared statements and TLS objects.
+
+## Put TLS below the HTTP parser
+
+The parser accepts a reader and the response layer accepts a writer. They do not need to know whether the underlying transport is a raw socket, a test buffer, or TLS:
+
+```text
+HTTP parser and response encoder
+               │
+       Zig Reader / Writer
+               │
+         OpenSSL adapter
+               │
+            TCP socket
+```
+
+For a connection that has completed its handshake, the integration looks like this:
 
 ```zig
 var reader = tls_conn.reader(&recv_buffer);
 var writer = tls_conn.writer(&send_buffer);
 ```
 
-Writing the adapter is two functions: `stream` on the Reader, `drain` on the Writer. Everything else in both interfaces is built on those.
+The adapter is responsible for translating TLS reads, writes, closure, and errors into the I/O interfaces. HTTP remains responsible for message framing. Tests can still give the parser in-memory input without performing a handshake.
 
-Four calls set up the context, and the fourth is the one usually omitted:
+TLS protects confidentiality and integrity between the client and the TLS endpoint. Server authentication also depends on the client verifying the certificate chain and hostname. Merely negotiating encryption with some certificate does not establish that the client reached the registry it intended to contact.
+
+For local tests, the client trusts a generated development CA explicitly. Disabling certificate verification would make a connection succeed against the wrong certificate and invalidate that part of the test. If TLS later terminates at a reverse proxy, the proxy-to-application path becomes a separate trust boundary.
+
+## Fail configuration errors before accepting traffic
+
+The server uses OpenSSL 3 and explicitly sets a minimum TLS version of 1.2. It loads a certificate chain and private key, then checks that they correspond:
 
 ```zig
-if (c.SSL_CTX_set_min_proto_version(ctx, c.TLS1_2_VERSION) != 1) return error.TlsInitFailed;
-if (c.SSL_CTX_use_certificate_chain_file(ctx, cert.ptr) != 1) return error.CertLoadFailed;
-if (c.SSL_CTX_use_PrivateKey_file(ctx, key.ptr, c.SSL_FILETYPE_PEM) != 1) return error.KeyLoadFailed;
-if (c.SSL_CTX_check_private_key(ctx) != 1) return error.KeyMismatch;
+if (c.SSL_CTX_set_min_proto_version(ctx, c.TLS1_2_VERSION) != 1)
+    return error.TlsInitFailed;
+if (c.SSL_CTX_check_private_key(ctx) != 1)
+    return error.KeyMismatch;
 ```
 
-Loading a key that does not match the certificate **succeeds** in the two calls above the last one. Without `check_private_key`, the mismatch surfaces as a handshake failure on every connection and is diagnosed as a client problem. The minimum protocol version is set explicitly because the default depends on how the library was built.
+Certificate and key loading occur between these operations. Each return value is checked. A successful file load is not sufficient evidence that the overall configuration can complete a handshake; the point is to detect incompatible configuration at startup.
 
-## Attack: an abrupt close is accepted as a complete message
+The receive deadline starts before the handshake. Otherwise, a client can reserve a connection by opening TCP and withholding its TLS handshake bytes. Encryption does not make unauthenticated work free: handshake computation, certificate parsing, buffers, and task slots all belong in the resource model.
 
-`SSL_read` returning a non-success value is not end of stream. An active attacker who injects a TCP FIN cuts a response short at a point of their choosing, and a server that treats an abrupt close as a clean end accepts the truncated version as complete.
+This version loads credentials once at startup, so certificate rotation requires restarting the process. A reload mechanism would need to validate a replacement context before using it for new connections and keep old contexts alive while existing connections still reference them.
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/close-notify.svg" alt="Two exchanges. In one the client ends with close_notify and the message is complete. In the other only a TCP FIN arrives and the message is truncated. Both look identical at the socket.">
-  <img class="plate-dark" src="/images/api-security/close-notify-dark.svg" alt="Two exchanges. In one the client ends with close_notify and the message is complete. In the other only a TCP FIN arrives and the message is truncated. Both look identical at the socket.">
-</figure>
+## TLS closure and HTTP completion are different facts
 
-## Fix: only close_notify ends a stream
+A TCP close does not authenticate why the stream ended. TLS has a `close_notify` alert to indicate an orderly end to the peer's sending direction. OpenSSL distinguishes that from an unexpected transport EOF.
+
+An adapter must pass the actual result of the failed I/O operation to `SSL_get_error`, on the same thread and before unrelated OpenSSL calls. Its error queue must be in the expected state. Conceptually:
 
 ```zig
-switch (c.SSL_get_error(self.ssl, 0)) {
-    c.SSL_ERROR_ZERO_RETURN => return error.EndOfStream,   // close_notify
-    c.SSL_ERROR_SYSCALL => { self.err = error.Truncated; return error.ReadFailed; },
-    c.SSL_ERROR_SSL     => { self.err = error.Protocol;  return error.ReadFailed; },
-    else                => { self.err = error.Syscall;   return error.ReadFailed; },
+const rc = c.SSL_read_ex(ssl, dest.ptr, dest.len, &n);
+if (rc != 1) {
+    const reason = c.SSL_get_error(ssl, rc);
+    // Classify reason before consuming diagnostic errors.
 }
 ```
 
-Exactly one case is a clean end. `close_notify` exists so that completion is distinguishable from interruption; collapsing the first two cases into "EOF" discards the only signal that separates them.
+`SSL_ERROR_ZERO_RETURN` normally indicates `close_notify`. With OpenSSL 3, unexpected EOF is generally reported through `SSL_ERROR_SSL` with a specific reason in the error queue; older releases reported it differently. `WANT_READ` and `WANT_WRITE` describe retry conditions, not successful completion or an arbitrary syscall failure. These details are specified by [OpenSSL's SSL_get_error documentation](https://docs.openssl.org/3.5/man3/SSL_get_error/).
 
-The `err` field carries the specific cause out of band. The vtable's error set is fixed — `stream` may return only `ReadFailed` or `EndOfStream` — so without it a truncation attack, a client hanging up, a version mismatch and a broken socket produce one indistinguishable log line, and none can be acted on differently.
+The current adapter refuses abnormal read termination, but its coarse error categories do not preserve every OpenSSL reason. That limits diagnosis: a label such as “protocol error” does not establish that a malicious peer truncated the stream. Ordinary network failures and client behavior can also produce abnormal closure.
 
-## Attack: a credential sent to a plaintext port is already spent
+HTTP still has to decide whether its message is complete. If a request declares 100 body bytes and only 60 arrive, even a clean TLS shutdown does not make the request valid. Conversely, receiving the complete framed message establishes a fact that is separate from whether the peer later shuts down TLS cleanly. Closure must not be used as a substitute for counting the required body bytes.
 
-<figure class="plate-scroll">
-  <img class="plate-light" src="/images/api-security/plaintext-credential.svg" alt="A client sends a POST carrying an Authorization header in the clear; the server answers with a 301 redirect to HTTPS, which arrives after the credential has already crossed the network.">
-  <img class="plate-dark" src="/images/api-security/plaintext-credential-dark.svg" alt="A client sends a POST carrying an Authorization header in the clear; the server answers with a 301 redirect to HTTPS, which arrives after the credential has already crossed the network.">
-</figure>
+This matters especially for future artifact transfers. Completion should be determined by explicit framing and verified content, not by the assumption that any end-of-stream means the intended file arrived.
 
-A browser is redirected to HTTPS because a human typed a bare hostname. An API client has already sent its request, credential included, before any response can be written. A `301` tells it to retry securely and says nothing about the secret it just burned.
+## Why the API does not redirect plaintext credentials
 
-## Fix: refuse, then stop listening
+Suppose an API client sends:
 
-The plaintext listener refused with `426`, routed nothing, and held no reference to the database, so no plaintext request could reach storage regardless of later edits.
+```http
+POST /packages HTTP/1.1
+Host: registry.example
+Authorization: Basic <encoded-credentials>
+```
 
-It was then removed. A refusing socket still accepts unauthenticated connections, still runs code before any handshake, and is still something a later change can be tempted to make useful. Nothing binds the plaintext port; the kernel refuses the connection.
+If that request used plaintext HTTP, the credential has already crossed the network before the server can issue a redirect. An HTTPS redirect improves the next request; it cannot undo the first disclosure.
 
-HSTS goes on every response, and its limit is worth being exact about: it instructs a browser never to use plaintext for this origin again, which cannot protect the *first* visit, because the instruction has to arrive somehow. Preloading closes that gap and is a decision about a public domain rather than about this code.
+Barbican therefore exposes only its TLS listener. Clients must use an HTTPS URL and verify the server. Removing the application's plaintext listener prevents it from processing plaintext requests, though a misconfigured client can still send secrets to the wrong destination or through an attacker-controlled endpoint.
 
-## Attacks still open
+The server also sends HSTS on HTTPS responses. Browsers that learn the policy upgrade future HTTP attempts; preloading can cover the first visit for participating browsers. HSTS behavior does not extend automatically to every CLI or API client. The client configuration remains part of the transport contract.
 
-- A reaped connection receives no response. Unblocking a stalled read requires tearing down the socket, which destroys the SSL session, so a `408` written afterwards reaches the client as a TLS alert. Correct delivery needs non-blocking I/O.
-- `Truncated` is detected and recorded but drives no policy. A peer producing it repeatedly is a signal nothing acts on.
-- Certificate and key are loaded once at startup, so rotation is a restart.
+## Timeouts expose the limits of the adapter
 
-Next: authentication, and the property inherited here — no code path can receive a credential in the clear.
+The current deadline worker interrupts a stalled read by shutting down receiving on the socket. That causes the connection to close without a guaranteed HTTP `408` response. Once the TLS operation has failed, trying to append an error response is not a reliable recovery strategy.
+
+A design with nonblocking I/O can coordinate socket readiness, TLS retry states, and deadlines without using receive shutdown as the cancellation mechanism. That is more work than attaching a timer to a blocking read, but it provides clearer control over handshake, read, and write progress.
+
+At this point the server owns the bytes it needs after parsing, retains runtime checks, and carries requests over TLS. It still has incomplete HTTP support and limited timeout behavior. The next step is [password authentication](/series/api-security/who-are-you), where memory cost, credential lifetime, and failure behavior become part of every request.
