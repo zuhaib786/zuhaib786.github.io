@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380" role="img" aria-labelledby="title desc">
+  <title id="title">A secret for authentication, a handle for management</title>
+  <desc id="desc">The raw token is hashed into the private token_hash field. An independent random source creates token_id on the same record. Only the handle is listed and used to identify revocation requests.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
+    .main { font-size: 20px; }
+    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .label { fill: #8d5f36; font-size: 13px; }
+    .strong { font-size: 16px; }
+    .frame { fill: none; stroke: #c5ad94; stroke-width: 1; }
+    .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
+    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">TWO IDENTIFIERS</text>
+  <text x="438" y="54" class="eyebrow">DATABASE RECORD</text>
+  <rect x="420" y="70" width="250" height="224" rx="3" class="frame"/>
+  <text x="36" y="112" class="main">Raw bearer token</text>
+  <text x="36" y="138" class="note">32 random bytes · 43 characters</text>
+  <text x="36" y="161" class="note">Returned at creation only</text>
+  <path d="M 266 118 H 400" class="arrow"/>
+  <text x="330" y="102" class="mono label" text-anchor="middle">SHA-256</text>
+  <text x="440" y="112" class="mono strong">token_hash</text>
+  <text x="440" y="138" class="note">Private authentication lookup</text>
+  <text x="440" y="161" class="note">64 hex characters</text>
+  <path d="M 440 184 H 648" class="rule"/>
+  <text x="36" y="222" class="main">Independent randomness</text>
+  <text x="36" y="249" class="note">16 fresh random bytes</text>
+  <path d="M 266 229 H 400" class="arrow"/>
+  <text x="330" y="213" class="mono label" text-anchor="middle">base64url</text>
+  <text x="440" y="222" class="mono strong">token_id</text>
+  <text x="440" y="249" class="note">Public handle · 22 characters</text>
+  <text x="440" y="275" class="note">No authority by itself</text>
+  <path d="M 546 294 V 328 H 312" class="arrow"/>
+  <text x="36" y="334" class="main">List / revoke by handle</text>
+  <text x="36" y="359" class="note">Revocation still requires the authenticated owner.</text>
+</svg>

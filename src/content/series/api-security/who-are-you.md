@@ -143,3 +143,5 @@ For protected routes, the access gate runs before the handler's resource lookup.
 This stage identifies callers and can require identity before a write. It does not check package ownership. Any authenticated user can still reach operations that eventually need a per-package permission check.
 
 It also sends a password and computes a password hash on every authenticated request. A later token design should let a client use a random, revocable credential with restricted authority while keeping the password out of normal API traffic. Before that transition, hashing admission, identity lifetimes, and the dummy-verification guard are concrete correctness requirements, not details that token support can retroactively fix.
+
+Next: [bearer tokens, expiry, and revocation](/series/api-security/tokens-with-a-lifetime).
