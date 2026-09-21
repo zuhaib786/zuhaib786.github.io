@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="700" height="460" role="img" aria-labelledby="title desc">
+  <title id="title">Two different places a cross-origin fetch can fail</title>
+  <desc id="desc">For a preflighted fetch, OPTIONS reaches the server but missing permission prevents the browser from sending the mutation. Without preflight, the request reaches the server and its response returns, but the browser can withhold that response from script. Response isolation does not roll back server effects.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#d6ab7c" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #e6d3bc; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #bea88e; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 1.6px; }
+    .main { font-size: 20px; }
+    .note { fill: #bea88e; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .small { font-size: 14px; }
+    .label { fill: #d6ab7c; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #78624d; stroke-width: 1; }
+    .lifeline { fill: none; stroke: #78624d; stroke-width: 1; stroke-dasharray: 3 6; }
+    .arrow { fill: none; stroke: #d6ab7c; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">NO CORS GRANT · TWO FAILURE SHAPES</text>
+  <path d="M 350 59 V 404" class="rule"/>
+  <text x="28" y="75" class="main">Preflight required</text>
+  <text x="378" y="75" class="main">No preflight required</text>
+  <text x="48" y="117" class="label">Browser</text>
+  <text x="271" y="117" class="label">API</text>
+  <text x="398" y="117" class="label">Browser</text>
+  <text x="621" y="117" class="label">API</text>
+  <path d="M 73 128 V 269 M 286 128 V 269 M 423 128 V 269 M 636 128 V 269" class="lifeline"/>
+  <path d="M 82 160 H 277" class="arrow"/>
+  <text x="179" y="148" class="mono small" text-anchor="middle">OPTIONS</text>
+  <path d="M 277 237 H 82" class="arrow"/>
+  <text x="179" y="222" class="note" text-anchor="middle">No permission</text>
+  <rect x="48" y="285" width="270" height="64" rx="3" class="frame"/>
+  <text x="183" y="312" class="main" text-anchor="middle">POST never sent</text>
+  <text x="183" y="336" class="note" text-anchor="middle">Protected operation does not run</text>
+  <text x="48" y="381" class="note">The preflight reached the API.</text>
+
+  <path d="M 432 160 H 627" class="arrow"/>
+  <text x="529" y="148" class="mono small" text-anchor="middle">GET</text>
+  <text x="627" y="199" class="note" text-anchor="end">Routing + server checks</text>
+  <path d="M 627 237 H 432" class="arrow"/>
+  <text x="529" y="222" class="note" text-anchor="middle">Response</text>
+  <rect x="398" y="285" width="270" height="64" rx="3" class="frame"/>
+  <text x="533" y="312" class="main" text-anchor="middle">Script cannot read it</text>
+  <text x="533" y="336" class="note" text-anchor="middle">The request already happened</text>
+  <text x="398" y="381" class="note">A blocked reply is not a rollback.</text>
+  <text x="28" y="434" class="note">Authentication, cookie delivery, and CSRF are separate checks in both cases.</text>
+</svg>

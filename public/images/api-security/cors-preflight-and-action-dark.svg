@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" width="700" height="400" role="img" aria-labelledby="title desc">
+  <title id="title">Preflight grants a request shape, not application authority</title>
+  <desc id="desc">The browser sends OPTIONS with origin, method, and requested header names. A matching 204 policy permits the real POST. That POST carries session credentials and a CSRF proof and still undergoes application authorization. The final response needs its own CORS grant to be readable.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#d6ab7c" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #e6d3bc; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #bea88e; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 1.6px; }
+    .main { font-size: 20px; }
+    .note { fill: #bea88e; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .small { font-size: 14px; }
+    .label { fill: #d6ab7c; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #78624d; stroke-width: 1; }
+    .lifeline { fill: none; stroke: #78624d; stroke-width: 1; stroke-dasharray: 3 6; }
+    .arrow { fill: none; stroke: #d6ab7c; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">PREFLIGHT PERMISSION ≠ PERMISSION TO ACT</text>
+  <text x="62" y="78" class="main">Browser</text>
+  <text x="580" y="78" class="main">API</text>
+  <path d="M 96 93 V 347 M 608 93 V 347" class="lifeline"/>
+  <path d="M 105 122 H 599" class="arrow"/>
+  <text x="352" y="110" class="mono strong" text-anchor="middle">OPTIONS</text>
+  <text x="352" y="146" class="note" text-anchor="middle">Origin · intended method · header names</text>
+  <path d="M 599 183 H 105" class="arrow"/>
+  <text x="352" y="171" class="mono strong" text-anchor="middle">204 + matching CORS policy</text>
+  <text x="352" y="207" class="note" text-anchor="middle">The browser may now send this request shape</text>
+  <path d="M 105 246 H 599" class="arrow"/>
+  <text x="352" y="234" class="mono strong" text-anchor="middle">POST + session + CSRF proof</text>
+  <text x="598" y="274" class="note" text-anchor="end">Server checks identity, proof, and permission</text>
+  <path d="M 599 310 H 105" class="arrow"/>
+  <text x="352" y="298" class="mono strong" text-anchor="middle">Result + CORS response headers</text>
+  <text x="352" y="337" class="note" text-anchor="middle">An allowed UI can read success or application refusal</text>
+  <text x="28" y="382" class="note">The preflight has no session cookie and does not validate the CSRF token.</text>
+</svg>
