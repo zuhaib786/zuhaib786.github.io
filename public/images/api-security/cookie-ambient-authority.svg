@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340" width="700" height="340" role="img" aria-labelledby="title desc">
+  <title id="title">Who supplies the credential?</title>
+  <desc id="desc">Application code deliberately supplies the bearer token. The browser automatically attaches an eligible session cookie. Both enter an API request, but only the first requires the initiating code to know the credential.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
+    .main { font-size: 20px; }
+    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .label { fill: #8d5f36; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
+    .origin-a { fill: none; stroke: #8d5f36; stroke-width: 1.25; }
+    .origin-b { fill: none; stroke: #617777; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">EXPLICIT CREDENTIAL · AMBIENT CREDENTIAL</text>
+  <rect x="430" y="67" width="242" height="214" rx="3" class="frame"/>
+  <text x="448" y="55" class="eyebrow">API REQUEST</text>
+  <text x="28" y="106" class="main">Application code</text>
+  <text x="28" y="132" class="note">Must possess the bearer token</text>
+  <path d="M 332 110 H 412" class="arrow"/>
+  <text x="372" y="95" class="label" text-anchor="middle">explicit</text>
+  <text x="448" y="114" class="mono strong">Authorization: Bearer …</text>
+  <text x="448" y="140" class="note">Caller supplies the value</text>
+  <path d="M 448 173 H 652" class="rule"/>
+  <text x="28" y="213" class="main">Browser cookie jar</text>
+  <text x="28" y="239" class="note">Attaches an eligible session cookie</text>
+  <path d="M 332 217 H 412" class="arrow"/>
+  <text x="372" y="202" class="label" text-anchor="middle">automatic</text>
+  <text x="448" y="221" class="mono strong">Cookie: session=…</text>
+  <text x="448" y="247" class="note">Page need not know the value</text>
+  <text x="28" y="316" class="note">Cookie delivery is conditional. Proof that the initiating page knows the secret is absent.</text>
+</svg>

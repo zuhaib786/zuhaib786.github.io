@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 440" width="700" height="440" role="img" aria-labelledby="title desc">
+  <title id="title">Move the expected value across the trust boundary</title>
+  <desc id="desc">Naive double submit compares header and cookie values supplied by the client. Session-bound verification compares the digest of the header with the stored digest in the authenticated session row. The incoming CSRF cookie is no longer a verification input.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 1.6px; }
+    .main { font-size: 20px; }
+    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .label { fill: #8d5f36; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
+    .trusted { fill: none; stroke: #8d5f36; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">WHO SUPPLIES THE EXPECTED VALUE?</text>
+  <path d="M 350 62 V 386" class="rule"/>
+  <text x="28" y="74" class="main">Naive double submit</text>
+  <text x="378" y="74" class="main">Session-bound verification</text>
+  <text x="48" y="109" class="eyebrow">CLIENT</text>
+  <rect x="48" y="123" width="268" height="82" rx="3" class="frame"/>
+  <text x="115" y="151" class="mono strong" text-anchor="middle">header</text>
+  <text x="249" y="151" class="mono strong" text-anchor="middle">cookie</text>
+  <text x="115" y="182" class="note" text-anchor="middle">chosen value</text>
+  <text x="249" y="182" class="note" text-anchor="middle">chosen value</text>
+  <path d="M 115 205 V 268" class="arrow"/>
+  <path d="M 249 205 V 268" class="arrow"/>
+  <rect x="48" y="282" width="268" height="50" rx="3" class="frame"/>
+  <text x="182" y="313" class="mono strong" text-anchor="middle">header == cookie</text>
+  <text x="48" y="361" class="note">Both answers come from the client.</text>
+  <text x="48" y="385" class="note">A planted value can satisfy both.</text>
+
+  <text x="386" y="109" class="eyebrow">CLIENT</text>
+  <text x="542" y="109" class="eyebrow">SESSION ROW</text>
+  <rect x="386" y="123" width="120" height="65" rx="3" class="frame"/>
+  <text x="446" y="151" class="mono strong" text-anchor="middle">header</text>
+  <text x="446" y="175" class="note" text-anchor="middle">candidate</text>
+  <rect x="542" y="123" width="120" height="82" rx="3" class="trusted"/>
+  <text x="602" y="155" class="main" text-anchor="middle">Stored</text>
+  <text x="602" y="182" class="main" text-anchor="middle">digest</text>
+  <path d="M 446 188 V 213" class="arrow"/>
+  <text x="446" y="240" class="mono strong" text-anchor="middle">digest(·)</text>
+  <path d="M 446 250 V 268" class="arrow"/>
+  <path d="M 602 205 V 268" class="arrow"/>
+  <rect x="386" y="282" width="276" height="50" rx="3" class="trusted"/>
+  <text x="524" y="313" class="mono strong" text-anchor="middle">candidate == expected</text>
+  <text x="386" y="361" class="note">Expected value belongs to this session.</text>
+  <text x="386" y="385" class="note">Incoming CSRF cookie is not compared.</text>
+  <text x="28" y="423" class="note">Cookie injection changes client input. It does not change the session's stored verifier.</text>
+</svg>

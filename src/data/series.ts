@@ -8,11 +8,14 @@
 //  edits needed.
 // ------------------------------------------------------------------
 
+import type { ArtworkKind } from "./artwork";
+
 export interface SeriesMeta {
   /** folder name under src/content/series/ and the URL segment */
   slug: string;
   title: string;
   description: string;
+  cover: ArtworkKind;
   /** sort order in listings */
   order: number;
   /** true = hidden everywhere: no nav, no index card, no built pages */
@@ -22,6 +25,7 @@ export interface SeriesMeta {
 export const allSeries: SeriesMeta[] = [
   {
     slug: "zig-learning",
+    cover: "zig-memory",
     title: "Zig Learning",
     description:
       "Notes and small programs as I learn Zig — systems programming, the standard library, and its evolving I/O model.",
@@ -30,6 +34,7 @@ export const allSeries: SeriesMeta[] = [
   },
   {
     slug: "lzdb",
+    cover: "storage-layers",
     title: "Building lzdb",
     description:
       "Building lzdb from scratch in Zig: a crash-safe, log-structured key-value engine — WAL, SSTables, and a manifest — hardened with TigerBeetle-style deterministic simulation testing until it survives anything the disk throws at it.",
@@ -38,6 +43,7 @@ export const allSeries: SeriesMeta[] = [
   },
   {
     slug: "gpu-mode",
+    cover: "gpu-lanes",
     title: "GPU Mode",
     description:
       "Experiments in GPU programming and parallel kernels.",
@@ -46,6 +52,7 @@ export const allSeries: SeriesMeta[] = [
   },
   {
     slug: "api-security",
+    cover: "api-boundaries",
     title: "Barbican: API Security in Zig",
     description:
       "API security through a package registry in Zig: HTTP parsing, resource limits, TLS, authentication, and authorization, with small examples and explicit tradeoffs.",

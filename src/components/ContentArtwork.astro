@@ -1,0 +1,120 @@
+---
+import { artworkDescriptions, type ArtworkKind } from "../data/artwork";
+
+interface Props { kind: ArtworkKind; }
+const { kind } = Astro.props;
+---
+
+<div class="artwork" data-artwork={kind}>
+  <svg viewBox="0 0 640 400" role="img" aria-label={artworkDescriptions[kind]} xmlns="http://www.w3.org/2000/svg">
+    {kind === "zig-memory" && <>
+      <text x="70" y="72" class="eyebrow">EXPLICIT MEMORY · ZIG</text>
+      <rect x="70" y="121" width="500" height="88" rx="4" class="frame" />
+      {Array.from({ length: 10 }, (_, i) => <rect x={81 + i * 49} y="132" width="37" height="66" rx="2" class={i > 2 && i < 7 ? "selected" : "cell"} />)}
+      <path d="M228 220v19h182v-19 M320 240v43 M311 274l9 9 9-9" class="accent-line" />
+      <text x="320" y="314" text-anchor="middle" class="main-label">one allocation · one owner</text>
+      <path d="M425 290h99V225 M516 234l8-9 8 9" class="line dashed" />
+      <text x="78" y="249">allocator</text>
+      <text x="474" y="273" text-anchor="middle">defer free</text>
+      <text x="70" y="363" class="eyebrow">ALLOCATE → USE → RELEASE</text>
+    </>}
+    {kind === "api-boundaries" && <>
+      <text x="58" y="72" class="eyebrow">API SECURITY · TRUST BOUNDARIES</text>
+      <path d="M59 191h503 M549 183l13 8-13 8" class="line" />
+      <rect x="61" y="178" width="31" height="26" rx="3" class="selected" />
+      {[177, 301, 425].map((x, i) => <>
+        <rect x={x} y="121" width="28" height="140" rx="3" class="gate" />
+        <circle cx={x + 14} cy="191" r="5" class="dot" />
+        <text x={x + 14} y="101" text-anchor="middle" class="eyebrow">0{i + 1}</text>
+        <text x={x + 14} y="290" text-anchor="middle">{["parse", "identify", "authorize"][i]}</text>
+      </>)}
+      <path d="M122 192v135h63 M178 320l7 7-7 7" class="accent-line" />
+      <text x="200" y="333">reject</text>
+      <rect x="533" y="163" width="49" height="57" rx="3" class="frame" />
+      <path d="M544 177h27 M544 190h27 M544 203h17" class="line" />
+      <text x="555" y="245" text-anchor="middle">registry</text>
+      <text x="58" y="363" class="eyebrow">VALID INPUT ≠ PERMITTED ACTION</text>
+    </>}
+    {kind === "storage-layers" && <>
+      <text x="68" y="72" class="eyebrow">LOG-STRUCTURED STORAGE</text>
+      <text x="69" y="130">WAL</text>
+      {[0, 1, 2, 3].map(i => <rect x={154 + i * 52} y="107" width="43" height="30" rx="2" class="cell" />)}
+      <path d="M370 122h80 M441 114l9 8-9 8" class="line" />
+      <rect x="465" y="101" width="107" height="42" rx="3" class="selected" />
+      <text x="518" y="127" text-anchor="middle">memory</text>
+      <path d="M519 155v36H323v27 M315 209l8 9 8-9" class="accent-line" />
+      <text x="69" y="245">L0</text>
+      {[0, 1, 2].map(i => <rect x={154 + i * 142} y="221" width="124" height="34" rx="2" class="cell" />)}
+      <path d="M218 266l99 29 M360 266l-35 29 M502 266l-169 29" class="line" />
+      <text x="69" y="323">L1</text>
+      <rect x="154" y="302" width="408" height="34" rx="2" class="selected" />
+      <text x="358" y="325" text-anchor="middle">sorted · merged · durable</text>
+    </>}
+    {kind === "gpu-lanes" && <>
+      <text x="72" y="72" class="eyebrow">PARALLEL KERNELS · SHARED WORK</text>
+      {Array.from({ length: 48 }, (_, i) => <rect x={75 + (i % 12) * 41} y={112 + Math.floor(i / 12) * 38} width="29" height="26" rx="2" class={i % 12 >= 4 && i % 12 < 8 ? "selected" : "cell"} />)}
+      <path d="M232 274v17h165v-17 M315 291v28" class="accent-line" />
+      <rect x="231" y="319" width="169" height="34" rx="3" class="frame" />
+      <text x="315" y="342" text-anchor="middle">shared memory</text>
+      <text x="462" y="291">one workgroup</text>
+    </>}
+    {kind === "camera-projection" && <>
+      <text x="62" y="65" class="eyebrow">CAMERA CALIBRATION · PROJECTION</text>
+      <path d="M112 244L429 99 M112 244L547 130 M112 244L513 301 M112 244L399 270" class="ray" />
+      <g transform="matrix(1 .26 -.18 .96 429 99)">
+        <rect width="120" height="180" class="frame" />
+        {Array.from({ length: 24 }, (_, i) => <rect x={(i % 4) * 30} y={Math.floor(i / 4) * 30} width="30" height="30" class={(i + Math.floor(i / 4)) % 2 ? "checker" : "paper"} />)}
+      </g>
+      <path d="M248 161l69 13-8 96-69-13z" class="image-plane" />
+      <path d="M112 244h450" class="line dashed" />
+      <circle cx="112" cy="244" r="7" class="dot" />
+      <path d="M112 245v52 M278 271v40" class="line" />
+      <text x="112" y="323" text-anchor="middle">camera</text>
+      <text x="278" y="336" text-anchor="middle">image plane</text>
+      <text x="480" y="336" text-anchor="middle">known geometry</text>
+      <text x="62" y="375" class="eyebrow">WORLD POINTS → IMAGE COORDINATES</text>
+    </>}
+    {kind === "event-loop" && <>
+      <text x="65" y="68" class="eyebrow">ASYNC I/O · THE EVENT LOOP</text>
+      <path d="M266 122c102-43 194 20 194 101 M452 213l8 10 7-10 M459 240c-12 91-126 124-197 72 M264 299l-2 13 13-2 M243 293c-65-49-63-124 0-163 M230 129l13 1-4 13" class="line" />
+      <rect x="248" y="100" width="145" height="43" rx="4" class="frame" />
+      <text x="320" y="127" text-anchor="middle">poll for I/O</text>
+      <rect x="392" y="220" width="152" height="43" rx="4" class="frame" />
+      <text x="468" y="247" text-anchor="middle">ready queue</text>
+      <rect x="155" y="280" width="176" height="43" rx="4" class="selected" />
+      <text x="243" y="307" text-anchor="middle">run callbacks</text>
+      <path d="M72 182h111 M174 174l9 8-9 8 M243 335v24h139" class="accent-line" />
+      <text x="69" y="166">sockets</text>
+      <text x="393" y="365">CPU work lives here</text>
+      <text x="323" y="223" text-anchor="middle" class="main-label">uvloop</text>
+    </>}
+    {kind === "troubled-cells" && <>
+      <text x="66" y="67" class="eyebrow">LEARNED LIMITING · LOCAL DECISIONS</text>
+      {Array.from({ length: 10 }, (_, i) => <rect x={70 + i * 50} y="105" width="50" height="150" class={i === 4 || i === 5 ? "selected" : "mesh-cell"} />)}
+      <path d="M70 150c54-18 112-17 157-7s47 15 64-4l11 65c49 21 116 4 153 1s76 3 115-8" class="solution" />
+      <path d="M95 293h450" class="line" />
+      {Array.from({ length: 10 }, (_, i) => <circle cx={95 + i * 50} cy="293" r="5" class={i === 4 || i === 5 ? "dot" : "node"} />)}
+      <path d="M270 314v14h100v-14" class="accent-line" />
+      <text x="320" y="355" text-anchor="middle">limit locally · preserve smooth regions</text>
+    </>}
+  </svg>
+</div>
+
+<style>
+  .artwork { width: 100%; background: var(--paper-sunken); overflow: hidden; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { fill: var(--ink-soft); font: 13px var(--font-mono); }
+  .eyebrow { font-size: 10px; letter-spacing: 1.5px; }
+  .main-label { fill: var(--ink); font-size: 16px; }
+  .line, .accent-line, .ray, .solution { fill: none; stroke: var(--ink-faint); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .accent-line { stroke: var(--accent-2); }
+  .dashed { stroke-dasharray: 4 6; }
+  .frame, .cell, .node { fill: var(--paper); stroke: var(--rule-strong); stroke-width: 1.5; }
+  .selected, .gate, .image-plane { fill: color-mix(in srgb, var(--accent-2) 15%, var(--paper)); stroke: var(--accent-2); stroke-width: 1.5; }
+  .dot, .checker { fill: var(--accent-2); }
+  .paper { fill: var(--paper); }
+  .ray { stroke: var(--accent-2); opacity: .65; }
+  .image-plane { fill-opacity: .65; }
+  .mesh-cell { fill: none; stroke: var(--rule-strong); }
+  .solution { stroke: var(--ink); stroke-width: 2.5; }
+</style>

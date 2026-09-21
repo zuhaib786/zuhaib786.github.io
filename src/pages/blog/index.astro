@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import EntryRow from "../../components/EntryRow.astro";
+import ContentCard from "../../components/ContentCard.astro";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
@@ -23,21 +23,26 @@ const newestFirst = [...posts].reverse();
       </p>
     </header>
 
-    {
-      newestFirst.map((post) => (
-        <EntryRow
-          href={`/blog/${post.id}`}
-          number={String(posts.indexOf(post) + 1).padStart(2, "0")}
-          title={post.data.title}
-          description={post.data.description}
-          date={post.data.date}
-        />
-      ))
-    }
+    <div class="cards">
+      {
+        newestFirst.map((post) => (
+          <ContentCard
+            href={`/blog/${post.id}`}
+            title={post.data.title}
+            description={post.data.description}
+            cover={post.data.cover}
+            label={`Article ${String(posts.indexOf(post) + 1).padStart(2, "0")} · ${post.data.date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" })}`}
+            action="Read article"
+          />
+        ))
+      }
+    </div>
   </section>
 </Base>
 
 <style>
+  .cards { display: grid; gap: 1rem; margin-top: 2rem; }
+
   .listing {
     padding-top: 2.5rem;
   }

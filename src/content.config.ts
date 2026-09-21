@@ -1,10 +1,12 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import { artworkKinds } from "./data/artwork";
 
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
   schema: z.object({
     title: z.string(),
+    cover: z.enum(artworkKinds),
     description: z.string().optional(),
     date: z.coerce.date(),
     tags: z.array(z.string()).default([]),

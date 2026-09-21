@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" width="700" height="360" role="img" aria-labelledby="title desc">
+  <title id="title">Two origins share one host's cookie scope</title>
+  <desc id="desc">HTTPS services on registry.example at ports 8443 and 9443 are separate origins. A host-only cookie, eligible for both requests, is scoped to their shared host rather than either port. The Host prefix does not add port isolation.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
+    .main { font-size: 20px; }
+    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .url { font-size: 14px; }
+    .label { fill: #8d5f36; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
+    .origin-a { fill: none; stroke: #8d5f36; stroke-width: 1.25; }
+    .origin-b { fill: none; stroke: #617777; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">ORIGIN ISOLATION ≠ COOKIE ISOLATION</text>
+  <rect x="28" y="63" width="644" height="243" rx="3" class="frame"/>
+  <text x="48" y="88" class="note">Host: registry.example</text>
+  <rect x="52" y="113" width="274" height="71" rx="3" class="origin-a"/>
+  <text x="69" y="135" class="eyebrow">ORIGIN A</text>
+  <text x="69" y="164" class="mono url">https://registry.example:8443</text>
+  <rect x="374" y="113" width="274" height="71" rx="3" class="origin-b"/>
+  <text x="391" y="135" class="eyebrow">ORIGIN B</text>
+  <text x="391" y="164" class="mono url">https://registry.example:9443</text>
+  <path d="M 245 246 H 189 V 195" class="arrow"/>
+  <path d="M 455 246 H 511 V 195" class="arrow"/>
+  <rect x="245" y="226" width="210" height="56" rx="3" class="frame"/>
+  <text x="350" y="249" class="main" text-anchor="middle">Host-only cookie jar</text>
+  <text x="350" y="272" class="note" text-anchor="middle">Secure · Path=/ · no Domain</text>
+  <text x="28" y="338" class="note">Both HTTPS requests can carry the cookie. Even __Host- does not isolate ports.</text>
+</svg>

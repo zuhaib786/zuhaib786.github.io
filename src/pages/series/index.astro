@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import ContentCard from "../../components/ContentCard.astro";
 import { visibleSeries } from "../../data/series";
 
 const posts = await getCollection("series", ({ data }) => !data.draft);
@@ -27,14 +28,14 @@ function postCount(slug: string) {
     <div class="grid">
       {
         visibleSeries.map((s) => (
-          <a href={`/series/${s.slug}`} class="card">
-            <span class="card-meta label label--accent">
-              {postCount(s.slug)}{" "}
-              {postCount(s.slug) === 1 ? "post" : "posts"}
-            </span>
-            <span class="card-title">{s.title}</span>
-            <span class="card-blurb">{s.description}</span>
-          </a>
+          <ContentCard
+            href={`/series/${s.slug}`}
+            title={s.title}
+            description={s.description}
+            cover={s.cover}
+            label={`Series · ${postCount(s.slug)} ${postCount(s.slug) === 1 ? "post" : "posts"}`}
+            action="Explore series"
+          />
         ))
       }
     </div>
@@ -68,79 +69,7 @@ function postCount(slug: string) {
   .grid {
     margin-top: 2rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 0.875rem;
+    gap: 1rem;
   }
 
-  .card {
-    position: relative;
-    overflow: hidden;
-    background: var(--glass);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    backdrop-filter: blur(14px) saturate(140%);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    box-shadow: inset 0 1px 0 var(--glass-highlight);
-    padding: 1.5rem;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    transition:
-      background 150ms ease,
-      border-color 150ms ease,
-      transform 220ms var(--ease-out),
-      box-shadow 220ms var(--ease-out);
-  }
-
-  .card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 40%,
-      var(--sheen) 50%,
-      transparent 60%
-    );
-    transform: translateX(-130%);
-    pointer-events: none;
-  }
-
-  .card:hover {
-    background: var(--glass-strong);
-    border-color: color-mix(in srgb, var(--interact) 50%, var(--glass-border));
-    transform: translateY(-3px);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      var(--hover-glow);
-    z-index: 1;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .card:hover::after {
-      transition: transform 650ms ease;
-      transform: translateX(130%);
-    }
-  }
-
-  .card-meta {
-    font-size: 0.6875rem;
-  }
-
-  .card-title {
-    font-weight: 700;
-    font-size: 1.0625rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .card:hover .card-title {
-    color: var(--interact);
-  }
-
-  .card-blurb {
-    font-size: 0.8125rem;
-    color: var(--ink-soft);
-  }
 </style>

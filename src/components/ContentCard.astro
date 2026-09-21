@@ -1,0 +1,41 @@
+---
+import ContentArtwork from "./ContentArtwork.astro";
+import type { ArtworkKind } from "../data/artwork";
+
+interface Props {
+  href: string;
+  title: string;
+  description?: string;
+  cover: ArtworkKind;
+  label: string;
+  action: string;
+}
+const { href, title, description, cover, label, action } = Astro.props;
+---
+
+<a class="content-card" href={href}>
+  <div class="preview"><ContentArtwork kind={cover} /></div>
+  <div class="copy">
+    <p class="label label--accent">{label}</p>
+    <h2>{title}</h2>
+    {description && <p class="description">{description}</p>}
+    <span class="action">{action}<span aria-hidden="true"> ↗</span></span>
+  </div>
+</a>
+
+<style>
+  .content-card { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); overflow: hidden; border: 1px solid var(--glass-border); border-radius: 16px; background: var(--glass); color: var(--ink); text-decoration: none; transition: border-color 180ms ease, transform 180ms ease; }
+  .preview { display: grid; align-items: center; background: var(--paper-sunken); border-right: 1px solid var(--rule); }
+  .copy { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: clamp(1.5rem, 3.5vw, 3rem); }
+  h2 { margin: .8rem 0 1rem; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.9rem, 3.5vw, 3rem); line-height: 1.08; text-wrap: balance; }
+  .description { color: var(--ink-soft); font-size: .875rem; line-height: 1.7; }
+  .action { margin-top: 1.5rem; color: var(--interact); font: .65rem var(--font-mono); letter-spacing: .09em; text-transform: uppercase; }
+  .content-card:hover { border-color: var(--interact); }
+  .content-card:focus-visible { outline: 2px solid var(--interact); outline-offset: 5px; }
+  @media (prefers-reduced-motion: no-preference) { .content-card:hover { transform: translateY(-3px); } }
+  @media (max-width: 45rem) {
+    .content-card { grid-template-columns: minmax(0, 1fr); }
+    .preview { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .copy { padding: 1.5rem; }
+  }
+</style>

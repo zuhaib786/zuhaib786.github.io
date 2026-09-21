@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 350" width="700" height="350" role="img" aria-labelledby="title desc">
+  <title id="title">A header failure never falls back to a cookie</title>
+  <desc id="desc">The presence of Authorization selects the header verifier and its final result. Only absence of Authorization selects session-cookie verification. There is no path from failed header verification to the cookie verifier.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#d6ab7c" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #e6d3bc; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #bea88e; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
+    .main { font-size: 20px; }
+    .note { fill: #bea88e; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .label { fill: #d6ab7c; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #78624d; stroke-width: 1; }
+    .origin-a { fill: none; stroke: #d6ab7c; stroke-width: 1.25; }
+    .origin-b { fill: none; stroke: #91b0ac; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #d6ab7c; stroke-width: 1.25; marker-end: url(#arrow); }
+  </style>
+  <text x="28" y="30" class="eyebrow">PRESENCE SELECTS THE VERIFIER</text>
+  <rect x="28" y="140" width="190" height="72" rx="3" class="frame"/>
+  <text x="123" y="169" class="main" text-anchor="middle">Authorization?</text>
+  <text x="123" y="194" class="note" text-anchor="middle">Check presence, not validity</text>
+  <path d="M 218 176 H 250 M 250 97 V 250" class="rule"/>
+  <text x="270" y="81" class="label">present</text>
+  <path d="M 250 97 H 333" class="arrow"/>
+  <rect x="350" y="66" width="158" height="65" rx="3" class="frame"/>
+  <text x="429" y="94" class="main" text-anchor="middle">Verify header</text>
+  <text x="429" y="118" class="note" text-anchor="middle">Cookie not consulted</text>
+  <path d="M 508 98 H 558" class="arrow"/>
+  <text x="577" y="93" class="main">Accept</text>
+  <text x="577" y="117" class="note">or refuse</text>
+  <text x="270" y="234" class="label">absent</text>
+  <path d="M 250 250 H 333" class="arrow"/>
+  <rect x="350" y="219" width="158" height="65" rx="3" class="frame"/>
+  <text x="429" y="247" class="main" text-anchor="middle">Verify cookie</text>
+  <text x="429" y="271" class="note" text-anchor="middle">Session lookup only</text>
+  <path d="M 508 251 H 558" class="arrow"/>
+  <text x="577" y="246" class="main">Accept</text>
+  <text x="577" y="270" class="note">or refuse</text>
+  <text x="28" y="327" class="note">Header failure is final. Only absence reaches the cookie verifier.</text>
+</svg>

@@ -1,6 +1,8 @@
 ---
 import "katex/dist/katex.min.css";
 import Base from "./Base.astro";
+import ContentArtwork from "../components/ContentArtwork.astro";
+import type { ArtworkKind } from "../data/artwork";
 
 interface Props {
   kind: string;
@@ -11,6 +13,7 @@ interface Props {
   tags?: string[];
   backHref: string;
   backLabel: string;
+  cover?: ArtworkKind;
 }
 
 const {
@@ -22,6 +25,7 @@ const {
   tags = [],
   backHref,
   backLabel,
+  cover,
 } = Astro.props;
 
 const formatted = date.toLocaleDateString("en-GB", {
@@ -56,6 +60,8 @@ const formatted = date.toLocaleDateString("en-GB", {
       }
     </header>
 
+    {cover && <div class="article-cover"><ContentArtwork kind={cover} /></div>}
+
     <div class="prose">
       <slot />
     </div>
@@ -65,6 +71,14 @@ const formatted = date.toLocaleDateString("en-GB", {
 <style>
   .article-folio {
     padding-top: 1.25rem;
+  }
+
+  .article-cover {
+    max-width: 46rem;
+    margin: 0 auto 3rem;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
   }
 
   .folio-running a {

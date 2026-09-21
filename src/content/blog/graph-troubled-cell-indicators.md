@@ -1,5 +1,6 @@
 ---
 title: "Where Should a Limiter Act?"
+cover: "troubled-cells"
 description: "A thesis revisited through controlled DG experiments: GNN detection, local transformers, and conservative reconstruction that improved sharp-case accuracy."
 date: 2026-07-13T12:00:00Z
 tags: ["Discontinuous Galerkin", "Graph Neural Networks", "Transformers", "Numerical Analysis", "M.Tech Thesis"]

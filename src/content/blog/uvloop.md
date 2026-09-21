@@ -1,5 +1,6 @@
 ---
 title: "Evaluating uvloop Performance for I/O Bound Workloads in Python"
+cover: "event-loop"
 description: "Benchmarking uvloop against Python's built-in asyncio event loop on a realistic mixed I/O + CPU workload."
 date: 2025-02-02T12:00:00Z
 tags: ["Python", "asyncio", "Performance"]
