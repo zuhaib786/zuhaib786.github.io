@@ -1,5 +1,6 @@
 ---
 import { artworkDescriptions, type ArtworkKind } from "../data/artwork";
+import BarbicanFort from "./BarbicanFort.astro";
 
 interface Props { kind: ArtworkKind; }
 const { kind } = Astro.props;
@@ -18,23 +19,7 @@ const { kind } = Astro.props;
       <text x="474" y="273" text-anchor="middle">defer free</text>
       <text x="70" y="363" class="eyebrow">ALLOCATE → USE → RELEASE</text>
     </>}
-    {kind === "api-boundaries" && <>
-      <text x="58" y="72" class="eyebrow">API SECURITY · TRUST BOUNDARIES</text>
-      <path d="M59 191h503 M549 183l13 8-13 8" class="line" />
-      <rect x="61" y="178" width="31" height="26" rx="3" class="selected" />
-      {[177, 301, 425].map((x, i) => <>
-        <rect x={x} y="121" width="28" height="140" rx="3" class="gate" />
-        <circle cx={x + 14} cy="191" r="5" class="dot" />
-        <text x={x + 14} y="101" text-anchor="middle" class="eyebrow">0{i + 1}</text>
-        <text x={x + 14} y="290" text-anchor="middle">{["parse", "identify", "authorize"][i]}</text>
-      </>)}
-      <path d="M122 192v135h63 M178 320l7 7-7 7" class="accent-line" />
-      <text x="200" y="333">reject</text>
-      <rect x="533" y="163" width="49" height="57" rx="3" class="frame" />
-      <path d="M544 177h27 M544 190h27 M544 203h17" class="line" />
-      <text x="555" y="245" text-anchor="middle">registry</text>
-      <text x="58" y="363" class="eyebrow">VALID INPUT ≠ PERMITTED ACTION</text>
-    </>}
+    {kind === "api-boundaries" && <BarbicanFort />}
     {kind === "storage-layers" && <>
       <text x="68" y="72" class="eyebrow">LOG-STRUCTURED STORAGE</text>
       <text x="69" y="130">WAL</text>
@@ -110,7 +95,7 @@ const { kind } = Astro.props;
   .accent-line { stroke: var(--accent-2); }
   .dashed { stroke-dasharray: 4 6; }
   .frame, .cell, .node { fill: var(--paper); stroke: var(--rule-strong); stroke-width: 1.5; }
-  .selected, .gate, .image-plane { fill: color-mix(in srgb, var(--accent-2) 15%, var(--paper)); stroke: var(--accent-2); stroke-width: 1.5; }
+  .selected, .image-plane { fill: color-mix(in srgb, var(--accent-2) 15%, var(--paper)); stroke: var(--accent-2); stroke-width: 1.5; }
   .dot, .checker { fill: var(--accent-2); }
   .paper { fill: var(--paper); }
   .ray { stroke: var(--accent-2); opacity: .65; }

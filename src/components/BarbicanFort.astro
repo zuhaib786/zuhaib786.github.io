@@ -1,0 +1,149 @@
+---
+// Authentication opens the courtyard; authorization gates the special areas.
+const walls = [
+  { x: 65, y: 195, label: "Parse", question: "Is it valid?" },
+  { x: 219, y: 155, label: "Authenticate", question: "Who are you?" },
+  { x: 451, y: 105, label: "Authorize", question: "May you enter?" },
+];
+---
+
+<g class="fort">
+  <text x="48" y="57" class="fort-title">Barbican</text>
+  <text x="49" y="80" class="fort-subtitle">Sign in to explore. Permissions open more.</text>
+
+  <!-- Beyond authentication the path opens into a place to explore. -->
+  <path d="M48 297 344 230 452 205 604 166 625 185 477 223 454 273 376 291 329 259 65 324Z" class="ground" />
+  <path d="M336 241 434 215 470 245 381 278Z" class="courtyard-floor" />
+  <path d="M43 307 144 284 298 244 382 226 530 194 583 180" class="road" />
+  <path d="M46 307 142 285 296 245 380 227 528 195 583 180 M375 231q-16 14 5 39 M409 222q34 0 36 22" class="route" />
+
+  <!-- The protected keep, behind the innermost gate. -->
+  <g transform="translate(30 -10)">
+  <path d="M516 114V67h10v9h11v-9h11v9h11v-9h10v47Z" class="stone" />
+  <path d="m569 67 13-9v48l-13 8Z" class="stone-side" />
+  <path d="M540 67V39m0 1h25l-7 8 7 7h-25" class="flag" />
+  <path d="M529 92v10m24-10v10" class="masonry" />
+  </g>
+  <text x="461" y="49" text-anchor="middle" class="zone-label">Special areas</text>
+  <text x="461" y="66" text-anchor="middle" class="question">Permission required</text>
+  <path d="M521 62h17" class="masonry" />
+
+  <!-- Connecting curtain walls make one fortress, not three unrelated doors. -->
+  <path d="m197 233 46-10v-51l-12 3v9l-11 3v-9l-11 3v9l-12 3Z" class="stone-side" />
+  <path d="m351 196 100-23v-12l-100 23Z" class="stone-side" />
+
+  {walls.map(({ x, y, label, question }) => <g transform={`translate(${x} ${y})`}>
+    <!-- Side thickness and crenellated front; the arch is an actual opening. -->
+    <path d="m132 0 15-11v89l-15 13Z" class="stone-side" />
+    <path d="M0 91V0h13v10h13V0h13v10h13V0h13v10h13V0h13v10h13V0h13v10h15V0h0v91H91V56a20 20 0 0 0-40 0v35Z" class="stone" />
+    <path d="M44 91V56a27 27 0 0 1 54 0v35 M49 41l-5-5m22-6-1-8m19 10 4-7m9 21 7-2" class="masonry" />
+    <path d="M13 29v13m104-13v13 M0 61h20m-7 0v11m91-11h28m-16 0v11 M5 78h24m78 0h20" class="masonry" />
+    <path d="M63 94h18" class="threshold" />
+    <text x="71" y="132" text-anchor="middle" class="stage">{label}</text>
+    <text x="71" y="151" text-anchor="middle" class="question">{question}</text>
+  </g>)}
+
+  <!-- Parse: a sentry inspects a request document, not the visitor's identity. -->
+  <g transform="translate(99 256)">
+    <path d="M-9 0q9-7 18 0l3 24h-24Z" class="uniform" />
+    <path d="m-5 24-2 10m13-10 2 10 M-10 6l-5 13 M10 5l13 1" class="person-line" />
+    <circle cy="-11" r="7" class="face" />
+    <path d="M-9-12q0-12 9-12t9 12Z M-11-12h22" class="helmet" />
+    <path d="M0-24v-5" class="person-line" />
+    <rect x="18" y="-7" width="24" height="29" rx="2" class="document" />
+    <path d="M24 0h12m-12 6h12m-12 6h6" class="fine-line" />
+    <path d="m32 13 3 3 7-8" class="permit" />
+  </g>
+  <path d="m53 286 9-2 3 15-9 2Z M57 290l4-1m-3 5 3-1" class="document" />
+
+  <!-- Authenticate: the guard checks an ID presented by the traveller. -->
+  <g transform="translate(-24 0)">
+  <g transform="translate(276 216)">
+    <path d="M-9 0q9-7 18 0l3 24h-24Z" class="uniform" />
+    <path d="m-5 24-2 10m13-10 2 10 M-10 6l-5 13 M10 5l13 1" class="person-line" />
+    <circle cy="-11" r="7" class="face" />
+    <path d="M-9-12q0-12 9-12t9 12Z M-11-12h22" class="helmet" />
+    <path d="M0-24v-5" class="person-line" />
+  </g>
+  <g transform="translate(334 219)">
+    <path d="M-8 0q8-6 16 0l2 20h-20Z" class="traveller" />
+    <path d="m-5 20-2 9m12-9 2 9 M-8 5l-17-5 M8 5l5 12" class="person-line" />
+    <circle cy="-11" r="7" class="face" />
+    <path d="M-7-14q1-9 11-4l3 5" class="person-line" />
+  </g>
+  <rect x="295" y="209" width="24" height="17" rx="2" class="document" />
+  <circle cx="302" cy="215" r="2" class="ink-fill" />
+  <path d="M299 221q3-5 6 0m4-7h6m-6 5h6" class="fine-line" />
+  </g>
+
+  <!-- A shared courtyard: a fountain, a bench, and visitors taking side paths. -->
+  <ellipse cx="395" cy="253" rx="20" ry="7" class="courtyard-basin" />
+  <path d="M375 253v5c0 9 40 9 40 0v-5" class="stone" />
+  <ellipse cx="395" cy="253" rx="20" ry="7" class="courtyard-basin" />
+  <path d="M395 249v-12m-8 7q0-12 8-7 8-5 8 7 M392 249h6" class="fountain-water" />
+  <path d="m419 258 27-6v5l-27 6Z M421 263v5m22-10v5 M419 251l27-6v5l-27 6Z" class="courtyard-bench" />
+  <g transform="translate(359 228) scale(.65)">
+    <path d="M-8 0q8-6 16 0l2 20h-20Z" class="traveller" />
+    <circle cy="-11" r="7" class="face" />
+    <path d="M-7-14q1-9 11-4l3 5 M-5 20l-7 10m17-10 7 8 M-8 5l-7 12M8 5l6 10" class="person-line" />
+  </g>
+  <g transform="translate(434 217) scale(.65)">
+    <path d="M-8 0q8-6 16 0l2 20h-20Z" class="visitor-coat" />
+    <circle cy="-11" r="7" class="face" />
+    <path d="M-7-14q1-9 11-4l3 5 M-5 20l-3 10m13-10-2 10 M-8 5l-6 12M8 5l6 10" class="person-line" />
+  </g>
+  <path d="M402 279v12" class="masonry" />
+  <text x="402" y="307" text-anchor="middle" class="zone-label">Courtyard</text>
+  <text x="402" y="325" text-anchor="middle" class="question">Explore after sign-in</text>
+
+  <!-- Authorize: the reader checks a permit for the protected entrance. -->
+  <g transform="translate(30 -10)">
+  <g transform="translate(496 178)">
+    <path d="M-8 0q8-6 16 0l2 22h-20Z" class="traveller" />
+    <path d="m-5 22-2 9m12-9 2 9 M-8 6l-4 12 M8 5l11 1 5-10" class="person-line" />
+    <circle cy="-11" r="7" class="face" />
+    <path d="M-7-14q1-9 11-4l3 5" class="person-line" />
+  </g>
+  <rect x="521" y="153" width="29" height="38" rx="3" class="reader" />
+  <g transform="translate(535.5 168)" class="fingerprint">
+    <path d="M-9 2v-3a9 9 0 0 1 18 0v6 M-6 7V0a6 6 0 0 1 12 0v5l2 5 M-3 9V0a3 3 0 0 1 6 0v6l2 6 M0 1v7l1 6 M-8 7l-1 4" />
+  </g>
+  <path d="m531 185 3 3 6-6" class="permit" />
+  <path d="M532 195v13m-5 0h10" class="masonry" />
+  </g>
+
+  <text x="49" y="377" class="fort-footer">Being inside does not grant access to every room.</text>
+</g>
+
+<style>
+  .fort {
+    --stone: color-mix(in srgb, var(--accent-2) 9%, var(--paper));
+    --stone-side: color-mix(in srgb, var(--accent-2) 22%, var(--paper));
+    --fort-line: color-mix(in srgb, var(--accent-2) 75%, var(--ink));
+  }
+  .fort text { fill: var(--ink-soft); font-family: var(--font-mono); }
+  .fort .fort-title { fill: var(--ink); font-family: var(--font-display); font-size: 28px; }
+  .fort-subtitle, .fort-footer { font-size: 11px; }
+  .fort .stage { fill: var(--ink); font-size: 13px; font-weight: 500; }
+  .fort .zone-label { fill: var(--fort-line); font-size: 12px; }
+  .question { font-size: 10px; }
+  .courtyard-floor { fill: var(--stone); stroke: var(--fort-line); stroke-width: .8; stroke-opacity: .35; }
+  .courtyard-basin { fill: var(--paper-sunken); stroke: var(--fort-line); stroke-width: 1; }
+  .courtyard-bench, .visitor-coat { fill: var(--stone-side); stroke: var(--fort-line); stroke-width: 1; stroke-linejoin: round; }
+  .fountain-water { fill: none; stroke: var(--ink-faint); stroke-width: 1; stroke-linecap: round; }
+  .ground { fill: var(--accent-2); opacity: .05; }
+  .road { fill: none; stroke: var(--accent-2); stroke-width: 16; opacity: .13; }
+  .route { fill: none; stroke: var(--accent-2); stroke-width: 1; stroke-dasharray: 2 7; opacity: .5; }
+  .stone, .stone-side { fill: var(--stone); stroke: var(--fort-line); stroke-width: 1.4; stroke-linejoin: round; }
+  .stone-side { fill: var(--stone-side); }
+  .masonry, .threshold { fill: none; stroke: var(--fort-line); stroke-width: 1; stroke-linecap: round; opacity: .55; }
+  .threshold { opacity: 1; }
+  .flag { fill: var(--stone-side); stroke: var(--fort-line); stroke-width: 1.2; stroke-linejoin: round; }
+  .uniform, .helmet { fill: var(--accent-2); stroke: var(--fort-line); stroke-width: 1.1; stroke-linejoin: round; }
+  .face, .document, .reader { fill: var(--paper); stroke: var(--fort-line); stroke-width: 1.1; stroke-linejoin: round; }
+  .traveller { fill: var(--ink-soft); stroke: var(--ink); stroke-width: 1; stroke-linejoin: round; }
+  .person-line { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fine-line, .fingerprint { fill: none; stroke: var(--fort-line); stroke-width: .9; stroke-linecap: round; stroke-linejoin: round; }
+  .permit { fill: none; stroke: var(--accent-2); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .ink-fill { fill: var(--ink-soft); }
+</style>
