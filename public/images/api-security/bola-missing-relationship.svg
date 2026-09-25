@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380" role="img" aria-labelledby="title desc">
+  <title id="title">A valid caller and a valid object still need a relationship check</title>
+  <desc id="desc">In the vulnerable path, a request selects Ayesha's package and authenticates Rahul. Execution skips the absent ownership check and modifies the selected package. Authentication alone does not establish permission.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L7 4L1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+    </marker>
+    <marker id="fault-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L7 4L1 7" fill="none" stroke="#a34e41" stroke-width="1.2"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 1.6px; }
+    .main { font-size: 20px; }
+    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .mono { font-family: 'Courier New', monospace; }
+    .strong { font-size: 15px; }
+    .frame, .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
+    .trusted { fill: none; stroke: #8d5f36; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+    .missing { fill: none; stroke: #a34e41; stroke-width: 1; stroke-dasharray: 4 5; }
+    .fault-line, .fault-arrow { fill: none; stroke: #a34e41; stroke-width: 1.5; }
+    .fault-arrow { marker-end: url(#fault-arrow); }
+    .fault-label { fill: #a34e41; font-family: Arial, sans-serif; font-size: 14px; }
+    .muted { fill: #7c624d; }
+  </style>
+  <text x="28" y="30" class="eyebrow">THE VULNERABLE PATH</text>
+  <rect x="60" y="67" width="314" height="46" rx="3" class="frame"/>
+  <text x="217" y="96" class="main" text-anchor="middle">Select Ayesha's package</text>
+  <path d="M217 113V133" class="arrow"/>
+  <rect x="60" y="141" width="314" height="46" rx="3" class="frame"/>
+  <text x="217" y="170" class="main" text-anchor="middle">Authenticate Rahul</text>
+  <rect x="60" y="209" width="314" height="46" rx="3" class="missing"/>
+  <text x="217" y="238" class="main muted" text-anchor="middle">Check ownership</text>
+  <path d="M125 226l184 11" class="fault-line"/>
+  <rect x="60" y="283" width="314" height="46" rx="3" class="frame"/>
+  <text x="217" y="312" class="main" text-anchor="middle">Mutate the package</text>
+  <path d="M374 164h47v142h-38" class="fault-arrow"/>
+  <text x="449" y="170" class="note">Credential accepted.</text>
+  <text x="449" y="236" class="fault-label">Relationship never checked.</text>
+  <text x="449" y="312" class="note">Wrong caller; valid object.</text>
+  <text x="28" y="365" class="note">Successful authentication does not make this mutation permitted.</text>
+</svg>
