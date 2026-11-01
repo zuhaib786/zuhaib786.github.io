@@ -23,11 +23,11 @@ const experiments = [
   {
     number: "009",
     href: "/biology",
-    title: "Biology Atlas",
-    kicker: "3D anatomy · Cutaways · Selectable structures",
+    title: "Biology",
+    kicker: "Heart · Eye · Secretory cell · One degree of freedom",
     description:
-      "An open animal cell and real reference anatomy. Hover to identify a structure, click to isolate it, and turn it over while you read.",
-    kind: "biology",
+      "Three living mechanisms built in code and driven by a single number: valves that open on pressure, a lens that rounds as the eye refocuses, and a protein followed from the ER out of the cell.",
+    kind: "mechanism",
   },
   {
     number: "001",
@@ -152,6 +152,25 @@ const experiments = [
                   </g>
                 </svg>
               </div>
+            ) : experiment.kind === "mechanism" ? (
+              <div class="mini-mechanism">
+                <svg viewBox="0 0 240 164" aria-hidden="true">
+                  <path class="axis" d="M8 76H232" />
+                  <g class="rays">
+                    <path d="M14 40L120 44L206 76" />
+                    <path d="M14 76H206" />
+                    <path d="M14 112L120 108L206 76" />
+                  </g>
+                  <g class="lens"><ellipse cx="120" cy="76" rx="10" ry="44" /></g>
+                  <path class="retina" d="M204 34Q224 76 204 118" />
+                  <circle class="focus" cx="206" cy="76" r="3.2" />
+                  <path class="leader" d="M126 36L146 16H182" />
+                  <circle class="pin" cx="126" cy="36" r="2.2" />
+                  <path class="track" d="M60 148H180" />
+                  <path class="ticks" d="M60 141v-4M90 141v-4M120 141v-4M150 141v-4M180 141v-4" />
+                  <circle class="thumb" cx="60" cy="148" r="4.5" />
+                </svg>
+              </div>
             ) : experiment.kind === "blowup" ? (
               <div class="mini-blowup">
                 <svg viewBox="0 0 220 152" aria-hidden="true">
@@ -169,17 +188,6 @@ const experiments = [
                   <circle class="focus" cx="110" cy="76" r="3.4" />
                 </svg>
               </div>
-            ) : experiment.kind === "biology" ? (
-              <svg viewBox="0 0 260 180" width="260" aria-hidden="true">
-                <ellipse cx="130" cy="94" rx="99" ry="59" fill="#c9d2ba" stroke="#94ab91" stroke-width="2" />
-                <path d="M31 94a99 59 0 0 0 198 0" fill="none" stroke="#e1e4cb" stroke-width="7" />
-                <ellipse cx="111" cy="82" rx="35" ry="29" fill="#ad91c7" stroke="#8e72ae" stroke-width="2" />
-                <circle cx="114" cy="86" r="12" fill="#7d6197" />
-                <g fill="none" stroke="#6e8cb6" stroke-width="4"><path d="M68 64q-27 35 11 59"/><path d="M59 58q-31 39 12 72"/><path d="M48 61q-30 39 13 71"/></g>
-                <g transform="translate(177 105) rotate(-25)"><ellipse rx="29" ry="13" fill="#dc9b61"/><path d="M-18-7v14m9-18v22m9-23v24m9-21v18m9-13v10" stroke="#f2d19e" stroke-width="3"/></g>
-                <g fill="none" stroke="#c6a05c" stroke-width="4"><path d="M163 59q17-9 32 0m-33 7q18-9 33 0m-30 7q15-9 29 0"/></g>
-                <circle cx="125" cy="122" r="10" fill="#be8299" />
-              </svg>
             ) : experiment.kind === "globe" ? (
               <div class="mini-globe">
                 <span class="orbit orbit-a" />
@@ -399,6 +407,28 @@ const experiments = [
 
   .experiment:hover .launch b {
     transform: translate(4px, -4px);
+  }
+
+  .mini-mechanism { position: relative; z-index: 1; width: min(76%, 17rem); }
+  .mini-mechanism svg { display: block; width: 100%; overflow: visible; }
+  .mini-mechanism .axis { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+  .mini-mechanism .rays path { fill: none; stroke: var(--ink-soft); stroke-width: 1; opacity: 0.7; }
+  .mini-mechanism .lens { transform-box: fill-box; transform-origin: center; animation: accommodate 3.2s ease-in-out infinite alternate; }
+  .mini-mechanism .lens ellipse { fill: color-mix(in srgb, var(--accent-soft) 70%, transparent); stroke: var(--interact); stroke-width: 1.2; }
+  .mini-mechanism .retina { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .mini-mechanism .focus { fill: var(--interact); }
+  .mini-mechanism .leader { fill: none; stroke: var(--ink-soft); stroke-width: 1; }
+  .mini-mechanism .pin { fill: var(--accent-2); }
+  .mini-mechanism .track { stroke: var(--rule-strong); stroke-width: 2; stroke-linecap: round; }
+  .mini-mechanism .ticks { stroke: var(--rule-strong); stroke-width: 1; }
+  .mini-mechanism .thumb { fill: var(--accent-2); animation: one-number 3.2s ease-in-out infinite alternate; }
+
+  @keyframes accommodate {
+    to { transform: scaleX(1.75); }
+  }
+
+  @keyframes one-number {
+    to { transform: translateX(120px); }
   }
 
   .mini-blowup { position: relative; z-index: 1; width: min(78%, 17.5rem); }
@@ -637,7 +667,9 @@ const experiments = [
     .mini-signal .dot,
     .mini-fly .wing,
     .mini-blowup .spiral,
-    .mini-blowup .focus { animation: none; }
+    .mini-blowup .focus,
+    .mini-mechanism .lens,
+    .mini-mechanism .thumb { animation: none; }
   }
 
   @media (max-width: 45rem) {
