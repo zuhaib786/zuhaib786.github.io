@@ -1,66 +1,66 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 148" width="700" height="148" role="img">
-<rect x="0" y="0" width="700" height="148" fill="#ffffff"/>
-<rect x="24" y="54" width="72" height="30" rx="3" fill="#fbe7e0"/>
-<rect x="24" y="54" width="72" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="24" y="82.8" width="72" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="24" y="54" width="1.2" height="30" rx="0" fill="#cf4520"/>
-<rect x="94.8" y="54" width="1.2" height="30" rx="0" fill="#cf4520"/>
-<text x="60.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="700" fill="#cf4520" text-anchor="middle">bytes</text>
-<rect x="97" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M99 66.2 L103 69 L99 71.8 z" fill="#c9d0dc"/>
-<rect x="102" y="54" width="72" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="102" y="82.8" width="72" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="102" y="54" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="172.8" y="54" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="138.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">request line</text>
-<rect x="175" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M177 66.2 L181 69 L177 71.8 z" fill="#c9d0dc"/>
-<rect x="180" y="54" width="72" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="180" y="82.8" width="72" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="180" y="54" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="250.8" y="54" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="216.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">headers</text>
-<rect x="253" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M255 66.2 L259 69 L255 71.8 z" fill="#c9d0dc"/>
-<rect x="258" y="54" width="72" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="258" y="82.8" width="72" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="258" y="54" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="328.8" y="54" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="294.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">body</text>
-<rect x="331" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M333 66.2 L337 69 L333 71.8 z" fill="#c9d0dc"/>
-<rect x="336" y="54" width="72" height="30" rx="3" fill="#e6e9fc"/>
-<rect x="336" y="54" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="336" y="82.8" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="336" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<rect x="406.8" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<text x="372.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">route</text>
-<rect x="409" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M411 66.2 L415 69 L411 71.8 z" fill="#c9d0dc"/>
-<rect x="414" y="54" width="72" height="30" rx="3" fill="#e6e9fc"/>
-<rect x="414" y="54" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="414" y="82.8" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="414" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<rect x="484.8" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<text x="450.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">typed body</text>
-<rect x="487" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M489 66.2 L493 69 L489 71.8 z" fill="#c9d0dc"/>
-<rect x="492" y="54" width="72" height="30" rx="3" fill="#e6e9fc"/>
-<rect x="492" y="54" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="492" y="82.8" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="492" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<rect x="562.8" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<text x="528.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">row</text>
-<rect x="565" y="68.4" width="2" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M567 66.2 L571 69 L567 71.8 z" fill="#c9d0dc"/>
-<rect x="570" y="54" width="72" height="30" rx="3" fill="#e6e9fc"/>
-<rect x="570" y="54" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="570" y="82.8" width="72" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="570" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<rect x="640.8" y="54" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<text x="606.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#15181f" text-anchor="middle">response</text>
-<text x="24" y="42" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#cf4520" text-anchor="start">untrusted</text>
-<text x="676" y="42" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#3b4fd6" text-anchor="end">narrowed</text>
-<rect x="24" y="100" width="652" height="1.2" rx="0" fill="#c9d0dc"/>
-<text x="24" y="122" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#737b8c" text-anchor="start">each arrow rejects; nothing widens back</text>
+<rect x="0" y="0" width="700" height="148" fill="#fbf8f6"/>
+<rect x="24" y="54" width="72" height="30" rx="3" fill="#ecd9d7"/>
+<rect x="24" y="54" width="72" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="24" y="82.8" width="72" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="24" y="54" width="1.2" height="30" rx="0" fill="#a5222f"/>
+<rect x="94.8" y="54" width="1.2" height="30" rx="0" fill="#a5222f"/>
+<text x="60.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="700" fill="#a5222f" text-anchor="middle">bytes</text>
+<rect x="97" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M99 66.2 L103 69 L99 71.8 z" fill="#d3c7bb"/>
+<rect x="102" y="54" width="72" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="102" y="82.8" width="72" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="102" y="54" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="172.8" y="54" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="138.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">request line</text>
+<rect x="175" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M177 66.2 L181 69 L177 71.8 z" fill="#d3c7bb"/>
+<rect x="180" y="54" width="72" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="180" y="82.8" width="72" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="180" y="54" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="250.8" y="54" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="216.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">headers</text>
+<rect x="253" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M255 66.2 L259 69 L255 71.8 z" fill="#d3c7bb"/>
+<rect x="258" y="54" width="72" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="258" y="82.8" width="72" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="258" y="54" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="328.8" y="54" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="294.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">body</text>
+<rect x="331" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M333 66.2 L337 69 L333 71.8 z" fill="#d3c7bb"/>
+<rect x="336" y="54" width="72" height="30" rx="3" fill="#dddee6"/>
+<rect x="336" y="54" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="336" y="82.8" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="336" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<rect x="406.8" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<text x="372.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">route</text>
+<rect x="409" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M411 66.2 L415 69 L411 71.8 z" fill="#d3c7bb"/>
+<rect x="414" y="54" width="72" height="30" rx="3" fill="#dddee6"/>
+<rect x="414" y="54" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="414" y="82.8" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="414" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<rect x="484.8" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<text x="450.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">typed body</text>
+<rect x="487" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M489 66.2 L493 69 L489 71.8 z" fill="#d3c7bb"/>
+<rect x="492" y="54" width="72" height="30" rx="3" fill="#dddee6"/>
+<rect x="492" y="54" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="492" y="82.8" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="492" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<rect x="562.8" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<text x="528.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">row</text>
+<rect x="565" y="68.4" width="2" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M567 66.2 L571 69 L567 71.8 z" fill="#d3c7bb"/>
+<rect x="570" y="54" width="72" height="30" rx="3" fill="#dddee6"/>
+<rect x="570" y="54" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="570" y="82.8" width="72" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="570" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<rect x="640.8" y="54" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<text x="606.0" y="73" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="400" fill="#3d2b5a" text-anchor="middle">response</text>
+<text x="24" y="42" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#a5222f" text-anchor="start">untrusted</text>
+<text x="676" y="42" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#2848a9" text-anchor="end">narrowed</text>
+<rect x="24" y="100" width="652" height="1.2" rx="0" fill="#d3c7bb"/>
+<text x="24" y="122" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#824d5b" text-anchor="start">each arrow rejects; nothing widens back</text>
 </svg>

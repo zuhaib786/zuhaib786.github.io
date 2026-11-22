@@ -21,15 +21,6 @@ const experiments = [
     kind: "blowup",
   },
   {
-    number: "009",
-    href: "/biology",
-    title: "Biology",
-    kicker: "Heart · Eye · Secretory cell · One degree of freedom",
-    description:
-      "Three living mechanisms built in code and driven by a single number: valves that open on pressure, a lens that rounds as the eye refocuses, and a protein followed from the ER out of the cell.",
-    kind: "mechanism",
-  },
-  {
     number: "001",
     href: "/earthquakes",
     title: "Earthquakes",
@@ -150,25 +141,6 @@ const experiments = [
                     <circle cx="122" cy="142" r="4" />
                     <path d="M32 133L54 140M62 140L87 134M95 134L118 140" />
                   </g>
-                </svg>
-              </div>
-            ) : experiment.kind === "mechanism" ? (
-              <div class="mini-mechanism">
-                <svg viewBox="0 0 240 164" aria-hidden="true">
-                  <path class="axis" d="M8 76H232" />
-                  <g class="rays">
-                    <path d="M14 40L120 44L206 76" />
-                    <path d="M14 76H206" />
-                    <path d="M14 112L120 108L206 76" />
-                  </g>
-                  <g class="lens"><ellipse cx="120" cy="76" rx="10" ry="44" /></g>
-                  <path class="retina" d="M204 34Q224 76 204 118" />
-                  <circle class="focus" cx="206" cy="76" r="3.2" />
-                  <path class="leader" d="M126 36L146 16H182" />
-                  <circle class="pin" cx="126" cy="36" r="2.2" />
-                  <path class="track" d="M60 148H180" />
-                  <path class="ticks" d="M60 141v-4M90 141v-4M120 141v-4M150 141v-4M180 141v-4" />
-                  <circle class="thumb" cx="60" cy="148" r="4.5" />
                 </svg>
               </div>
             ) : experiment.kind === "blowup" ? (
@@ -409,28 +381,6 @@ const experiments = [
     transform: translate(4px, -4px);
   }
 
-  .mini-mechanism { position: relative; z-index: 1; width: min(76%, 17rem); }
-  .mini-mechanism svg { display: block; width: 100%; overflow: visible; }
-  .mini-mechanism .axis { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
-  .mini-mechanism .rays path { fill: none; stroke: var(--ink-soft); stroke-width: 1; opacity: 0.7; }
-  .mini-mechanism .lens { transform-box: fill-box; transform-origin: center; animation: accommodate 3.2s ease-in-out infinite alternate; }
-  .mini-mechanism .lens ellipse { fill: color-mix(in srgb, var(--accent-soft) 70%, transparent); stroke: var(--interact); stroke-width: 1.2; }
-  .mini-mechanism .retina { fill: none; stroke: var(--ink); stroke-width: 1.4; }
-  .mini-mechanism .focus { fill: var(--interact); }
-  .mini-mechanism .leader { fill: none; stroke: var(--ink-soft); stroke-width: 1; }
-  .mini-mechanism .pin { fill: var(--accent-2); }
-  .mini-mechanism .track { stroke: var(--rule-strong); stroke-width: 2; stroke-linecap: round; }
-  .mini-mechanism .ticks { stroke: var(--rule-strong); stroke-width: 1; }
-  .mini-mechanism .thumb { fill: var(--accent-2); animation: one-number 3.2s ease-in-out infinite alternate; }
-
-  @keyframes accommodate {
-    to { transform: scaleX(1.75); }
-  }
-
-  @keyframes one-number {
-    to { transform: translateX(120px); }
-  }
-
   .mini-blowup { position: relative; z-index: 1; width: min(78%, 17.5rem); }
   .mini-blowup svg { display: block; width: 100%; overflow: visible; }
   .mini-blowup .axis { stroke: var(--ink-soft); stroke-width: 1; stroke-dasharray: 5 4; }
@@ -667,9 +617,7 @@ const experiments = [
     .mini-signal .dot,
     .mini-fly .wing,
     .mini-blowup .spiral,
-    .mini-blowup .focus,
-    .mini-mechanism .lens,
-    .mini-mechanism .thumb { animation: none; }
+    .mini-blowup .focus { animation: none; }
   }
 
   @media (max-width: 45rem) {

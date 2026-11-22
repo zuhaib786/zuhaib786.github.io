@@ -385,7 +385,8 @@ Across all methods, the largest boundary-accounted conservation residual was
 $7.76\times10^{-15}$. The largest change under quadrature refinement was 0.104%.
 
 <figure class="plate-scroll">
-  <img src="/images/tci/rollout-limiter-v1.png" alt="Smooth analytic-reference error converges at second order for the guard and rollout models. Across eight sharp cases, all five learned seeds nearly match the guard for translated pulses but add error for rotating slotted disks.">
+  <img class="plate-light" src="/images/tci/rollout-limiter-v1.png" alt="Smooth analytic-reference error converges at second order for the guard and rollout models. Across eight sharp cases, all five learned seeds nearly match the guard for translated pulses but add error for rotating slotted disks.">
+  <img class="plate-dark" src="/images/tci/rollout-limiter-v1-dark.png" alt="Smooth analytic-reference error converges at second order for the guard and rollout models. Across eight sharp cases, all five learned seeds nearly match the guard for translated pulses but add error for rotating slotted disks.">
   <figcaption>Fresh scalar tests, all five learned seeds included. Right: error divided by the guard-only error on the same case; lower is better. The classical MRS specialization is still limiting smooth extrema at these resolutions. Its parameters were frozen, not tuned to reproduce the paper's benchmark results.</figcaption>
 </figure>
 
@@ -471,7 +472,8 @@ mass residual is $1.11\times10^{-14}$, and the largest quadrature refinement
 change is 0.049%.
 
 <figure class="plate-scroll">
-  <img src="/images/tci/transport-transformer-v2.png" alt="Time-relaxed reconstruction matches guard-only smooth convergence. The fixed sharpening control lowers error on all eight sharp cases; attention often increases it, while pooling stays closer to the guard.">
+  <img class="plate-light" src="/images/tci/transport-transformer-v2.png" alt="Time-relaxed reconstruction matches guard-only smooth convergence. The fixed sharpening control lowers error on all eight sharp cases; attention often increases it, while pooling stays closer to the guard.">
+  <img class="plate-dark" src="/images/tci/transport-transformer-v2-dark.png" alt="Time-relaxed reconstruction matches guard-only smooth convergence. The fixed sharpening control lowers error on all eight sharp cases; attention often increases it, while pooling stays closer to the guard.">
   <figcaption>Revised experiment, every seed shown. Smooth curves overlap for the guard, fixed reconstruction and learned variants. Right: each error is divided by its paired guard-only error; S and D denote structured and Delaunay meshes. The MRS control is the same untuned P1 specialization used earlier.</figcaption>
 </figure>
 
@@ -488,7 +490,8 @@ consistently or passes the full acceptance requirements, including runtime.
 **No learned checkpoint is promoted.**
 
 <figure class="plate-scroll">
-  <img src="/images/tci/transport-transformer-v2-fields.png" alt="Rotating slotted disk on a Delaunay mesh: analytic reference, guard-only, fixed reconstruction, attention seed zero and pooling seed zero. The fixed reconstruction has the lowest L1 error of these methods.">
+  <img class="plate-light" src="/images/tci/transport-transformer-v2-fields.png" alt="Rotating slotted disk on a Delaunay mesh: analytic reference, guard-only, fixed reconstruction, attention seed zero and pooling seed zero. The fixed reconstruction has the lowest L1 error of these methods.">
+  <img class="plate-dark" src="/images/tci/transport-transformer-v2-fields-dark.png" alt="Rotating slotted disk on a Delaunay mesh: analytic reference, guard-only, fixed reconstruction, attention seed zero and pooling seed zero. The fixed reconstruction has the lowest L1 error of these methods.">
   <figcaption>Finest Delaunay rotation case. Seed 0 is shown for both learned architectures. The fixed reconstruction improves the error, while all P1 solutions still blur the slot. Three training seeds are too few to establish broad statistical superiority.</figcaption>
 </figure>
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 390" width="700" height="390" role="img" aria-labelledby="title desc">
+  <title id="title">Failed syncs do not refresh the LDAP snapshot age</title>
+  <desc id="desc">Last successful snapshot is at time zero. Failed sync attempts at 300, 600, and 900 do not refresh the timestamp. A member removed from a group at 450 remains in cached permissions through age 900, then access is refused after 900. A successful sync at 600 would revoke that membership at 600.</desc>
+  <style>text{fill:#3d2b5a;font-family:Georgia,'Times New Roman',serif}.eyebrow{fill:#643f61;font:11px Arial,sans-serif;letter-spacing:1.6px}.main{font-size:19px}.note{fill:#643f61;font:13px Arial,sans-serif}.label{font:12px Arial,sans-serif}.frame,.rule{fill:none;stroke:#aab0ad;stroke-width:1}.good{fill:none;stroke:#ac5402;stroke-width:1.4}.bad{fill:none;stroke:#a5222f;stroke-width:1.4}.goodtxt{fill:#ac5402;font:13px Arial,sans-serif}.badtxt{fill:#a5222f;font:13px Arial,sans-serif}</style>
+  <text x="28" y="30" class="eyebrow">STALE SNAPSHOT POLICY</text><text x="28" y="66" class="main">Only success moves the freshness clock</text>
+  <text x="30" y="108" class="label">successful snapshot</text><circle cx="110" cy="157" r="6" fill="#ac5402"/><path d="M110 157H617" class="rule"/>
+  <path d="M365 119v76" class="bad"/><text x="365" y="109" text-anchor="middle" class="badtxt">member removed</text><text x="365" y="213" text-anchor="middle" class="label">t = 450</text>
+  <path d="M279 147v20 M449 147v20 M617 147v20" class="bad"/><text x="279" y="137" text-anchor="middle" class="badtxt">failed</text><text x="449" y="137" text-anchor="middle" class="badtxt">failed</text><text x="617" y="137" text-anchor="middle" class="badtxt">failed</text>
+  <text x="110" y="183" text-anchor="middle" class="label">t0</text><text x="279" y="183" text-anchor="middle" class="label">300</text><text x="449" y="183" text-anchor="middle" class="label">600</text><text x="617" y="183" text-anchor="middle" class="label">900</text>
+  <path d="M110 236H617" class="good"/><path d="M617 226v20" class="good"/><path d="M617 236h45" class="bad" stroke-dasharray="4 4"/>
+  <text x="110" y="260" class="goodtxt">cached permissions served</text><text x="617" y="260" text-anchor="end" class="goodtxt">age 900: still accepted</text>
+  <text x="652" y="282" text-anchor="end" class="badtxt">&gt;900 refused</text>
+  <rect x="28" y="300" width="644" height="61" rx="3" class="frame"/><text x="43" y="326" class="note">Failures never refresh the successful-sync timestamp.</text><text x="43" y="348" class="note">A successful sync at 600 would revoke that membership at 600.</text>
+</svg>

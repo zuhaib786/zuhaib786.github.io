@@ -3,20 +3,20 @@
   <desc id="desc">The raw token is hashed into the private token_hash field. An independent random source creates token_id on the same record. Only the handle is listed and used to identify revocation requests.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#ac5402" stroke-width="1.2"/>
     </marker>
   </defs>
   <style>
-    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
-    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
+    text { fill: #3d2b5a; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #643f61; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
     .main { font-size: 20px; }
-    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .note { fill: #643f61; font-family: Arial, sans-serif; font-size: 14px; }
     .mono { font-family: 'Courier New', monospace; }
-    .label { fill: #8d5f36; font-size: 13px; }
+    .label { fill: #ac5402; font-size: 13px; }
     .strong { font-size: 16px; }
-    .frame { fill: none; stroke: #c5ad94; stroke-width: 1; }
-    .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
-    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+    .frame { fill: none; stroke: #aab0ad; stroke-width: 1; }
+    .rule { fill: none; stroke: #aab0ad; stroke-width: 1; }
+    .arrow { fill: none; stroke: #ac5402; stroke-width: 1.25; marker-end: url(#arrow); }
   </style>
   <text x="28" y="30" class="eyebrow">TWO IDENTIFIERS</text>
   <text x="438" y="54" class="eyebrow">DATABASE RECORD</text>

@@ -1,22 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 266" width="900" height="266" role="img">
 <style>
   text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .t   { fill: #131824; font-size: 13px; font-weight: 600; }
-  .l   { fill: #131824; font-size: 11.5px; }
-  .s   { fill: #4d5670; font-size: 11px; }
-  .f   { fill: #808aa4; font-size: 10px; letter-spacing: .08em; }
-  .a   { fill: #c8401a; font-size: 11px; font-weight: 600; }
-  .a2  { fill: #4b3fd6; font-size: 11px; font-weight: 600; }
-  .box { fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
-  .cell{ fill: #ffffff; fill-opacity: 0.72; stroke: #a9b3c9; }
-  .hot { fill: #ffffff; fill-opacity: 0.72; stroke: #c8401a; stroke-width: 1.5; }
-  .void{ fill: #dde3ef; fill-opacity: .5; stroke: #a9b3c9; stroke-dasharray: 3 3; }
-  .ln  { stroke: #a9b3c9; fill: none; }
-  .ar  { stroke: #4d5670; fill: none; stroke-width: 1.4; }
-  .arA { stroke: #c8401a; fill: none; stroke-width: 1.6; }
-  .hdA { fill: #c8401a; }
-  .hd  { fill: #4d5670; }
-  .strike { stroke: #c8401a; stroke-width: 1.6; }
+  .t   { fill: #3d2b5a; font-size: 13px; font-weight: 600; }
+  .l   { fill: #3d2b5a; font-size: 11.5px; }
+  .s   { fill: #643f61; font-size: 11px; }
+  .f   { fill: #837a72; font-size: 10px; letter-spacing: .08em; }
+  .a   { fill: #2848a9; font-size: 11px; font-weight: 600; }
+  .a2  { fill: #287980; font-size: 11px; font-weight: 600; }
+  .box { fill: #fbf8f6; fill-opacity: 0.72; stroke: #aab0ad; }
+  .cell{ fill: #fbf8f6; fill-opacity: 0.72; stroke: #aab0ad; }
+  .hot { fill: #fbf8f6; fill-opacity: 0.72; stroke: #2848a9; stroke-width: 1.5; }
+  .void{ fill: #e4dcd4; fill-opacity: .5; stroke: #aab0ad; stroke-dasharray: 3 3; }
+  .ln  { stroke: #aab0ad; fill: none; }
+  .ar  { stroke: #643f61; fill: none; stroke-width: 1.4; }
+  .arA { stroke: #2848a9; fill: none; stroke-width: 1.6; }
+  .hdA { fill: #2848a9; }
+  .hd  { fill: #643f61; }
+  .strike { stroke: #2848a9; stroke-width: 1.6; }
 </style>
 <defs>
   <marker id="h" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">

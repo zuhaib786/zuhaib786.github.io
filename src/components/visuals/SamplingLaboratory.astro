@@ -52,7 +52,7 @@
       c.fillStyle=this.css("--math-good");for(const[t,v]of samples){c.beginPath();c.arc(pad+t*tw,mid-v*amp,2.6,0,Math.PI*2);c.fill();}
       const sy=h*.62,sh=h*.26,fmax=Math.max(25,this.fs/2);
       c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,sy+sh);c.lineTo(w-pad,sy+sh);c.moveTo(pad,sy);c.lineTo(pad,sy+sh);c.stroke();
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("0",pad-4,sy+sh+12);c.fillText(fmax+" Hz",w-pad-24,sy+sh+12);
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText("0",pad-4,sy+sh+12);c.fillText(fmax+" Hz",w-pad-24,sy+sh+12);
       const fx=(f:number)=>pad+Math.min(1,f/fmax)*tw;
       const nyqX=fx(this.fs/2);c.strokeStyle=this.css("--math-bad");c.setLineDash([4,4]);c.beginPath();c.moveTo(nyqX,sy);c.lineTo(nyqX,sy+sh);c.stroke();c.setLineDash([]);
       c.fillStyle=this.css("--math-bad");c.fillText("Nyquist",nyqX-20,sy-4);

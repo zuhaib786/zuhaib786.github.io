@@ -38,7 +38,7 @@
       this.distances=out;this.draw();}
     layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
     css(v:string){return getComputedStyle(this).getPropertyValue(v);}
-    drawBits(c:CanvasRenderingContext2D,x:number,y:number,label:string,value:number,other:number|null){c.fillStyle=this.css("--ink-faint");c.font="600 9px IBM Plex Mono";c.fillText(label,x,y-7);
+    drawBits(c:CanvasRenderingContext2D,x:number,y:number,label:string,value:number,other:number|null){c.fillStyle=this.css("--ink-faint");c.font="600 9px Fira Code";c.fillText(label,x,y-7);
       const cw=Math.min(14,(this.width*.82)/32),diff=other===null?0:popcount(value^other);
       for(let b=0;b<32;b++){const on=(value>>>(31-b))&1,diffBit=other!==null&&(((value>>>(31-b))^((other>>>(31-b))&1))===1);
         c.fillStyle=diffBit?this.css("--math-bad"):on?this.css("--math-a"):this.css("--rule");
@@ -49,7 +49,7 @@
       const x=w*.06;let y=h*.13;
       const dA=this.drawBits(c,x,y,"INPUT A · "+JSON.stringify(this.baseText()).slice(0,34),a,null);y+=30;
       const dB=this.drawBits(c,x,y,"INPUT B · "+(this.mutated?"one bit flipped":"identical to A"),b,a);
-      c.fillStyle=dA===dB&&dA===0?this.css("--ink-faint"):this.css("--math-bad");c.font="600 11px IBM Plex Mono";
+      c.fillStyle=dA===dB&&dA===0?this.css("--ink-faint"):this.css("--math-bad");c.font="600 11px Fira Code";
       c.fillText(`hamming distance ${popcount(a^b)}`,w*.72,y+10);
       const hy=h*.52,hh=h*.36,pad=w*.06,pw=w-pad*2,maxD=Math.max(...this.distances,1);
       const bins=new Array(33).fill(0);for(const d of this.distances)bins[d]++;
@@ -57,7 +57,7 @@
       const bw=pw/33;
       bins.forEach((v,i)=>{const bh=v/maxD*hh*.92;if(!v)return;c.fillStyle=i===16?this.css("--math-good"):this.css("--math-a");c.globalAlpha=i===16?1:.75;c.fillRect(pad+i*bw+bw*.15,hy+hh-bh,bw*.7,bh);c.globalAlpha=1;});
       let mean=0;for(const d of this.distances)mean+=d;mean/=Math.max(1,this.distances.length);
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";
       c.fillText("0",pad-3,hy+hh+12);c.fillText("16",pad+16*bw-6,hy+hh+12);c.fillText("32",w-pad-14,hy+hh+12);
       c.fillText("distribution of hamming distances over 240 single-bit mutations",pad,hy-8);
       this.text("[data-metric-1]",String(popcount(a^b)));this.text("[data-metric-2]",mean.toFixed(2));this.text("[data-metric-3]",String(this.rounds));}

@@ -64,6 +64,8 @@ The server copies the header into owned, bounded storage before later reads can 
 
 The lifetime requirement extends beyond the raw header. A decoded username may be a slice into a temporary decoding buffer. If it becomes the request's authenticated identity, it must be copied into request-lifetime storage before that buffer disappears. A small parser returning a valid slice is not enough if its caller retains the slice too long.
 
+The implementation initially missed that copy despite this requirement. [Phase 9's directory authorization](/series/api-security/the-fourth-grammar#the-principal-points-into-a-frame-that-has-returned) exposed the dangling username and added a regression that overwrites the exact decoding buffer. Only the name receives the longer lifetime; the decoded password remains temporary.
+
 These rules follow from the wire format and memory model, not from password hashing. [RFC 7617](https://www.rfc-editor.org/rfc/rfc7617.html) defines the Basic scheme.
 
 ## Uniform responses still leave timing differences

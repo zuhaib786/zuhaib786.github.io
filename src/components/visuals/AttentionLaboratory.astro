@@ -55,10 +55,10 @@
       tokens.forEach(t=>{const wt=weights[t.i],on=t.i===this.selected;
         c.fillStyle=on?this.css("--ink"):this.css("--glass");c.strokeStyle=wt===peak&&t.i!==this.selected?this.css("--math-b"):this.css(on?"--ink":"--rule");c.lineWidth=wt===peak&&t.i!==this.selected?1.8:1;
         const bh=22;c.beginPath();if(c.roundRect)c.roundRect(t.x-t.w/2,t.y-bh/2,t.w,bh,6);else c.rect(t.x-t.w/2,t.y-bh/2,t.w,bh);c.fill();c.stroke();
-        c.fillStyle=on?this.css("--paper"):this.css("--ink-soft");c.font="600 10px IBM Plex Mono";c.textAlign="center";c.fillText(t.tok,t.x,t.y+3.5);
+        c.fillStyle=on?this.css("--paper"):this.css("--ink-soft");c.font="600 10px Fira Code";c.textAlign="center";c.fillText(t.tok,t.x,t.y+3.5);
         c.fillStyle=this.css("--math-a");c.globalAlpha=.25+.75*wt;c.fillRect(t.x-t.w/2,t.y+bh/2+3,t.w*wt,2.5);c.globalAlpha=1;c.textAlign="left";});
       const n=SENTENCE.length,mx=w*.08,my=h*.52,cell=Math.min((w-mx*2)/n,(h-my-h*.09)/n);
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("FULL ATTENTION MATRIX · ROW = QUERY",mx,my-8);
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText("FULL ATTENTION MATRIX · ROW = QUERY",mx,my-8);
       matrix.forEach((row,qi)=>{for(let ki=0;ki<n;ki++){const v=row[ki];
           c.fillStyle=qi===this.selected&&ki===this.selected?this.css("--math-good"):this.css("--math-a");
           c.globalAlpha=.08+.86*v;c.fillRect(mx+ki*cell,my+qi*cell,cell-1.5,cell-1.5);}});

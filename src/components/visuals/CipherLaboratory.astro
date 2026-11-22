@@ -44,17 +44,17 @@
       if(this.mode==="caesar"){for(let s=0;s<26;s++){const shifted=ct.map(x=>(x+26-s)%26),sc=chi2(this.counts(shifted,26),shifted.length);if(sc<bestScore){bestScore=sc;best=s;}}}
       cc.forEach((v,i)=>{const bh=v/max*ch*.92;c.fillStyle=this.css("--math-a");c.fillRect(pad+i*bw+bw*.18,cy+ch-bh,bw*.64,bh);
         if(this.mode!=="xor"){const ey=ENGLISH[i]*ct.length/max*ch*.92;c.fillStyle=this.css("--math-b");c.fillRect(pad+i*bw+bw*.12,cy+ch-ey,bw*.76,1.6);}
-        const label=this.mode==="xor"?(i%4===0?i.toString(16).padStart(2,"0"):""):String.fromCharCode(65+i);c.fillStyle=this.css("--ink-faint");c.font="7px IBM Plex Mono";c.textAlign="center";c.fillText(label,pad+i*bw+bw/2,cy+ch+10);c.textAlign="left";});
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(this.mode==="xor"?"TOY 5-BIT CIPHERTEXT VALUE COUNTS":"CIPHERTEXT FREQUENCY · RED TICKS = ENGLISH",pad,cy-ch*.94);
+        const label=this.mode==="xor"?(i%4===0?i.toString(16).padStart(2,"0"):""):String.fromCharCode(65+i);c.fillStyle=this.css("--ink-faint");c.font="7px Fira Code";c.textAlign="center";c.fillText(label,pad+i*bw+bw/2,cy+ch+10);c.textAlign="left";});
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText(this.mode==="xor"?"TOY 5-BIT CIPHERTEXT VALUE COUNTS":"CIPHERTEXT FREQUENCY · RED TICKS = ENGLISH",pad,cy-ch*.94);
       const ky=h*.62,kh=h*.28;
       c.strokeStyle=this.css("--rule");c.strokeRect(pad,ky,tw,kh);
       c.fillStyle=this.css("--ink-faint");c.fillText(this.mode==="caesar"?"BRUTE-FORCE TRIALS · CHI-SQUARED AGAINST ENGLISH":"KEYSTREAM ALIGNMENT OVER MESSAGE POSITIONS",pad,ky-6);
       if(this.mode==="caesar"){for(let s=0;s<26;s++){const shifted=ct.map(x=>(x+26-s)%26),sc=chi2(this.counts(shifted,26),shifted.length);
           const bh=Math.min(1,sc/(bestScore*8+1))*kh*.9;c.fillStyle=s===best?this.css("--math-good"):this.css("--rule");c.fillRect(pad+s*tw/26+tw/26*.18,ky+kh-bh,tw/26*.64,bh);}
-        c.fillStyle=this.css("--ink");c.font="600 9px IBM Plex Mono";c.fillText(`most English-looking shift: ${best}`,pad+tw*.55,ky+14);}
+        c.fillStyle=this.css("--ink");c.font="600 9px Fira Code";c.fillText(`most English-looking shift: ${best}`,pad+tw*.55,ky+14);}
       else{const k=this.key.toUpperCase().replace(/[^A-Z]/g,"")||"A";
         for(let i=0;i<Math.min(48,ct.length);i++){const kc=k.charCodeAt(i%k.length)-65;c.fillStyle=`hsl(${(kc*14+200)%360} 70% ${document.documentElement.dataset.theme==="dark"?"62%":"46%"})`;c.globalAlpha=.85;c.fillRect(pad+i*(tw/48),ky+kh*.25,tw/48-2,kh*.5);c.globalAlpha=1;}
-        c.fillStyle=this.css("--ink-soft");c.font="9px IBM Plex Mono";c.fillText(`key "${k}" repeats every ${k.length} characters`,pad,ky+kh-8);}
+        c.fillStyle=this.css("--ink-soft");c.font="9px Fira Code";c.fillText(`key "${k}" repeats every ${k.length} characters`,pad,ky+kh-8);}
       this.text("[data-metric-1]",this.mode==="caesar"?"Caesar":this.mode==="vigenere"?"Vigenère":"XOR stream");
       this.text("[data-metric-2]",this.mode==="caesar"?"1 character":`${(this.key.replace(/[^A-Za-z]/g,"")||"A").length} characters`);
       this.text("[data-metric-3]",this.mode==="caesar"?`shift ${best}`:"see readings");}

@@ -1,45 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 176" width="700" height="176" role="img">
-<rect x="0" y="0" width="700" height="176" fill="#ffffff"/>
-<text x="24" y="62" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#cf4520" text-anchor="start">allocate, then check</text>
-<rect x="226" y="42" width="172" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="226" y="70.8" width="172" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="226" y="42" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="396.8" y="42" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="312.0" y="61" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="middle">Content-Length: 4294967296</text>
-<rect x="400" y="56.4" width="8" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M408 54.2 L412 57 L408 59.8 z" fill="#c9d0dc"/>
-<rect x="414" y="42" width="108" height="30" rx="3" fill="#fbe7e0"/>
-<rect x="414" y="42" width="108" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="414" y="70.8" width="108" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="414" y="42" width="1.2" height="30" rx="0" fill="#cf4520"/>
-<rect x="520.8" y="42" width="1.2" height="30" rx="0" fill="#cf4520"/>
-<text x="468.0" y="61" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#cf4520" text-anchor="middle">alloc(4 GiB)</text>
-<rect x="524" y="56.4" width="8" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M532 54.2 L536 57 L532 59.8 z" fill="#c9d0dc"/>
-<rect x="538" y="42" width="108" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="538" y="70.8" width="108" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="538" y="42" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="644.8" y="42" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="592.0" y="61" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="middle">check</text>
-<text x="24" y="146" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#3b4fd6" text-anchor="start">check, then allocate</text>
-<rect x="226" y="126" width="172" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="226" y="154.8" width="172" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="226" y="126" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="396.8" y="126" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="312.0" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="middle">Content-Length: 4294967296</text>
-<rect x="400" y="140.4" width="8" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M408 138.2 L412 141 L408 143.8 z" fill="#c9d0dc"/>
-<rect x="414" y="126" width="108" height="30" rx="3" fill="#e6e9fc"/>
-<rect x="414" y="126" width="108" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="414" y="154.8" width="108" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="414" y="126" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<rect x="520.8" y="126" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<text x="468.0" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#3b4fd6" text-anchor="middle">check</text>
-<rect x="524" y="140.4" width="8" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M532 138.2 L536 141 L532 143.8 z" fill="#c9d0dc"/>
-<rect x="538" y="126" width="108" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="538" y="154.8" width="108" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="538" y="126" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="644.8" y="126" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="592.0" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="middle">413</text>
+<rect x="0" y="0" width="700" height="176" fill="#fbf8f6"/>
+<text x="24" y="62" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#a5222f" text-anchor="start">allocate, then check</text>
+<rect x="226" y="42" width="172" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="226" y="70.8" width="172" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="226" y="42" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="396.8" y="42" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="312.0" y="61" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="middle">Content-Length: 4294967296</text>
+<rect x="400" y="56.4" width="8" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M408 54.2 L412 57 L408 59.8 z" fill="#d3c7bb"/>
+<rect x="414" y="42" width="108" height="30" rx="3" fill="#ecd9d7"/>
+<rect x="414" y="42" width="108" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="414" y="70.8" width="108" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="414" y="42" width="1.2" height="30" rx="0" fill="#a5222f"/>
+<rect x="520.8" y="42" width="1.2" height="30" rx="0" fill="#a5222f"/>
+<text x="468.0" y="61" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#a5222f" text-anchor="middle">alloc(4 GiB)</text>
+<rect x="524" y="56.4" width="8" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M532 54.2 L536 57 L532 59.8 z" fill="#d3c7bb"/>
+<rect x="538" y="42" width="108" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="538" y="70.8" width="108" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="538" y="42" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="644.8" y="42" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="592.0" y="61" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="middle">check</text>
+<text x="24" y="146" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#2848a9" text-anchor="start">check, then allocate</text>
+<rect x="226" y="126" width="172" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="226" y="154.8" width="172" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="226" y="126" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="396.8" y="126" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="312.0" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="middle">Content-Length: 4294967296</text>
+<rect x="400" y="140.4" width="8" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M408 138.2 L412 141 L408 143.8 z" fill="#d3c7bb"/>
+<rect x="414" y="126" width="108" height="30" rx="3" fill="#dddee6"/>
+<rect x="414" y="126" width="108" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="414" y="154.8" width="108" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="414" y="126" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<rect x="520.8" y="126" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<text x="468.0" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#2848a9" text-anchor="middle">check</text>
+<rect x="524" y="140.4" width="8" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M532 138.2 L536 141 L532 143.8 z" fill="#d3c7bb"/>
+<rect x="538" y="126" width="108" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="538" y="154.8" width="108" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="538" y="126" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="644.8" y="126" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="592.0" y="145" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="middle">413</text>
 </svg>

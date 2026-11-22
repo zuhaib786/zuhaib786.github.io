@@ -676,18 +676,18 @@
 
 <style>
   earthquake-observatory {
-    --eq-ocean: rgba(56, 73, 115, 0.08);
-    --eq-land: rgba(75, 63, 214, 0.1);
-    --eq-coast: rgba(19, 24, 36, 0.72);
-    --eq-grid: rgba(19, 24, 36, 0.2);
-    --eq-edge: rgba(19, 24, 36, 0.75);
-    --eq-ring: rgba(255, 255, 255, 0.85);
-    --eq-glow: rgba(75, 63, 214, 0.13);
-    --eq-shade: rgba(19, 24, 36, 0.16);
-    --eq-hot-1: #e2a13b;
-    --eq-hot-2: #e4753f;
-    --eq-hot-3: #d94b50;
-    --eq-hot-4: #9a52dc;
+    --eq-ocean: rgba(61, 43, 90, 0.06);
+    --eq-land: rgba(40, 72, 169, 0.1);
+    --eq-coast: rgba(61, 43, 90, 0.72);
+    --eq-grid: rgba(61, 43, 90, 0.2);
+    --eq-edge: rgba(61, 43, 90, 0.75);
+    --eq-ring: rgba(251, 248, 246, 0.85);
+    --eq-glow: rgba(40, 72, 169, 0.13);
+    --eq-shade: rgba(61, 43, 90, 0.16);
+    --eq-hot-1: #ac5402;
+    --eq-hot-2: #a5222f;
+    --eq-hot-3: #a440b5;
+    --eq-hot-4: #6e33ce;
     display: block;
   }
 
@@ -747,8 +747,8 @@
   }
 
   .is-live .signal {
-    background: #34b886;
-    box-shadow: 0 0 10px rgba(52, 184, 134, 0.7);
+    background: var(--signal-ok);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--signal-ok) 70%, transparent);
   }
 
   .controls { gap: 0.5rem; }

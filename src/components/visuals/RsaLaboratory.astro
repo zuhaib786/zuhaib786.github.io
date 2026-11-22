@@ -44,27 +44,27 @@
       return steps;}
     layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
     css(v:string){return getComputedStyle(this).getPropertyValue(v);}
-    drawLadder(c:CanvasRenderingContext2D,x:number,y:number,w:number,title:string,base:number,exp:number,color:string){c.fillStyle=this.css("--ink-faint");c.font="600 9px IBM Plex Mono";c.fillText(title,x,y-14);
+    drawLadder(c:CanvasRenderingContext2D,x:number,y:number,w:number,title:string,base:number,exp:number,color:string){c.fillStyle=this.css("--ink-faint");c.font="600 9px Fira Code";c.fillText(title,x,y-14);
       const steps=this.ladder(base,exp,this.n),n=steps.length,bw=Math.min(64,(w-20)/Math.max(1,n)-6);
       steps.forEach((st,i)=>{const bx=x+i*(bw+6),by=y;
         c.strokeStyle=i===n-1?color:this.css("--rule");c.lineWidth=i===n-1?1.8:1;c.fillStyle=this.css("--glass");
         c.beginPath();c.rect(bx,by,bw,30);c.fill();c.stroke();
-        c.fillStyle=i===n-1?color:this.css("--ink-soft");c.font="600 10px IBM Plex Mono";c.textAlign="center";c.fillText(String(st.val),bx+bw/2,by+19);
-        c.fillStyle=this.css("--ink-faint");c.font="7px IBM Plex Mono";c.fillText(st.mul?"×"+base:"sq",bx+bw/2,by+40);c.textAlign="left";
+        c.fillStyle=i===n-1?color:this.css("--ink-soft");c.font="600 10px Fira Code";c.textAlign="center";c.fillText(String(st.val),bx+bw/2,by+19);
+        c.fillStyle=this.css("--ink-faint");c.font="7px Fira Code";c.fillText(st.mul?"×"+base:"sq",bx+bw/2,by+40);c.textAlign="left";
         if(i<n-1){c.strokeStyle=this.css("--ink-faint");c.beginPath();c.moveTo(bx+bw,by+15);c.lineTo(bx+bw+6,by+15);c.stroke();}});}
     draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
       const{n,phi,e,d}=this,ciph=modpow(this.m,e,n),back=modpow(ciph,d,n);
       let x=w*.05,y=h*.14;
       const chip=(label:string,value:string,color:string)=>{const cw=118;c.strokeStyle=color;c.lineWidth=1;c.fillStyle=this.css("--glass");c.strokeRect(x,y,cw,26);c.fillStyle=color;c.fillRect(x,y,3,26);
-        c.fillStyle=this.css("--ink-faint");c.font="7px IBM Plex Mono";c.fillText(label,x+10,y+10);
-        c.fillStyle=this.css("--ink");c.font="600 11px IBM Plex Mono";c.fillText(value,x+10,y+21);x+=cw+8;};
+        c.fillStyle=this.css("--ink-faint");c.font="7px Fira Code";c.fillText(label,x+10,y+10);
+        c.fillStyle=this.css("--ink");c.font="600 11px Fira Code";c.fillText(value,x+10,y+21);x+=cw+8;};
       chip("p",String(this.p),this.css("--math-a"));chip("q",String(this.q),this.css("--math-a"));chip("n = p·q",String(n),this.css("--ink-soft"));chip("φ(n)",String(phi),this.css("--ink-soft"));chip("e",String(e),this.css("--math-b"));chip("d",String(d),this.css("--math-good"));
       y=h*.36;
       this.drawLadder(c,w*.05,y,w*.42,"ENCRYPT · m^"+e+" mod "+n+"   (m = "+this.m+")",this.m,e,this.css("--math-b"));
       this.drawLadder(c,w*.53,y,w*.42,"DECRYPT · c^"+d+" mod "+n+"   (c = "+ciph+")",ciph,d,this.css("--math-good"));
       const ly=y+58;
       c.strokeStyle=this.css("--rule");c.lineWidth=1;c.beginPath();c.moveTo(w*.05,ly);c.lineTo(w*.95,ly);c.stroke();
-      c.fillStyle=back===this.m?this.css("--math-good"):this.css("--math-bad");c.font="600 12px IBM Plex Mono";
+      c.fillStyle=back===this.m?this.css("--math-good"):this.css("--math-bad");c.font="600 12px Fira Code";
       c.fillText(back===this.m?`✓ round trip recovers m = ${back}`:`✗ mismatch: ${back} ≠ ${this.m}`,w*.05,ly+22);
       this.text("[data-metric-1]",String(n));this.text("[data-metric-2]",String(phi));this.text("[data-metric-3]",String(d));}
     text(q:string,s:string){const el=this.querySelector(q);if(el)el.textContent=s}

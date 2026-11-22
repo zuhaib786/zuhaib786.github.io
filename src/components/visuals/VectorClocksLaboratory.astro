@@ -46,7 +46,7 @@
       const ax=w*.30,bx=w*.70,top=h*.12,gap=Math.min(44,(h*.84)/Math.max(6,this.events.length+1));
       c.strokeStyle=this.css("--rule");c.lineWidth=1;c.setLineDash([4,6]);
       c.beginPath();c.moveTo(ax,top-24);c.lineTo(ax,h-16);c.moveTo(bx,top-24);c.lineTo(bx,h-16);c.stroke();c.setLineDash([]);
-      c.fillStyle=this.css("--ink-faint");c.font="600 10px IBM Plex Mono";c.textAlign="center";
+      c.fillStyle=this.css("--ink-faint");c.font="600 10px Fira Code";c.textAlign="center";
       c.fillText("REPLICA A",ax,top-32);c.fillText("REPLICA B",bx,top-32);c.textAlign="left";
       const shown=this.events.slice(-Math.floor((h-top-30)/gap));
       const positions=new Map<Ev,{x:number;y:number}>();
@@ -56,9 +56,9 @@
         if(ev.kind==="recv"&&ev.from){const fx=ev.from==="A"?ax:bx;let sy=top-gap;for(let i=evIndex-1;i>=0;i--){if(shown[i].lane===ev.from){sy=positions.get(shown[i])!.y;break;}}
           c.strokeStyle=this.css("--math-good");c.lineWidth=1.5;c.beginPath();c.moveTo(fx,sy);c.quadraticCurveTo((fx+p.x)/2,sy-18,p.x,p.y-7);c.stroke();
           c.fillStyle=this.css("--math-good");c.beginPath();c.arc(p.x,p.y-7,3,0,Math.PI*2);c.fill();
-          c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(`sync ${ev.from}→${ev.lane}`,(fx+p.x)/2+8,(sy+p.y)/2);}
+          c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText(`sync ${ev.from}→${ev.lane}`,(fx+p.x)/2+8,(sy+p.y)/2);}
         c.fillStyle=ev.kind==="local"?this.css("--math-a"):this.css("--paper-sunken");c.strokeStyle=this.css("--math-a");c.lineWidth=1.6;c.beginPath();c.arc(p.x,p.y,6,0,Math.PI*2);if(ev.kind==="local")c.fill();else c.stroke();
-        c.fillStyle=this.css("--ink-soft");c.font="9px IBM Plex Mono";c.fillText(`${ev.lane}${ev.seq} · (${ev.vc[0]},${ev.vc[1]})`,p.x+12,p.y+3);});
+        c.fillStyle=this.css("--ink-soft");c.font="9px Fira Code";c.fillText(`${ev.lane}${ev.seq} · (${ev.vc[0]},${ev.vc[1]})`,p.x+12,p.y+3);});
 }
     text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
   }

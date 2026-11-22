@@ -144,7 +144,7 @@ while (filled < numWorkers) : (filled += 1) {
 }
 ```
 
-It's the same close-then-join discipline as `shutdown`, but reached through error unwinding — `filled` tracks exactly how many threads exist so the cleanup joins those and not uninitialized handles. This is the [errdefer-ladder reflex](/notes/zig-sprint5-systems) from the binary reader, except the resource being unwound is *running threads* instead of allocations, and the unwinding order (close, then join) is mandatory rather than merely tidy. Get it backwards and the error path hangs forever — a deadlock that only ever fires when something *else* already went wrong.
+It's the same close-then-join discipline as `shutdown`, but reached through error unwinding — `filled` tracks exactly how many threads exist so the cleanup joins those and not uninitialized handles. This is the [errdefer-ladder reflex](/series/zig-learning/walking-hashing-and-a-binary-format-in-zig) from the binary reader, except the resource being unwound is *running threads* instead of allocations, and the unwinding order (close, then join) is mandatory rather than merely tidy. Get it backwards and the error path hangs forever — a deadlock that only ever fires when something *else* already went wrong.
 
 ## The parallel checksum pipeline: parallel map without a lock
 

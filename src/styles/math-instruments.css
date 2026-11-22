@@ -1,9 +1,10 @@
 :where(fractal-laboratory, complex-function-laboratory, dynamical-systems-laboratory, linear-algebra-laboratory, monte-carlo-laboratory, orbital-mechanics-laboratory, field-potential-laboratory, wave-laboratory, hamiltonian-laboratory, quantum-dynamics-laboratory, ising-laboratory, fourier-laboratory, bifurcation-laboratory, cellular-automata-laboratory, consistent-hashing-laboratory, vector-clocks-laboratory, attention-laboratory, sampling-laboratory, dft-laboratory, convolution-laboratory, cipher-laboratory, rsa-laboratory, avalanche-laboratory, blowup-laboratory),
 .math-instrument {
-  --math-a: #4b3fd6;
-  --math-b: #c8401a;
-  --math-good: #238766;
-  --math-bad: #c84052;
+  /* dayfox blue, yellow, green, red */
+  --math-a: #2848a9;
+  --math-b: #ac5402;
+  --math-good: #396847;
+  --math-bad: #a5222f;
 }
 
 .math-instrument {

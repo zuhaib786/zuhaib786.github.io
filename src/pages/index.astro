@@ -51,14 +51,14 @@ const experiments = [
   </section>
   <section class="learning-section" aria-labelledby="learning-title">
     <div class="learning-copy"><span class="learning-symbol" aria-hidden="true">{combined ? "∑" : "{ }"}</span><h2 id="learning-title">{combined ? "The Long Proof" : "Learning in the open."}</h2><p>{combined ? "A living mathematics notebook. From linear algebra to research, one proof, one question, one small breakthrough at a time." : "Some ideas take more than one sitting. Follow the notebooks and longer journeys as understanding takes shape."}</p><a class="primary-action" href={combined ? "/math" : "/series"}>{combined ? "Open the mathematics notebook" : "Explore the series"}<span aria-hidden="true">↗</span></a></div>
-    <div class="learning-list">{seriesPosts.slice(0, 3).map(post => <a href={`/series/${post.id}`}><small>{getSeriesMeta(post.id.split("/")[0])?.title}</small><h3>{post.data.title}</h3><span aria-hidden="true">↗</span></a>)}<a class="notes-link" href="/notes">Browse the study notes <span aria-hidden="true">↗</span></a></div>
+    <div class="learning-list">{seriesPosts.slice(0, 3).map(post => <a href={`/series/${post.id}`}><small>{getSeriesMeta(post.id.split("/")[0])?.title}</small><h3>{post.data.title}</h3><span aria-hidden="true">↗</span></a>)}</div>
   </section>
 </Base>
 <style>
   .home-hero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 1.5rem; padding: 4.5rem 0 4rem; }
   .hello { display: flex; align-items: center; gap: 0.6rem; font-size: 0.75rem; color: var(--ink-soft); }
   .hello span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-  h1 { margin: 1.6rem 0 1.7rem; font-family: var(--font-sans); font-size: clamp(3.7rem, 6.4vw, 6.2rem); font-weight: 500; letter-spacing: -0.075em; line-height: 1.01; }
+  h1 { margin: 1.6rem 0 1.7rem; font-family: var(--font-mono); font-size: clamp(3.7rem, 6.4vw, 6.2rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.01; }
   .name-period { color: var(--accent); }
   .hero-intro { font-family: var(--font-display); font-size: clamp(1.65rem, 2.3vw, 2.15rem); line-height: 1.22; letter-spacing: -0.015em; }
   .hero-detail { max-width: 37ch; margin-top: 1.2rem; color: var(--ink-soft); font-size: 0.88rem; line-height: 1.8; }
@@ -79,8 +79,10 @@ const experiments = [
   .experiment-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; }
   .experiment-link { display: block; text-decoration: none; min-width: 0; }
   .experiment-art { position: relative; overflow: hidden; border-radius: 10px; background: var(--paper-sunken); color: var(--accent); }
-  .experiment-link--sky .experiment-art { background: #222d51; color: #d5defe; }
-  .experiment-link--systems .experiment-art { background: #e4ece9; color: #376c60; }
+  .experiment-link--sky .experiment-art { background: #302b5d; color: #dbd1dd; }
+  .experiment-link--systems .experiment-art { background: #e3e4dd; color: #396847; }
+  :global(html[data-theme="dark"]) .experiment-link--sky .experiment-art { background: #222d51; color: #d5defe; }
+  :global(html[data-theme="dark"]) .experiment-link--systems .experiment-art { background: #e4ece9; color: #376c60; }
   .experiment-art svg { width: 100%; transition: transform 400ms var(--ease-out); }
   .experiment-link:hover svg { transform: scale(1.04); }
   .art-open { position: absolute; bottom: 0.85rem; right: 1rem; font-size: 1.2rem; }
@@ -99,7 +101,6 @@ const experiments = [
   .learning-list small { font-size: 0.65rem; color: var(--ink-soft); }
   .learning-list h3 { font-size: 0.9rem; margin-bottom: 0; }
   .learning-list a > span { position: absolute; right: 0; top: 50%; }
-  .learning-list .notes-link { border: 0; font-size: 0.75rem; padding-top: 1.5rem; }
   @media (max-width: 1000px) { .home-hero { padding-top: 3rem; } .writing-section { gap: 2rem; } .interests { flex-wrap: wrap; } .learning-section { gap: 2rem; padding: 2rem; } }
   @media (max-width: 760px) {
     .home-hero { grid-template-columns: 1fr; padding: 2.5rem 0; gap: 0; }

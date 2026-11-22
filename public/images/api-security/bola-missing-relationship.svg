@@ -3,27 +3,27 @@
   <desc id="desc">In the vulnerable path, a request selects Ayesha's package and authenticates Rahul. Execution skips the absent ownership check and modifies the selected package. Authentication alone does not establish permission.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M1 1L7 4L1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+      <path d="M1 1L7 4L1 7" fill="none" stroke="#ac5402" stroke-width="1.2"/>
     </marker>
     <marker id="fault-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M1 1L7 4L1 7" fill="none" stroke="#a34e41" stroke-width="1.2"/>
+      <path d="M1 1L7 4L1 7" fill="none" stroke="#a5222f" stroke-width="1.2"/>
     </marker>
   </defs>
   <style>
-    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
-    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 1.6px; }
+    text { fill: #3d2b5a; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #643f61; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 1.6px; }
     .main { font-size: 20px; }
-    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .note { fill: #643f61; font-family: Arial, sans-serif; font-size: 14px; }
     .mono { font-family: 'Courier New', monospace; }
     .strong { font-size: 15px; }
-    .frame, .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
-    .trusted { fill: none; stroke: #8d5f36; stroke-width: 1.25; }
-    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
-    .missing { fill: none; stroke: #a34e41; stroke-width: 1; stroke-dasharray: 4 5; }
-    .fault-line, .fault-arrow { fill: none; stroke: #a34e41; stroke-width: 1.5; }
+    .frame, .rule { fill: none; stroke: #aab0ad; stroke-width: 1; }
+    .trusted { fill: none; stroke: #ac5402; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #ac5402; stroke-width: 1.25; marker-end: url(#arrow); }
+    .missing { fill: none; stroke: #a5222f; stroke-width: 1; stroke-dasharray: 4 5; }
+    .fault-line, .fault-arrow { fill: none; stroke: #a5222f; stroke-width: 1.5; }
     .fault-arrow { marker-end: url(#fault-arrow); }
-    .fault-label { fill: #a34e41; font-family: Arial, sans-serif; font-size: 14px; }
-    .muted { fill: #7c624d; }
+    .fault-label { fill: #a5222f; font-family: Arial, sans-serif; font-size: 14px; }
+    .muted { fill: #643f61; }
   </style>
   <text x="28" y="30" class="eyebrow">THE VULNERABLE PATH</text>
   <rect x="60" y="67" width="314" height="46" rx="3" class="frame"/>

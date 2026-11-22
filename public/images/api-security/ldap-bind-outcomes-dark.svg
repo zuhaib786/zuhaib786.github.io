@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 350" width="700" height="350" role="img" aria-labelledby="title desc">
+  <title id="title">LDAP bind outcomes include anonymous success</title>
+  <desc id="desc">Observed fixture results: a real distinguished name and correct password succeeds as that identity; a wrong password returns invalid credentials; an empty password returns unwilling to perform under fixture policy. Empty DN plus empty password succeeds as an anonymous bind. The application rejects missing DN or password before bind.</desc>
+  <style>text{fill:#e6d3bc;font-family:Georgia,'Times New Roman',serif}.eyebrow{fill:#bea88e;font:11px Arial,sans-serif;letter-spacing:1.6px}.main{font-size:19px}.note{fill:#bea88e;font:13px Arial,sans-serif}.mono{font:13px 'Courier New',monospace}.head{font:12px Arial,sans-serif;fill:#bea88e}.frame,.rule{fill:none;stroke:#78624d;stroke-width:1}.ok{fill:none;stroke:#d6ab7c;stroke-width:1.3}.fault{fill:none;stroke:#e29a89;stroke-width:1.3}.oktxt{fill:#d6ab7c;font:13px Arial,sans-serif}.faulttxt{fill:#e29a89;font:13px Arial,sans-serif}</style>
+  <text x="28" y="30" class="eyebrow">BIND RESPONSE MATRIX</text><text x="28" y="65" class="main">A successful bind may be anonymous</text><text x="36" y="98" class="head">DISTINGUISHED NAME</text><text x="299" y="98" class="head">PASSWORD</text><text x="440" y="98" class="head">OBSERVED RESULT</text>
+  <path d="M28 108h644 M28 155h644 M28 202h644 M28 249h644 M28 296h644" class="rule"/>
+  <text x="36" y="137" class="mono">real DN</text><text x="299" y="137" class="mono">correct</text><text x="440" y="137" class="oktxt">success · identity bound</text>
+  <text x="36" y="184" class="mono">real DN</text><text x="299" y="184" class="mono">wrong</text><text x="440" y="184" class="faulttxt">invalid credentials</text>
+  <text x="36" y="231" class="mono">real DN</text><text x="299" y="231" class="mono">empty</text><text x="440" y="231" class="faulttxt">unwilling to perform¹</text>
+  <rect x="28" y="249" width="644" height="47" rx="2" class="ok"/><text x="36" y="278" class="mono">empty DN</text><text x="299" y="278" class="mono">empty</text><text x="440" y="278" class="oktxt">success · anonymous</text>
+  <text x="28" y="320" class="note">¹ Fixture policy. Application rejects missing DN or password before bind.</text>
+</svg>

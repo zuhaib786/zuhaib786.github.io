@@ -502,7 +502,7 @@
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = valid ? this.css("--mm-axis") : this.css("--mm-invalid");
-      ctx.font = "9px 'IBM Plex Mono', monospace";
+      ctx.font = "9px 'Fira Code', monospace";
       ctx.textAlign = "center";
       ctx.fillText("AXIS", ax, 12);
 
@@ -862,15 +862,15 @@
 
 <style>
   measure-laboratory {
-    --mm-region: rgba(75, 63, 214, 0.1);
-    --mm-boundary: #131824;
-    --mm-axis: #c8401a;
-    --mm-axis-3d: rgba(19, 24, 36, 0.4);
-    --mm-invalid: #d94b50;
-    --mm-centroid-area: #c8401a;
-    --mm-centroid-curve: #4b3fd6;
-    --mm-face: #4b3fd6;
-    --mm-wire: rgba(19, 24, 36, 0.14);
+    --mm-region: rgba(40, 72, 169, 0.1);
+    --mm-boundary: #3d2b5a;
+    --mm-axis: #ac5402;
+    --mm-axis-3d: rgba(61, 43, 90, 0.4);
+    --mm-invalid: #a5222f;
+    --mm-centroid-area: #ac5402;
+    --mm-centroid-curve: #2848a9;
+    --mm-face: #2848a9;
+    --mm-wire: rgba(61, 43, 90, 0.14);
     display: block;
   }
 
@@ -927,13 +927,13 @@
   }
 
   .is-live .signal {
-    background: #34b886;
-    box-shadow: 0 0 10px rgba(52, 184, 134, 0.7);
+    background: var(--signal-ok);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--signal-ok) 70%, transparent);
   }
 
   .is-bad .signal {
-    background: #d94b50;
-    box-shadow: 0 0 10px rgba(217, 75, 80, 0.7);
+    background: var(--signal-bad);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--signal-bad) 70%, transparent);
   }
 
   .controls { gap: 0.5rem; flex-wrap: wrap; }
@@ -1157,9 +1157,9 @@
   }
 
   .badge.ok {
-    color: #34b886;
-    border-color: #34b886;
-    box-shadow: 0 0 8px rgba(52, 184, 134, 0.4);
+    color: var(--signal-ok);
+    border-color: var(--signal-ok);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--signal-ok) 40%, transparent);
   }
 
   .exact {

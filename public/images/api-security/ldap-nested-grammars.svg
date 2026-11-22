@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 390" width="700" height="390" role="img" aria-labelledby="title desc">
+  <title id="title">A distinguished name crosses two grammars</title>
+  <desc id="desc">The exact DN uid=alice,ou=people,dc=example is a literal value inside an LDAP filter and is also parsed as a DN with comma-separated RDNs. Both grammar layers cover the same DN span. A comma separates RDNs but is literal filter data; a bare star is a filter operator but a literal DN character. Encode the raw RDN value into a DN, then encode the completed DN as a filter value.</desc>
+  <defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#ac5402" stroke-width="1.2"/></marker></defs>
+  <style>text{fill:#3d2b5a;font-family:Georgia,'Times New Roman',serif}.eyebrow{fill:#643f61;font:11px Arial,sans-serif;letter-spacing:1.6px}.main{font-size:18px}.note{fill:#643f61;font:13px Arial,sans-serif}.mono{font:12px 'Courier New',monospace}.frame,.rule{fill:none;stroke:#aab0ad;stroke-width:1}.outer{fill:none;stroke:#ac5402;stroke-width:1.4}.inner{fill:none;stroke:#a5222f;stroke-width:1.4}.tag{font:12px Arial,sans-serif;fill:#643f61}.flow{stroke:#ac5402;marker-end:url(#arrow)}</style>
+  <text x="28" y="30" class="eyebrow">NESTED GRAMMARS</text><text x="28" y="65" class="main">One string, two independent parsers</text>
+  <rect x="28" y="83" width="644" height="57" rx="3" class="frame"/>
+  <text x="42" y="118" class="mono" textLength="259.2" lengthAdjust="spacingAndGlyphs">(&amp;(objectClass=groupOfNames)(member=</text><text x="301.2" y="118" class="mono" textLength="216" lengthAdjust="spacingAndGlyphs">uid=alice,ou=people,dc=example</text><text x="517.2" y="118" class="mono">))</text>
+  <path d="M301.2 123v8h216v-8" class="outer"/><path d="M301.2 101v-7h216v7" class="inner"/>
+  <text x="523" y="96" class="tag" fill="#a5222f">DN / RFC 4514</text><text x="523" y="148" class="tag" fill="#ac5402">Filter value / RFC 4515</text>
+  <text x="28" y="174" class="tag">Comma: literal data in a filter; separator between RDNs in a DN.</text>
+  <text x="28" y="198" class="tag">Star: filter operator when bare; literal character inside a DN value.</text>
+  <text x="28" y="302" class="label" style="font:12px Arial,sans-serif;fill:#643f61">SAFE BUILD ORDER</text>
+  <rect x="28" y="326" width="142" height="42" rx="3" class="frame"/><text x="99" y="344" text-anchor="middle" class="tag">raw RDN value</text><text x="99" y="360" text-anchor="middle" class="tag">alice</text>
+  <path d="M170 347h18 M314 347h18 M472 347h18" class="outer" marker-end="url(#arrow)"/>
+  <rect x="188" y="326" width="126" height="42" rx="3" class="frame"/><text x="251" y="352" text-anchor="middle" class="tag">DN encode</text>
+  <rect x="332" y="326" width="140" height="42" rx="3" class="frame"/><text x="402" y="352" text-anchor="middle" class="tag">completed DN</text>
+  <rect x="490" y="326" width="182" height="42" rx="3" class="frame"/><text x="581" y="352" text-anchor="middle" class="tag">filter encode</text>
+</svg>

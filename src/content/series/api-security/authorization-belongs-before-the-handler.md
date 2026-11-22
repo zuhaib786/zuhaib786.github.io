@@ -196,6 +196,8 @@ An integer owner key avoids that username-collation mismatch and keeps display-n
 
 This phase has one permanent owner per package. That makes today's relationship straightforward, but leaves a recovery problem: if the owner loses account access and no recovery or transfer process exists, nobody can maintain the package through the normal API.
 
+[Phase 9 introduces directory groups](/series/api-security/the-fourth-grammar) before broader relationship policies. Group-derived permission adds two requirements to this boundary: membership must be queried without changing the LDAP expression, and a cached membership answer must be recent enough to grant access. The individual-owner model here describes the phase 8 checkpoint.
+
 A transfer column or administrator role would only provide a mechanism. It would not decide who is entitled to recover or take over a package. That requires evidence, process, and an audit trail. For a concrete example, [PyPI's name-retention policy](https://peps.python.org/pep-0541/) defines conditions for handling abandoned projects and transfer requests. A registry needs policy as well as schema.
 
 Ownership transfer would also change the consistency requirements of checking before acting. If ownership can change between router resolution and mutation, the operation needs suitable transactional or conditional enforcement. Centralizing the check does not by itself close a future check/use race.

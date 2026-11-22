@@ -564,7 +564,7 @@
           const p = this.project(h.az, h.alt);
           if (p) {
             ctx.fillStyle = labelInk;
-            ctx.font = "9px 'IBM Plex Mono', monospace";
+            ctx.font = "9px 'Fira Code', monospace";
             ctx.textAlign = "center";
             ctx.fillText(constellation.name.toUpperCase(), p.x, p.y);
           }
@@ -593,7 +593,7 @@
         ctx.fill();
         if (mag < 0.9 && name) {
           ctx.globalAlpha = 0.75;
-          ctx.font = "9px 'IBM Plex Mono', monospace";
+          ctx.font = "9px 'Fira Code', monospace";
           ctx.fillText(name, p.x + r + 3, p.y + 3);
         }
         ctx.globalAlpha = 1;
@@ -617,7 +617,7 @@
       moonElongation: number,
     ) {
       ctx.textAlign = "left";
-      ctx.font = "10px 'IBM Plex Mono', monospace";
+      ctx.font = "10px 'Fira Code', monospace";
       for (const body of bodies) {
         const h = this.altAz(body.ra, body.dec, lstDeg);
         // Cheap topocentric correction for the Moon's parallax.
@@ -694,7 +694,7 @@
       ctx.lineWidth = 1.1;
       this.drawSkyLine(ctx, Array.from({ length: 361 }, (_, i) => [i, 0] as [number, number]));
       ctx.fillStyle = cardinalInk;
-      ctx.font = "10px 'IBM Plex Mono', monospace";
+      ctx.font = "10px 'Fira Code', monospace";
       ctx.textAlign = "center";
       const cardinals: [string, number][] = [["N", 0], ["NE", 45], ["E", 90], ["SE", 135], ["S", 180], ["SW", 225], ["W", 270], ["NW", 315]];
       for (const [label, az] of cardinals) {
@@ -814,18 +814,18 @@
 
 <style>
   sky-atlas {
-    --sky-grid: rgba(19, 24, 36, 0.16);
-    --sky-ecliptic: rgba(200, 64, 26, 0.42);
-    --sky-figure: rgba(19, 24, 36, 0.3);
-    --sky-figure-label: rgba(19, 24, 36, 0.38);
-    --sky-star-ink: #131824;
-    --sky-sun: #c8401a;
-    --sky-moon: #131824;
-    --sky-planet: #c8401a;
-    --sky-body-label: rgba(19, 24, 36, 0.72);
-    --sky-horizon: rgba(19, 24, 36, 0.55);
-    --sky-ground: rgba(19, 24, 36, 0.07);
-    --sky-cardinal: rgba(19, 24, 36, 0.6);
+    --sky-grid: rgba(61, 43, 90, 0.16);
+    --sky-ecliptic: rgba(172, 84, 2, 0.42);
+    --sky-figure: rgba(61, 43, 90, 0.3);
+    --sky-figure-label: rgba(61, 43, 90, 0.38);
+    --sky-star-ink: #3d2b5a;
+    --sky-sun: #ac5402;
+    --sky-moon: #3d2b5a;
+    --sky-planet: #ac5402;
+    --sky-body-label: rgba(61, 43, 90, 0.72);
+    --sky-horizon: rgba(61, 43, 90, 0.55);
+    --sky-ground: rgba(61, 43, 90, 0.07);
+    --sky-cardinal: rgba(61, 43, 90, 0.6);
     display: block;
   }
 
@@ -884,8 +884,8 @@
   }
 
   .is-live .signal {
-    background: #34b886;
-    box-shadow: 0 0 10px rgba(52, 184, 134, 0.7);
+    background: var(--signal-ok);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--signal-ok) 70%, transparent);
   }
 
   .controls { gap: 0.5rem; flex-wrap: wrap; }

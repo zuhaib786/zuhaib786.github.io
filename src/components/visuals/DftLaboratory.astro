@@ -56,12 +56,12 @@
       rec.forEach((v,n)=>{const px=pad+n/(N-1)*tw,py=mid-Math.max(-1.6,Math.min(1.6,v))*amp;n?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();
       c.strokeStyle=this.css("--rule");c.setLineDash([3,4]);c.lineWidth=1;c.beginPath();
       for(let n=0;n<N;n+=2){const px=pad+n/(N-1)*tw,py=mid-this.windowAt(n)*amp*.9;n?c.lineTo(px,py):c.moveTo(px,py);}c.stroke();c.setLineDash([]);
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("window taper",w-pad-70,mid-amp*.9);
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText("window taper",w-pad-70,mid-amp*.9);
       const sy=h*.52,sh=h*.34,maxMag=Math.max(...mag,.001),bins=mag.length;
       c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,sy+sh);c.lineTo(w-pad,sy+sh);c.stroke();
       const bw=tw/bins;
       mag.forEach((m,k)=>{const bh=m/maxMag*sh*.94;c.fillStyle=kept.has(k)?this.css("--math-a"):this.css("--rule");c.fillRect(pad+k*bw,sy+sh-bh,Math.max(1,bw-1.2),bh);});
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";
       c.fillText("bin 0 (DC)",pad,sy+sh+12);c.fillText(`bin ${bins-1}`,w-pad-40,sy+sh+12);
       this.text("[data-metric-1]",String(N));this.text("[data-metric-2]",`${kept.size}/${bins}`);this.text("[data-metric-3]",(err*100).toFixed(1)+"%");}
     text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}

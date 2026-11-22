@@ -51,7 +51,7 @@
     css(v:string){return getComputedStyle(this).getPropertyValue(v);}
     row(y:number,h:number,label:string,color:string,values:number[],N:number,highlightFrom=-1,cursor=-1){const c=this.ctx,pad=this.width*.05,tw=this.width-pad*2,max=Math.max(1,...values.map(Math.abs));
       c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(pad,y+h/2);c.lineTo(this.width-pad,y+h/2);c.stroke();
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(label,pad+2,y-h/2+10);
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText(label,pad+2,y-h/2+10);
       const stem=(v:number,n:number,alpha:number)=>{const X=pad+n/(N-1)*tw,Y=y+h/2-v/max*(h*.42);c.globalAlpha=alpha;c.strokeStyle=color;c.lineWidth=v===0?1:1.6;c.beginPath();c.moveTo(X,y+h/2);c.lineTo(X,Y);c.stroke();if(v!==0&&alpha>.5){c.fillStyle=color;c.beginPath();c.arc(X,Y,2.2,0,Math.PI*2);c.fill();}c.globalAlpha=1;};
       values.forEach((v,n)=>stem(v,n,n<=cursor||cursor<0?1:.16));
       if(highlightFrom>=0){const X1=pad+Math.max(0,highlightFrom)/(N-1)*tw,X2=pad+Math.min(N-1,cursor)/(N-1)*tw;c.fillStyle=this.css("--math-b");c.globalAlpha=.08;c.fillRect(X1,y-h/2,Math.max(2,X2-X1),h);c.globalAlpha=1;}

@@ -1,35 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 248" width="700" height="248" role="img">
-<rect x="0" y="0" width="700" height="248" fill="#ffffff"/>
-<text x="24" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#15181f" text-anchor="start">Content-Length\t: 5</text>
-<rect x="24" y="44" width="652" height="1.2" rx="0" fill="#c9d0dc"/>
-<text x="24" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#cf4520" text-anchor="start">proxy   trims the tab</text>
-<rect x="280" y="76" width="160" height="30" rx="3" fill="#fbe7e0"/>
-<rect x="280" y="76" width="160" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="280" y="104.8" width="160" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="280" y="76" width="1.2" height="30" rx="0" fill="#cf4520"/>
-<rect x="438.8" y="76" width="1.2" height="30" rx="0" fill="#cf4520"/>
-<text x="360" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#cf4520" text-anchor="middle">header seen</text>
-<rect x="444" y="90.4" width="22" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M466 88.2 L470 91 L466 93.8 z" fill="#c9d0dc"/>
-<rect x="474" y="76" width="200" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="474" y="104.8" width="200" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="474" y="76" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="672.8" y="76" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="574" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="middle">5 bytes are body</text>
-<text x="24" y="158" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#3b4fd6" text-anchor="start">server  rejects the name</text>
-<rect x="280" y="138" width="160" height="30" rx="3" fill="#e6e9fc"/>
-<rect x="280" y="138" width="160" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="280" y="166.8" width="160" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="280" y="138" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<rect x="438.8" y="138" width="1.2" height="30" rx="0" fill="#3b4fd6"/>
-<text x="360" y="157" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#3b4fd6" text-anchor="middle">header not seen</text>
-<rect x="444" y="152.4" width="22" height="1.2" rx="0" fill="#c9d0dc"/>
-<path d="M466 150.2 L470 153 L466 155.8 z" fill="#c9d0dc"/>
-<rect x="474" y="138" width="200" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="474" y="166.8" width="200" height="1.2" rx="0" fill="#c9d0dc"/>
-<rect x="474" y="138" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<rect x="672.8" y="138" width="1.2" height="30" rx="0" fill="#c9d0dc"/>
-<text x="574" y="157" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="middle">0 bytes are body</text>
-<rect x="24" y="208" width="652" height="1.2" rx="0" fill="#c9d0dc"/>
-<text x="24" y="230" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#737b8c" text-anchor="start">the disagreement is the attack: the next request begins inside this one</text>
+<rect x="0" y="0" width="700" height="248" fill="#fbf8f6"/>
+<text x="24" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#3d2b5a" text-anchor="start">Content-Length\t: 5</text>
+<rect x="24" y="44" width="652" height="1.2" rx="0" fill="#d3c7bb"/>
+<text x="24" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#a5222f" text-anchor="start">proxy   trims the tab</text>
+<rect x="280" y="76" width="160" height="30" rx="3" fill="#ecd9d7"/>
+<rect x="280" y="76" width="160" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="280" y="104.8" width="160" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="280" y="76" width="1.2" height="30" rx="0" fill="#a5222f"/>
+<rect x="438.8" y="76" width="1.2" height="30" rx="0" fill="#a5222f"/>
+<text x="360" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#a5222f" text-anchor="middle">header seen</text>
+<rect x="444" y="90.4" width="22" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M466 88.2 L470 91 L466 93.8 z" fill="#d3c7bb"/>
+<rect x="474" y="76" width="200" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="474" y="104.8" width="200" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="474" y="76" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="672.8" y="76" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="574" y="95" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="middle">5 bytes are body</text>
+<text x="24" y="158" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#2848a9" text-anchor="start">server  rejects the name</text>
+<rect x="280" y="138" width="160" height="30" rx="3" fill="#dddee6"/>
+<rect x="280" y="138" width="160" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="280" y="166.8" width="160" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="280" y="138" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<rect x="438.8" y="138" width="1.2" height="30" rx="0" fill="#2848a9"/>
+<text x="360" y="157" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="700" fill="#2848a9" text-anchor="middle">header not seen</text>
+<rect x="444" y="152.4" width="22" height="1.2" rx="0" fill="#d3c7bb"/>
+<path d="M466 150.2 L470 153 L466 155.8 z" fill="#d3c7bb"/>
+<rect x="474" y="138" width="200" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="474" y="166.8" width="200" height="1.2" rx="0" fill="#d3c7bb"/>
+<rect x="474" y="138" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<rect x="672.8" y="138" width="1.2" height="30" rx="0" fill="#d3c7bb"/>
+<text x="574" y="157" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="middle">0 bytes are body</text>
+<rect x="24" y="208" width="652" height="1.2" rx="0" fill="#d3c7bb"/>
+<text x="24" y="230" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="400" fill="#824d5b" text-anchor="start">the disagreement is the attack: the next request begins inside this one</text>
 </svg>

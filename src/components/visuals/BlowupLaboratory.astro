@@ -593,7 +593,7 @@
       c.save();
       c.fillStyle = this.css("--paper-sunken");
       c.fillRect(0, 0, this.width, this.height);
-      c.font = "10px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "10px 'Fira Code', ui-monospace, monospace";
       c.textBaseline = "middle";
       if (this.mode === "collapse") this.drawCollapse();
       else if (this.mode === "spinup") this.drawSpinup();
@@ -842,7 +842,7 @@
       const c = this.ctx, m = this.margins();
       c.save();
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       const put = (r: number, z: number, s: string, color?: string) => {
         const [px, py] = this.project(r, z);
         if (px < m.l - 4 || px > m.l + m.w - 4 || py < m.t || py > m.t + m.h) return;
@@ -935,7 +935,7 @@
       c.strokeStyle = this.css("--rule");
       c.strokeRect(m.l, sy, 190, sh);
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       c.fillText("angular momentum r·u_θ", m.l + 8, sy + 12);
       let lmax = 1e-9;
       const ls: number[] = [];
@@ -959,7 +959,7 @@
 
       c.save();
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       c.fillText(`section at η = 0.25 · core radius ℓ_r = ${this.lr().toExponential(2)}`, m.l, m.t + 6);
       c.fillText(`Re_θ = ${this.reTheta().toFixed(2)}`, m.l + m.w - 90, m.t + 6);
       c.restore();
@@ -1045,7 +1045,7 @@
       c.strokeStyle = this.css("--math-good");
       c.beginPath(); c.moveTo(ox, oy); c.lineTo(ox - L * 0.8 * Math.sin(ang), oy - L * 0.8 * Math.cos(ang)); c.stroke();
       c.fillStyle = this.css("--ink");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       c.fillText("ξ", ox + L * Math.cos(ang) + 4, oy - L * Math.sin(ang));
       c.fillStyle = this.css("--math-good");
       c.fillText("a ⟂ ξ", ox - L * 0.8 * Math.sin(ang) - 26, oy - L * 0.8 * Math.cos(ang) - 8);
@@ -1059,7 +1059,7 @@
       c.strokeStyle = this.css("--rule");
       c.strokeRect(m.l, ey, leftW, eh);
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       c.fillText("pulse envelope A(σ) · seeded exponentially small", m.l + 8, ey + 12);
       let emax = 1e-9;
       const es: number[] = [];
@@ -1114,7 +1114,7 @@
       c.fillStyle = w.ok ? this.css("--math-b") : this.css("--math-bad");
       c.beginPath(); c.arc(tx, ty, 6, 0, Math.PI * 2); c.fill();
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       c.fillText("admissible stress cone", p.x + 10, p.y + 14);
       c.fillText("T_rθ", O[0] + s * 1.1 - 26, O[1] + 12);
       c.fillText("T_rz", O[0] + 6, O[1] - s * 1.1 + 6);
@@ -1133,7 +1133,7 @@
         c.strokeStyle = this.css("--rule");
         c.strokeRect(p.x, ry, p.w, m.t + m.h - ry);
         c.fillStyle = this.css("--ink-faint");
-        c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+        c.font = "9px 'Fira Code', ui-monospace, monospace";
         c.fillText("residual force ‖R‖ as τ → 0", p.x + 10, ry + 16);
         const full = p.w - 24;
         const frac = clamp(Math.log10(this.residualBg()) / 5, 0.02, 1);
@@ -1165,7 +1165,7 @@
       c.save();
       c.strokeStyle = this.css("--rule");
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       for (let e = Math.ceil(yMin); e <= yMax; e++) {
         const y = py(Math.pow(10, e));
         c.globalAlpha = e === 0 ? 0.9 : 0.4;
@@ -1215,7 +1215,7 @@
       for (const v of [this.supU(), 1 + 0.35 * this.coreEnergy(), this.coreEnergy()]) {
         c.beginPath(); c.arc(cx, py(v), 3.2, 0, Math.PI * 2); c.fill();
       }
-      c.font = "10px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "10px 'Fira Code', ui-monospace, monospace";
       const tag = `τ = ${this.tau < 0.001 ? this.tau.toExponential(1) : this.tau.toFixed(3)}`;
       c.fillStyle = this.css("--glass-strong");
       c.fillRect(Math.min(cx + 6, m.l + m.w - 86), m.t + 6, 80, 18);
@@ -1230,7 +1230,7 @@
       c.strokeStyle = this.css("--rule-strong");
       c.strokeRect(m.l, m.t, m.w, m.h);
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       ticks.forEach((t, i) => {
         const x = m.l + (i / (ticks.length - 1)) * m.w;
         c.fillText(t, i === ticks.length - 1 ? x - 20 : x + 3, m.t + m.h + 13);
@@ -1257,7 +1257,7 @@
       c.strokeStyle = this.css("--rule-strong");
       c.strokeRect(x, y, w, h);
       c.fillStyle = this.css("--ink-faint");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       c.fillText("0", x - 8, y + h / 2);
       c.fillText(`${label} ≤ ${max.toFixed(2)}`, x, y - 8);
       c.restore();
@@ -1287,7 +1287,7 @@
       c.strokeStyle = this.css("--rule-strong");
       c.strokeRect(bx, by, bw, bh);
       c.fillStyle = this.css("--ink");
-      c.font = "9px 'IBM Plex Mono', ui-monospace, monospace";
+      c.font = "9px 'Fira Code', ui-monospace, monospace";
       lines.forEach((l, i) => c.fillText(l, bx + 8, by + 12 + i * 14));
       c.restore();
     }
@@ -1304,11 +1304,13 @@
 <style>
   blowup-laboratory {
     display: block;
-    --vortex-low: #2f9ab4;
-    --vortex-mid: #4d63dc;
-    --vortex-high: #e07b2a;
-    --vortex-ink: #98a2c2;
-    --vortex-ground: #171d30;
+    --vortex-low: #287980;
+    --vortex-mid: #2848a9;
+    --vortex-high: #ac5402;
+    --vortex-ink: #643f61;
+    --vortex-ground: #f2e9e1;
+    --vortex-note: #3d2b5a;
+    --vortex-note-rule: rgba(61, 43, 90, 0.35);
   }
 
   html[data-theme="dark"] blowup-laboratory {
@@ -1317,6 +1319,8 @@
     --vortex-high: #ff9a4d;
     --vortex-ink: #8b95b5;
     --vortex-ground: #10151f;
+    --vortex-note: #dfe4f5;
+    --vortex-note-rule: rgba(223, 228, 245, 0.4);
   }
 
   blowup-laboratory .stage-surface {
@@ -1350,7 +1354,7 @@
 
   blowup-laboratory .note {
     position: absolute;
-    color: #dfe4f5;
+    color: var(--vortex-note);
     font-family: var(--font-mono);
     font-size: 0.6rem;
     letter-spacing: 0.08em;
@@ -1360,7 +1364,7 @@
   blowup-laboratory .note::after {
     content: "";
     position: absolute;
-    background: rgba(223, 228, 245, 0.4);
+    background: var(--vortex-note-rule);
   }
 
   blowup-laboratory .note--axial { top: 8%; right: 7%; }

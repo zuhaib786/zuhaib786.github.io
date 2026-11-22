@@ -73,6 +73,18 @@ const { kind } = Astro.props;
       <text x="393" y="365">CPU work lives here</text>
       <text x="323" y="223" text-anchor="middle" class="main-label">uvloop</text>
     </>}
+    {kind === "policy-gradient" && <>
+      <text x="70" y="72" class="eyebrow">POLICY GRADIENT · GROUP BASELINE</text>
+      <rect x="70" y="198" width="90" height="44" rx="4" class="frame" />
+      <text x="115" y="225" text-anchor="middle">prompt</text>
+      {[120, 160, 200, 240, 280, 320].map((y, i) => <>
+        <path d={`M160 220C190 220 190 ${y} 220 ${y}`} class="line" />
+        <rect x="220" y={y - 11} width={[190, 120, 165, 200, 95, 150][i]} height="22" rx="2" class={[1, 0, 1, 0, 0, 1][i] ? "selected" : "cell"} />
+        <text x="440" y={y + 5}>{`r = ${[1, 0, 1, 0, 0, 1][i]}`}</text>
+        <text x="510" y={y + 5} class={[1, 0, 1, 0, 0, 1][i] ? "main-label" : undefined}>{[1, 0, 1, 0, 0, 1][i] ? "A = +1" : "A = −1"}</text>
+      </>)}
+      <text x="70" y="372" class="eyebrow">SAMPLE → SCORE → BEAT THE GROUP MEAN</text>
+    </>}
     {kind === "troubled-cells" && <>
       <text x="66" y="67" class="eyebrow">LEARNED LIMITING · LOCAL DECISIONS</text>
       {Array.from({ length: 10 }, (_, i) => <rect x={70 + i * 50} y="105" width="50" height="150" class={i === 4 || i === 5 ? "selected" : "mesh-cell"} />)}

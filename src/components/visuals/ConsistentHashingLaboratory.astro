@@ -37,7 +37,8 @@
     rebuild(){this.ring=[];for(const n of this.nodes)for(let v=0;v<this.vnodes;v++)this.ring.push({pos:this.hashPos(`node-${n}-v${v}`),node:n});this.ring.sort((a,b)=>a.pos-b.pos);this.updateMetrics();}
     ownerCH(pos:number){let lo=0,hi=this.ring.length-1;if(!this.ring.length)return"?";if(pos>this.ring[hi].pos)return this.ring[0].node;while(lo<hi){const mid=(lo+hi)>>1;if(this.ring[mid].pos<pos)lo=mid+1;else hi=mid;}return this.ring[lo].node;}
     ownerMod(id:number){return this.nodes[fnv(`${this.keySeed}:k${id}`)%this.nodes.length];}
-    color(node:string){return PALETTE[POOL.indexOf(node)%PALETTE.length];}
+    pal:string[]=[];palDark?:boolean;
+    color(node:string){const dark=document.documentElement.dataset.theme==="dark";if(this.palDark!==dark||!this.pal.length){const s=getComputedStyle(this);this.pal=PALETTE.map((_,i)=>s.getPropertyValue(`--series-${i+1}`).trim()||PALETTE[i]);this.palDark=dark;}return this.pal[POOL.indexOf(node)%this.pal.length];}
     layout(){const rect=this.canvas.getBoundingClientRect();if(!rect.width)return;const d=Math.min(devicePixelRatio||1,2);this.width=rect.width;this.height=rect.height;this.canvas.width=Math.round(rect.width*d);this.canvas.height=Math.round(rect.height*d);this.ctx.setTransform(d,0,0,d,0,0);this.draw();}
     css(v:string){return getComputedStyle(this).getPropertyValue(v);}
     draw(){if(!this.width)return;const c=this.ctx,w=this.width,h=this.height;c.clearRect(0,0,w,h);c.fillStyle=this.css("--paper-sunken");c.fillRect(0,0,w,h);
@@ -49,17 +50,17 @@
       for(const k of this.keys){const a=k.pos*Math.PI*2-Math.PI/2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;c.fillStyle=this.color(this.ownerCH(k.pos));c.beginPath();c.arc(x,y,2.4,0,Math.PI*2);c.fill();}
       const seen=new Set<string>();
       for(const p of this.ring){const a=p.pos*Math.PI*2-Math.PI/2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;c.fillStyle=this.color(p.node);c.beginPath();c.arc(x,y,2,0,Math.PI*2);c.fill();
-        if(!seen.has(p.node)){seen.add(p.node);const lx=cx+Math.cos(a)*(R+22),ly=cy+Math.sin(a)*(R+22);c.fillStyle=this.color(p.node);c.beginPath();c.arc(lx,ly,5,0,Math.PI*2);c.fill();c.fillStyle=this.css("--ink-soft");c.font="600 9px IBM Plex Mono";c.textAlign="center";c.fillText("cache-"+p.node,lx,ly-9);c.textAlign="left";}}
+        if(!seen.has(p.node)){seen.add(p.node);const lx=cx+Math.cos(a)*(R+22),ly=cy+Math.sin(a)*(R+22);c.fillStyle=this.color(p.node);c.beginPath();c.arc(lx,ly,5,0,Math.PI*2);c.fill();c.fillStyle=this.css("--ink-soft");c.font="600 9px Fira Code";c.textAlign="center";c.fillText("cache-"+p.node,lx,ly-9);c.textAlign="left";}}
       const px=w*.60,pw=w*.34;let py=h*.14;
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("KEYS RELOCATED BY LAST MEMBERSHIP CHANGE",px,py-8);
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText("KEYS RELOCATED BY LAST MEMBERSHIP CHANGE",px,py-8);
       const rows:[string,number|null,string][]=[["mod N",this.movedMod,this.css("--math-b")],["consistent",this.movedCH,this.css("--math-a")]];
-      for(const[label,val,color]of rows){c.fillStyle=this.css("--ink-soft");c.font="9px IBM Plex Mono";c.fillText(label,px,py+14);
+      for(const[label,val,color]of rows){c.fillStyle=this.css("--ink-soft");c.font="9px Fira Code";c.fillText(label,px,py+14);
         c.strokeStyle=this.css("--rule");c.strokeRect(px+90,py+4,pw-90,12);
         if(val!==null&&this.keys.length){const frac=val/this.keys.length;c.fillStyle=color;c.fillRect(px+90,py+4,(pw-90)*Math.min(1,frac),12);
-          c.fillStyle=this.css("--ink");c.font="600 10px IBM Plex Mono";c.fillText(`${val} (${(frac*100).toFixed(0)}%)`,px+96,py+13);}
-        else{c.fillStyle=this.css("--ink-faint");c.font="9px IBM Plex Mono";c.fillText("add or remove a node",px+96,py+13);}
+          c.fillStyle=this.css("--ink");c.font="600 10px Fira Code";c.fillText(`${val} (${(frac*100).toFixed(0)}%)`,px+96,py+13);}
+        else{c.fillStyle=this.css("--ink-faint");c.font="9px Fira Code";c.fillText("add or remove a node",px+96,py+13);}
         py+=34;}
-      py+=6;c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";
+      py+=6;c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";
       const ideal=Math.round(this.keys.length/Math.max(1,this.nodes.length));
       c.fillText(`ideal share per node ≈ ${ideal} keys`,px,py);
       this.text("[data-state]",`${this.nodes.length} nodes · ${this.vnodes} virtual points each · ${this.keys.length} keys`);}

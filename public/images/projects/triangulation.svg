@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" width="880" height="250" role="img" aria-label="Loose triangles on the left are interned and glued into a closed solid on the right, overlaid with the dual graph the queries walk.">
 <style>
   text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .t    { fill: #131824; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
-  .l    { fill: #131824; font-size: 11px; font-weight: 600; }
-  .s    { fill: #4d5670; font-size: 10px; }
-  .f    { fill: #808aa4; font-size: 9px; letter-spacing: .07em; }
-  .a    { fill: #c8401a; font-size: 10px; font-weight: 600; }
-  .a2   { fill: #4b3fd6; font-size: 10px; font-weight: 600; }
-  .ax   { stroke: #131824; fill: none; stroke-width: 1.2; }
-  .ln   { stroke: #a9b3c9; fill: none; stroke-width: 1; }
-  .hair { stroke: #c4ccdc; fill: none; stroke-width: .8; }
-  .acc  { stroke: #c8401a; fill: none; stroke-width: 1.5; }
-  .acc2 { stroke: #4b3fd6; fill: none; stroke-width: 1.2; }
-  .dot  { fill: #131824; }
-  .dotS { fill: #4d5670; }
-  .dotA { fill: #c8401a; }
-  .panel { fill: #ffffff; fill-opacity: .30; stroke: #a9b3c9; stroke-width: .8; }
-  .wash { fill: #131824; fill-opacity: .05; }
-  .washH { fill: #131824; fill-opacity: .22; }
-  .face { fill: #131824; fill-opacity: .05; stroke: #a9b3c9; stroke-width: 1; }
-  .fillA { fill: #c8401a; fill-opacity: .16; stroke: #c8401a; stroke-width: 1.2; }
-  .fill2 { fill: #4b3fd6; fill-opacity: .14; stroke: #4b3fd6; stroke-width: 1; }
-  .hd   { fill: #4d5670; }
-  .hdA  { fill: #c8401a; }
+  .t    { fill: #3d2b5a; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+  .l    { fill: #3d2b5a; font-size: 11px; font-weight: 600; }
+  .s    { fill: #643f61; font-size: 10px; }
+  .f    { fill: #837a72; font-size: 9px; letter-spacing: .07em; }
+  .a    { fill: #2848a9; font-size: 10px; font-weight: 600; }
+  .a2   { fill: #287980; font-size: 10px; font-weight: 600; }
+  .ax   { stroke: #3d2b5a; fill: none; stroke-width: 1.2; }
+  .ln   { stroke: #aab0ad; fill: none; stroke-width: 1; }
+  .hair { stroke: #d3c7bb; fill: none; stroke-width: .8; }
+  .acc  { stroke: #2848a9; fill: none; stroke-width: 1.5; }
+  .acc2 { stroke: #287980; fill: none; stroke-width: 1.2; }
+  .dot  { fill: #3d2b5a; }
+  .dotS { fill: #643f61; }
+  .dotA { fill: #2848a9; }
+  .panel { fill: #fbf8f6; fill-opacity: .30; stroke: #aab0ad; stroke-width: .8; }
+  .wash { fill: #3d2b5a; fill-opacity: .05; }
+  .washH { fill: #3d2b5a; fill-opacity: .22; }
+  .face { fill: #3d2b5a; fill-opacity: .05; stroke: #aab0ad; stroke-width: 1; }
+  .fillA { fill: #2848a9; fill-opacity: .16; stroke: #2848a9; stroke-width: 1.2; }
+  .fill2 { fill: #287980; fill-opacity: .14; stroke: #287980; stroke-width: 1; }
+  .hd   { fill: #643f61; }
+  .hdA  { fill: #2848a9; }
 </style>
 
 <defs>

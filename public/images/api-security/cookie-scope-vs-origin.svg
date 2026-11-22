@@ -3,22 +3,22 @@
   <desc id="desc">HTTPS services on registry.example at ports 8443 and 9443 are separate origins. A host-only cookie, eligible for both requests, is scoped to their shared host rather than either port. The Host prefix does not add port isolation.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#8d5f36" stroke-width="1.2"/>
+      <path d="M 1 1 L 7 4 L 1 7" fill="none" stroke="#ac5402" stroke-width="1.2"/>
     </marker>
   </defs>
   <style>
-    text { fill: #493426; font-family: Georgia, 'Times New Roman', serif; }
-    .eyebrow { fill: #7c624d; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
+    text { fill: #3d2b5a; font-family: Georgia, 'Times New Roman', serif; }
+    .eyebrow { fill: #643f61; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 2px; }
     .main { font-size: 20px; }
-    .note { fill: #7c624d; font-family: Arial, sans-serif; font-size: 14px; }
+    .note { fill: #643f61; font-family: Arial, sans-serif; font-size: 14px; }
     .mono { font-family: 'Courier New', monospace; }
     .strong { font-size: 15px; }
     .url { font-size: 14px; }
-    .label { fill: #8d5f36; font-family: Arial, sans-serif; font-size: 13px; }
-    .frame, .rule { fill: none; stroke: #c5ad94; stroke-width: 1; }
-    .origin-a { fill: none; stroke: #8d5f36; stroke-width: 1.25; }
-    .origin-b { fill: none; stroke: #617777; stroke-width: 1.25; }
-    .arrow { fill: none; stroke: #8d5f36; stroke-width: 1.25; marker-end: url(#arrow); }
+    .label { fill: #ac5402; font-family: Arial, sans-serif; font-size: 13px; }
+    .frame, .rule { fill: none; stroke: #aab0ad; stroke-width: 1; }
+    .origin-a { fill: none; stroke: #ac5402; stroke-width: 1.25; }
+    .origin-b { fill: none; stroke: #287980; stroke-width: 1.25; }
+    .arrow { fill: none; stroke: #ac5402; stroke-width: 1.25; marker-end: url(#arrow); }
   </style>
   <text x="28" y="30" class="eyebrow">ORIGIN ISOLATION ≠ COOKIE ISOLATION</text>
   <rect x="28" y="63" width="644" height="243" rx="3" class="frame"/>

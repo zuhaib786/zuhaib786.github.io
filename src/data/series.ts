@@ -20,6 +20,9 @@ export interface SeriesMeta {
   order: number;
   /** true = hidden everywhere: no nav, no index card, no built pages */
   draft: boolean;
+  /** optional subfolders, in display order; the series page groups posts
+   *  under these titles (e.g. "stage-0" → src/content/series/<slug>/stage-0/) */
+  sections?: { folder: string; title: string }[];
 }
 
 export const allSeries: SeriesMeta[] = [
@@ -58,6 +61,22 @@ export const allSeries: SeriesMeta[] = [
       "API security through a package registry in Zig: HTTP parsing, resource limits, TLS, authentication, and authorization, with small examples and explicit tradeoffs.",
     order: 4,
     draft: false,
+  },
+  {
+    slug: "rl-for-llms",
+    cover: "policy-gradient",
+    title: "RL for LLMs, in Code",
+    description:
+      "Reinforcement learning for language models from the policy gradient up: Pong from pixels, GRPO, verifiers environments and reward hacking, with the code for every lab.",
+    order: 5,
+    draft: false,
+    sections: [
+      { folder: "stage-f", title: "Stage F · Foundations" },
+      { folder: "stage-0", title: "Stage 0 · Policy gradients and GRPO" },
+      { folder: "stage-1", title: "Stage 1 · How RL for LLMs fails" },
+      { folder: "stage-2", title: "Stage 2 · Reference environments" },
+      { folder: "stage-3", title: "Stage 3 · Training at scale" },
+    ],
   },
 ];
 

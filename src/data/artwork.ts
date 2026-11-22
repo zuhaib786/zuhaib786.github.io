@@ -1,7 +1,7 @@
 /** Explicit cover choices, shared by content validation and presentation. */
 export const artworkKinds = [
   "zig-memory", "api-boundaries", "storage-layers", "gpu-lanes",
-  "camera-projection", "event-loop", "troubled-cells",
+  "camera-projection", "event-loop", "troubled-cells", "policy-gradient",
 ] as const;
 
 export type ArtworkKind = (typeof artworkKinds)[number];
@@ -13,5 +13,6 @@ export const artworkDescriptions: Record<ArtworkKind, string> = {
   "gpu-lanes": "A grid of parallel GPU threads, with one workgroup highlighted and connected to shared memory.",
   "camera-projection": "Rays from a calibration checkerboard pass through a virtual image plane and converge at a camera center.",
   "event-loop": "An event loop cycles between polling for I/O, queuing ready work, and running callbacks; CPU work occupies the callback stage.",
+  "policy-gradient": "A policy samples a group of rollouts from one prompt. Each is scored, compared with the group mean, and the gradient pushes up the ones that beat it.",
   "troubled-cells": "A discontinuity crosses a one-dimensional mesh. Only nearby cells are highlighted for limiting, with graph edges connecting neighboring cells.",
 };

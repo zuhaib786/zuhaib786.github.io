@@ -69,7 +69,7 @@
       const chartH=h*.14,chartY=h-chartH-10,pad=w*.04;c.strokeStyle=this.css("--rule");c.strokeRect(pad,chartY,w-pad*2,chartH);
       const series=this.mode==="life"?this.density:this.history.map(r=>r.reduce((a,b)=>a+b,0)/this.cols);
       if(series.length>1){const max=Math.max(...series,.001);c.strokeStyle=this.css("--math-b");c.lineWidth=1.3;c.beginPath();series.forEach((v,n)=>{const px=pad+n/(series.length-1)*(w-pad*2),py=chartY+chartH-(v/max)*chartH*.94;n?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();}
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText(this.mode==="life"?"population history":"mean activity",pad+6,chartY+11);
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText(this.mode==="life"?"population history":"mean activity",pad+6,chartY+11);
       this.text("[data-metric-1]",String(this.gen));this.text("[data-metric-2]",((this.mode==="life"?this.population()/this.grid.length:(series[series.length-1]??0))*100).toFixed(1)+"%");}
     text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
     setValue(q:string,v:number){const e=this.querySelector<HTMLInputElement>(q);if(e)e.value=String(v)}

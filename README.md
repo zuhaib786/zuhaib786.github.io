@@ -68,24 +68,6 @@ numbered by date. Notes on what's supported in the body:
 Preview drafts locally: the dev server hides `draft: true` content too, so flip
 the flag to check it, or just build with the flag off and don't push.
 
-## Adding study notes
-
-Same idea, in `src/content/notes/`. Notes are grouped by `topic` and ordered by
-`order` (not date), so chapters stay in sequence:
-
-```markdown
----
-title: "Chapter 3: Storage and Retrieval"
-description: "Short notes on Chapter 3 of Designing Data-Intensive Applications"
-date: 2026-06-10
-topic: "Designing Data-Intensive Applications"
-order: 3
-draft: true
----
-```
-
-A new `topic` value automatically creates a new group on the `/notes` page.
-
 ## Adding a series (folders of posts)
 
 A **series** is a folder of related posts that gets its own page under `/series`
@@ -125,6 +107,12 @@ Body in markdown (same features as articles: code, math, images)...
 That's it — the series appears in the nav, on the homepage, and on `/series`,
 with its posts listed in `order`.
 
+**Foldered series:** posts can live in subfolders
+(`src/content/series/<slug>/<folder>/<post>.md` → `/series/<slug>/<folder>/<post>`).
+List the folders as `sections: [{ folder, title }]` in `src/data/series.ts`, and the
+series page groups posts under those titles in that order. `rl-for-llms` is set up
+this way, one folder per roadmap stage.
+
 **Hiding a whole series:** set `draft: true` for it in `src/data/series.ts`. The
 series and *every* post inside it then disappear completely — no nav link, no
 card, and no pages are built at all (so nothing leaks even if a post forgets its
@@ -149,7 +137,6 @@ flip its `draft` to `false` when you're ready to publish it.
 src/
 ├── content/
 │   ├── blog/          ← standalone articles (markdown)
-│   ├── notes/         ← study notes (markdown)
 │   └── series/        ← folders of posts, one subfolder per series
 ├── content.config.ts  ← frontmatter schemas
 ├── data/series.ts     ← series registry (titles, order, draft/hidden)

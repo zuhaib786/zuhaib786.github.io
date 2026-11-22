@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 390" width="700" height="390" role="img" aria-labelledby="title desc">
+  <title id="title">LDAP filter injection changes the query</title>
+  <desc id="desc">The template requires an exact common name and membership. A literal username finds one entry, while an unescaped asterisk or closing parenthesis and wildcard changes the filter and wrongly allows access. A presence test is not membership; escaping the literal asterisk prevents it becoming an operator.</desc>
+  <style>text{fill:#e6d3bc;font-family:Georgia,'Times New Roman',serif}.eyebrow{fill:#bea88e;font:11px Arial,sans-serif;letter-spacing:1.6px}.main{font-size:19px}.note{fill:#bea88e;font:14px Arial,sans-serif}.mono{font:14px 'Courier New',monospace}.label{font:12px Arial,sans-serif}.frame,.rule{fill:none;stroke:#78624d;stroke-width:1}.good{fill:none;stroke:#d6ab7c;stroke-width:1.3}.bad{fill:none;stroke:#e29a89;stroke-width:1.3}.goodtxt{fill:#d6ab7c;font:13px Arial,sans-serif}.badtxt{fill:#e29a89;font:13px Arial,sans-serif}</style>
+  <text x="28" y="30" class="eyebrow">FILTER CONSTRUCTION</text><text x="28" y="68" class="main">A value can become filter syntax</text>
+  <rect x="28" y="86" width="644" height="54" rx="3" class="frame"/><text x="43" y="119" class="mono" textLength="151.2" lengthAdjust="spacingAndGlyphs">(&amp;(cn=sre)(member=</text><text x="194.2" y="119" class="mono" fill="#e29a89" font-weight="bold" textLength="42" lengthAdjust="spacingAndGlyphs">VALUE</text><text x="236.2" y="119" class="mono">))</text>
+  <path d="M194 125v9h42v-9" class="bad"/><text x="248" y="130" class="label" fill="#e29a89">untrusted insertion point</text>
+  <text x="28" y="169" class="label">INPUT</text><text x="314" y="169" class="label">MATCHES</text><text x="476" y="169" class="label">DECISION</text><path d="M28 178h644 M28 226h644 M28 274h644 M28 322h644" class="rule"/>
+  <text x="36" y="207" class="mono">uid=rahul,ou=people,…</text><text x="337" y="207" class="mono">1 entry</text><text x="490" y="207" class="goodtxt">genuine member</text>
+  <text x="36" y="255" class="mono">*</text><text x="337" y="255" class="mono">1 entry</text><text x="490" y="255" class="badtxt">wrongly allowed</text>
+  <text x="36" y="303" class="mono">*)(cn=*</text><text x="337" y="303" class="mono">1 entry</text><text x="490" y="303" class="badtxt">wrongly allowed</text>
+  <text x="28" y="352" class="note">(member=*) tests whether the attribute exists; it does not test membership.</text><text x="28" y="375" class="note">Escape literal * as \2a so it stays data instead of becoming an operator.</text>
+</svg>

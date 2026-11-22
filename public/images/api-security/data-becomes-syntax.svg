@@ -1,35 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 254" width="700" height="254" role="img">
-<rect x="0" y="0" width="700" height="254" fill="#ffffff"/>
-<text x="24" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#15181f" text-anchor="start">x', 'ts'); DROP TABLE versions;--</text>
-<rect x="24" y="44" width="652" height="1.2" rx="0" fill="#c9d0dc"/>
-<text x="24" y="94" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#cf4520" text-anchor="start">interpolated</text>
-<rect x="220" y="74" width="200" height="34" rx="3" fill="#fbe7e0"/>
-<rect x="220" y="74" width="200" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="220" y="106.8" width="200" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="220" y="74" width="1.2" height="34" rx="0" fill="#cf4520"/>
-<rect x="418.8" y="74" width="1.2" height="34" rx="0" fill="#cf4520"/>
-<text x="234" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">SQL</text>
-<text x="406" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#cf4520" text-anchor="end">2 statements</text>
-<rect x="460" y="74" width="200" height="34" rx="3" fill="#fbe7e0"/>
-<rect x="460" y="74" width="200" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="460" y="106.8" width="200" height="1.2" rx="0" fill="#cf4520"/>
-<rect x="460" y="74" width="1.2" height="34" rx="0" fill="#cf4520"/>
-<rect x="658.8" y="74" width="1.2" height="34" rx="0" fill="#cf4520"/>
-<text x="474" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">JSON</text>
-<text x="646" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#cf4520" text-anchor="end">2 keys</text>
-<text x="24" y="182" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#3b4fd6" text-anchor="start">bound / encoded</text>
-<rect x="220" y="162" width="200" height="34" rx="3" fill="#e6e9fc"/>
-<rect x="220" y="162" width="200" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="220" y="194.8" width="200" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="220" y="162" width="1.2" height="34" rx="0" fill="#3b4fd6"/>
-<rect x="418.8" y="162" width="1.2" height="34" rx="0" fill="#3b4fd6"/>
-<text x="234" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">SQL</text>
-<text x="406" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#3b4fd6" text-anchor="end">1 statement</text>
-<rect x="460" y="162" width="200" height="34" rx="3" fill="#e6e9fc"/>
-<rect x="460" y="162" width="200" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="460" y="194.8" width="200" height="1.2" rx="0" fill="#3b4fd6"/>
-<rect x="460" y="162" width="1.2" height="34" rx="0" fill="#3b4fd6"/>
-<rect x="658.8" y="162" width="1.2" height="34" rx="0" fill="#3b4fd6"/>
-<text x="474" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#737b8c" text-anchor="start">JSON</text>
-<text x="646" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#3b4fd6" text-anchor="end">1 value</text>
+<rect x="0" y="0" width="700" height="254" fill="#fbf8f6"/>
+<text x="24" y="32" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="700" fill="#3d2b5a" text-anchor="start">x', 'ts'); DROP TABLE versions;--</text>
+<rect x="24" y="44" width="652" height="1.2" rx="0" fill="#d3c7bb"/>
+<text x="24" y="94" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#a5222f" text-anchor="start">interpolated</text>
+<rect x="220" y="74" width="200" height="34" rx="3" fill="#ecd9d7"/>
+<rect x="220" y="74" width="200" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="220" y="106.8" width="200" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="220" y="74" width="1.2" height="34" rx="0" fill="#a5222f"/>
+<rect x="418.8" y="74" width="1.2" height="34" rx="0" fill="#a5222f"/>
+<text x="234" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="start">SQL</text>
+<text x="406" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a5222f" text-anchor="end">2 statements</text>
+<rect x="460" y="74" width="200" height="34" rx="3" fill="#ecd9d7"/>
+<rect x="460" y="74" width="200" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="460" y="106.8" width="200" height="1.2" rx="0" fill="#a5222f"/>
+<rect x="460" y="74" width="1.2" height="34" rx="0" fill="#a5222f"/>
+<rect x="658.8" y="74" width="1.2" height="34" rx="0" fill="#a5222f"/>
+<text x="474" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="start">JSON</text>
+<text x="646" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#a5222f" text-anchor="end">2 keys</text>
+<text x="24" y="182" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#2848a9" text-anchor="start">bound / encoded</text>
+<rect x="220" y="162" width="200" height="34" rx="3" fill="#dddee6"/>
+<rect x="220" y="162" width="200" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="220" y="194.8" width="200" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="220" y="162" width="1.2" height="34" rx="0" fill="#2848a9"/>
+<rect x="418.8" y="162" width="1.2" height="34" rx="0" fill="#2848a9"/>
+<text x="234" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="start">SQL</text>
+<text x="406" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#2848a9" text-anchor="end">1 statement</text>
+<rect x="460" y="162" width="200" height="34" rx="3" fill="#dddee6"/>
+<rect x="460" y="162" width="200" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="460" y="194.8" width="200" height="1.2" rx="0" fill="#2848a9"/>
+<rect x="460" y="162" width="1.2" height="34" rx="0" fill="#2848a9"/>
+<rect x="658.8" y="162" width="1.2" height="34" rx="0" fill="#2848a9"/>
+<text x="474" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" font-weight="400" fill="#824d5b" text-anchor="start">JSON</text>
+<text x="646" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#2848a9" text-anchor="end">1 value</text>
 </svg>

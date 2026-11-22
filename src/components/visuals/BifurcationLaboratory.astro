@@ -64,7 +64,7 @@
       c.strokeStyle=this.css("--rule");c.beginPath();c.moveTo(tx,ty);c.lineTo(tx,ty+th);c.moveTo(tx,ty+th);c.lineTo(tx+tw,ty+th);c.stroke();
       c.strokeStyle=this.css("--math-a");c.lineWidth=1.2;c.beginPath();
       const shown=Math.min(140,this.orbit.length);for(let n=0;n<shown;n++){const v=this.orbit[(Math.floor(this.clock)+n)%this.orbit.length],px=tx+n/(shown-1)*tw,py=ty+th-v*th;n?c.lineTo(px,py):c.moveTo(px,py);}c.stroke();
-      c.fillStyle=this.css("--ink-faint");c.font="8px IBM Plex Mono";c.fillText("cobweb · seed trajectory",tx,ty-6);}
+      c.fillStyle=this.css("--ink-faint");c.font="8px Fira Code";c.fillText("cobweb · seed trajectory",tx,ty-6);}
     text(q:string,s:string){const e=this.querySelector(q);if(e)e.textContent=s}
     setValue(q:string,v:number){const e=this.querySelector<HTMLInputElement>(q);if(e)e.value=String(v)}
   }

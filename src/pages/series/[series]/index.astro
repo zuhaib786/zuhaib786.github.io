@@ -22,6 +22,27 @@ const posts = (
 ).sort((a, b) => a.data.order - b.data.order);
 
 const postSlug = (id: string) => id.split("/").slice(1).join("/");
+
+// A series with `sections` keeps posts in subfolders; each folder becomes a
+// titled group. Posts at the series root (or in an unlisted folder) come first.
+const folderOf = (id: string) => {
+  const parts = id.split("/");
+  return parts.length > 2 ? parts[1] : "";
+};
+const groups = meta.sections
+  ? [
+      {
+        title: "",
+        posts: posts.filter(
+          (p) => !meta.sections!.some((s) => s.folder === folderOf(p.id)),
+        ),
+      },
+      ...meta.sections.map((s) => ({
+        title: s.title,
+        posts: posts.filter((p) => folderOf(p.id) === s.folder),
+      })),
+    ].filter((g) => g.posts.length > 0)
+  : [{ title: "", posts }];
 ---
 
 <Base
@@ -45,14 +66,19 @@ const postSlug = (id: string) => id.split("/").slice(1).join("/");
     }
 
     {
-      posts.map((post) => (
-        <EntryRow
-          href={`/series/${meta.slug}/${postSlug(post.id)}`}
-          number={String(post.data.order).padStart(2, "0")}
-          title={post.data.title}
-          description={post.data.description}
-          date={post.data.date}
-        />
+      groups.map((group) => (
+        <>
+          {group.title && <h2 class="section-title label">{group.title}</h2>}
+          {group.posts.map((post) => (
+            <EntryRow
+              href={`/series/${meta.slug}/${postSlug(post.id)}`}
+              number={String(post.data.order).padStart(2, "0")}
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+            />
+          ))}
+        </>
       ))
     }
   </section>
@@ -100,6 +126,13 @@ const postSlug = (id: string) => id.split("/").slice(1).join("/");
   .standfirst {
     max-width: 38rem;
     color: var(--ink-soft);
+  }
+
+  .section-title {
+    margin: 2.5rem 0 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    font-weight: 400;
   }
 
   .empty {

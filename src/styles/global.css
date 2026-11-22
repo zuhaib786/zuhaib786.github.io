@@ -1,31 +1,41 @@
+/* Light theme: dayfox (nightfox.nvim), the editor's light colorscheme.
+   Text steps down dayfox's own fg1 -> fg2 -> fg3; its comment grey is kept
+   for code only, being too faint (3.8:1) for small interface labels. */
 :root {
-  --ink: #222943;
-  --ink-soft: #606779;
-  --ink-faint: #737b90;
-  --paper: #f8f9fc;
-  --paper-raised: #ffffff;
-  --paper-sunken: #eceefa;
-  --panel: #f8f9fc;
-  --rule: #dfe3ed;
-  --rule-strong: #b6bdd1;
-  --rule-heavy: #222943;
-  --accent: #465de0;
-  --accent-2: #a87826;
-  --accent-soft: #dfe4ff;
-  --interact: #3345af;
-  --code-wash: #eef0f7;
+  --ink: #3d2b5a; /* fg1 */
+  --ink-soft: #643f61; /* fg2 */
+  --ink-faint: #824d5b; /* fg3 */
+  --paper: #f6f2ee; /* bg1 */
+  --paper-raised: #fbf8f6; /* bg1, halfway to white */
+  --paper-sunken: #f2e9e1; /* white */
+  --panel: #f6f2ee;
+  --rule: #e4dcd4; /* bg0 */
+  --rule-strong: #aab0ad; /* bg4, dayfox's border colour */
+  --rule-heavy: #3d2b5a;
+  --accent: #2848a9; /* blue */
+  --accent-2: #ac5402; /* yellow */
+  --accent-soft: #dddee6; /* bg1 blended 12% toward blue */
+  --interact: #223d90; /* blue, dim */
+  /* the editor background these posts are written against */
+  --code-wash: #f6f2ee;
 
   /* Compatibility tokens used by the interactive laboratories. */
-  --glass: rgba(255, 255, 255, 0.8);
-  --glass-strong: rgba(248, 249, 252, 0.95);
+  --glass: rgba(251, 248, 246, 0.8);
+  --glass-strong: rgba(246, 242, 238, 0.95);
   --glass-border: var(--rule);
   --glass-highlight: rgba(255, 255, 255, 0.7);
-  --glass-shadow: 0 12px 34px rgba(54, 45, 30, 0.1);
+  --glass-shadow: 0 12px 34px rgba(53, 44, 36, 0.1);
   --paper-2: var(--paper-sunken);
   --sheen: rgba(255, 255, 255, 0.45);
-  --reseau: rgba(16, 43, 58, 0.035);
-  --reseau-major: rgba(16, 43, 58, 0.065);
-  --fiducial: rgba(16, 43, 58, 0.24);
+  --reseau: rgba(61, 43, 90, 0.035);
+  --reseau-major: rgba(61, 43, 90, 0.065);
+  --fiducial: rgba(61, 43, 90, 0.24);
+  /* Categorical series for the laboratories, in dayfox order. */
+  --series-1: #2848a9; --series-2: #ac5402; --series-3: #396847; --series-4: #6e33ce;
+  --series-5: #955f61; --series-6: #a5222f; --series-7: #287980; --series-8: #a440b5;
+  --series-9: #4863b6; --series-10: #b86e28; --series-11: #577f63; --series-12: #b3434e;
+  --signal-ok: #396847;
+  --signal-bad: #a5222f;
   --hover-glow: none;
   --underline-glow: none;
   --sky-from: var(--paper);
@@ -37,9 +47,7 @@
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
     "Times New Roman", serif;
-  --font-sans: "Avenir Next", Avenir, "Segoe UI", ui-sans-serif, -apple-system, BlinkMacSystemFont,
-    sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+  --font-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
 
   --gutter: clamp(1rem, 3.5vw, 3rem);
@@ -73,6 +81,11 @@ html[data-theme="dark"] {
   --reseau: rgba(244, 239, 228, 0.035);
   --reseau-major: rgba(244, 239, 228, 0.065);
   --fiducial: rgba(244, 239, 228, 0.24);
+  --series-1: #6fd6ff; --series-2: #ff8b59; --series-3: #59c99b; --series-4: #c98bff;
+  --series-5: #ffd15c; --series-6: #ff657a; --series-7: #8ef0d2; --series-8: #f2a2ff;
+  --series-9: #a9c6ff; --series-10: #ffc27a; --series-11: #7de08a; --series-12: #ff9db8;
+  --signal-ok: #34b886;
+  --signal-bad: #d94b50;
   color-scheme: dark;
 }
 
@@ -92,7 +105,7 @@ body {
   min-width: 20rem;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 1rem;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
@@ -170,7 +183,7 @@ canvas {
 
 .label {
   color: var(--ink-soft);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -420,7 +433,7 @@ html[data-theme="dark"] .prose pre span {
 .prose figcaption {
   margin-top: 0.65rem;
   color: var(--ink-soft);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 0.78rem;
 }
 
